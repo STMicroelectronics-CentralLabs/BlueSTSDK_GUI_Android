@@ -1,0 +1,30 @@
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swiperRefreshDeviceList"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.st.BlueMS.NodeFragmentList">
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@android:id/list"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        app:layoutManager="LinearLayoutManager"
+        tools:listitem="@layout/node_list_item"/>
+
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/swipeToUpdate"
+        android:gravity="center"/>
+
+</android.support.v4.widget.SwipeRefreshLayout>
+

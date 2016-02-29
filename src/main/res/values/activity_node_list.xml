@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="swipeToUpdate">Swipe to update </string>
+    <string name="clearListMenu">Clear</string>
+    <string name="startScanMenu">Start Scan</string>
+    <string name="StopScanMenu">Stop Scan</string>
+    <string name="ClearDeviceCacheMenu">Clear device cache</string>
+    <string name="AddNodeEmulator">Add virtual node</string>
+    <string name="ClearDeviceCacheMenuEnabled">&#x2713;Clear device cache</string>
+    <string name="title_activity_node_list">Device List</string>
+</resources>

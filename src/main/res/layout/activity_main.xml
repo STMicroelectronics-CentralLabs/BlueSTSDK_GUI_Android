@@ -1,0 +1,83 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context="com.st.BlueSTSDK.gui.MainActivity">
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+    <ImageView android:id="@+id/splashScreen_content"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center"
+              android:keepScreenOn="true"
+              android:src="@drawable/splash"
+              android:scaleType="fitXY"
+               android:visibility="visible"/>
+
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows.-->
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:fitsSystemWindows="true"
+                 android:visibility="visible">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:background="#FFFFFF"
+            android:id="@+id/main_content_controls">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/startScanButton"
+                android:background="@drawable/search_button_icon"
+                android:id="@+id/searchButton"
+                android:gravity="bottom|center_horizontal"
+                android:onClick="startScanBleActivity" android:layout_above="@+id/aboutButton"
+                android:layout_centerHorizontal="true" android:layout_margin="16dp"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/startAboutButton"
+                android:background="@drawable/about_button_icon"
+                android:id="@+id/aboutButton"
+                android:onClick="startAboutActivity"
+                android:gravity="bottom|center_horizontal"
+                android:layout_above="@+id/appNameText" android:layout_centerHorizontal="true"
+                android:layout_margin="16dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/copyright"
+                android:id="@+id/copyrightText"
+                android:textColor="@color/colorPrimary"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/version"
+                android:id="@+id/versionText"
+                android:textColor="@color/colorPrimary"
+                android:layout_above="@+id/copyrightText" android:layout_alignParentEnd="true"
+                android:layout_marginEnd="@dimen/activity_vertical_margin"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/appNameText"
+                android:textColor="@color/colorPrimary"
+                android:layout_above="@+id/versionText" android:layout_alignParentEnd="true"
+                android:layout_marginEnd="@dimen/activity_vertical_margin"/>
+        </RelativeLayout>
+    </FrameLayout>
+
+</FrameLayout>
