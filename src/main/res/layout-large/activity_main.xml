@@ -14,10 +14,13 @@
                  android:visibility="visible">
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:background="@android:color/white"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:visibility="invisible"
             android:id="@+id/main_content_controls">
             <Button
                 android:layout_width="wrap_content"
@@ -26,8 +29,9 @@
                 android:background="@drawable/search_button_icon"
                 android:id="@+id/searchButton"
                 android:gravity="bottom|center_horizontal"
-                android:onClick="startScanBleActivity" android:layout_above="@+id/aboutButton"
-                android:layout_centerHorizontal="true" android:layout_margin="16dp"/>
+                android:onClick="startScanBleActivity"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"/>
 
             <Button
                 android:layout_width="wrap_content"
@@ -37,8 +41,10 @@
                 android:id="@+id/aboutButton"
                 android:onClick="startAboutActivity"
                 android:gravity="bottom|center_horizontal"
-                android:layout_above="@+id/appNameText" android:layout_centerHorizontal="true"
+                android:layout_above="@+id/appNameText"
+                android:layout_centerHorizontal="true"
                 android:layout_margin="16dp"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -47,9 +53,7 @@
                 android:id="@+id/copyrightText"
                 android:textColor="@color/colorPrimary"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="@dimen/activity_vertical_margin"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:layout_alignParentEnd="true"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -57,16 +61,15 @@
                 android:text="@string/version"
                 android:id="@+id/versionText"
                 android:textColor="@color/colorPrimary"
-                android:layout_above="@+id/copyrightText" android:layout_alignParentEnd="true"
-                android:layout_marginEnd="@dimen/activity_vertical_margin"/>
+                android:layout_above="@+id/copyrightText"
+                android:layout_alignParentEnd="true"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/appNameText"
                 android:textColor="@color/colorPrimary"
-                android:layout_above="@+id/versionText" android:layout_alignParentEnd="true"
-                android:layout_marginEnd="@dimen/activity_vertical_margin"/>
+                android:layout_above="@+id/versionText" android:layout_alignParentEnd="true"/>
         </RelativeLayout>
     </FrameLayout>
 

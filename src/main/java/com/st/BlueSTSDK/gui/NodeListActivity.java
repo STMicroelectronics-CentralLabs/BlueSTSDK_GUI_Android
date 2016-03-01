@@ -1,8 +1,6 @@
 package com.st.BlueSTSDK.gui;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -212,7 +210,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         setRefreshing(mSwipeLayout, true);
         super.startNodeDiscovery(SCAN_TIME_MS);
         invalidateOptionsMenu();
-        // mManager.addVirtualNode();
+        mManager.addVirtualNode();
     }
 
     /**
@@ -232,6 +230,10 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
                 swipeRefreshLayout.setRefreshing(isRefreshing);
             }
         });
+    }
+
+    protected boolean clearCacheIsSelected(){
+        return mClearDeviceCache;
     }
 
 }

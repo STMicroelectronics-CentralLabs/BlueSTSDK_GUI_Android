@@ -100,16 +100,15 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
     private Handler mUIThread = new Handler(Looper.getMainLooper());
 
     @Override
-    public void onNodeDiscovered(Manager m, Node node) {
+    public void onNodeDiscovered(Manager m,final Node node) {
         if(mFilterNode.displayNode(node)){
-            mValues.add(node);
             mUIThread.post(new Runnable() {
                 @Override
                 public void run() {
+                    mValues.add(node);
                     notifyItemInserted(mValues.size() - 1);
                 };
             });
-
         }//if
     }//onNodeDiscovered
 

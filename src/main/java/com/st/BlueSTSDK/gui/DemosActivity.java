@@ -60,8 +60,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
             ".SHOW_HELP";
 
 
-    protected abstract List<Class<? extends DemoFragment>> getAllDemos();
-
+    protected abstract Class<? extends DemoFragment>[] getAllDemos();
 
     /**
      * create an intent for start this activity
@@ -72,7 +71,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
      */
     public static Intent getStartIntent(Context c, @NonNull Node node) {
         Intent i = new Intent(c, DemosActivity.class);
-        i.putExtras(NodeContainerFragment.prepareArguments(node));
+        setIntentParamiters(i,node,false);
         return i;
     }//getStartIntent
 
@@ -86,9 +85,13 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
      */
     public static Intent getStartIntent(Context c, @NonNull Node node, boolean resetCache) {
         Intent i = new Intent(c, DemosActivity.class);
-        i.putExtras(NodeContainerFragment.prepareArguments(node, resetCache));
+        setIntentParamiters(i,node,resetCache);
         return i;
     }//getStartIntent
+
+    protected static void setIntentParamiters(Intent i, @NonNull Node node, boolean resetCache){
+        i.putExtras(NodeContainerFragment.prepareArguments(node, resetCache));
+    }
 
     /*
      * widget that will contain all the demo fragment
@@ -498,10 +501,10 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
             return requireOneOf.length == 0;
         }//demoIsWorking
 
-        public DemosTabAdapter(@NonNull Node node,List<Class<? extends
-                DemoFragment>> demos, FragmentManager fm) {
+        public DemosTabAdapter(@NonNull Node node,Class<? extends
+                DemoFragment>[] demos, FragmentManager fm) {
             super(fm);
-            for (Class<? extends DemoFragment> demo :demos ) {
+            for (Class<? extends DemoFragment> demo : demos ) {
                 if (demoIsWorking(demo, node))
                     mDemos.add(demo);
             }//for
