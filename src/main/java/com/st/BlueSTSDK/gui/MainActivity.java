@@ -22,7 +22,7 @@ public abstract class MainActivity extends AppCompatActivity {
      * user interaction before hiding the system UI.
      */
     private static final int AUTO_HIDE_DELAY_MILLIS = 2000;
-
+    private static boolean sSplashWasShown=false;
     /**
      * Some older devices needs a small delay between UI widget updates
      * and a change of the status and navigation bar.
@@ -57,6 +57,7 @@ public abstract class MainActivity extends AppCompatActivity {
                 actionBar.show();
             }
             mControlsView.setVisibility(View.VISIBLE);
+            sSplashWasShown=true;
 
         }
     };
@@ -106,8 +107,12 @@ public abstract class MainActivity extends AppCompatActivity {
         // Trigger the initial showSplashScreen() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
         // are available.
-        showSplashScreen();
-        delayedShowContent(AUTO_HIDE_DELAY_MILLIS);
+        if(!sSplashWasShown) {
+            showSplashScreen();
+            delayedShowContent(AUTO_HIDE_DELAY_MILLIS);
+        }else{
+            mControlsView.setVisibility(View.VISIBLE);
+        }
     }
 
 

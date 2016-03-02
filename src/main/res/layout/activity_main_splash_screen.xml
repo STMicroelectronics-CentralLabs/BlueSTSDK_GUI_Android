@@ -5,4 +5,6 @@
            android:id="@+id/splashScreen_content"
            android:gravity="center"
            android:keepScreenOn="true"
-           android:background="@drawable/start_screen_logo"/>
+           android:background="@android:color/background_light"
+           android:src="@drawable/start_screen_logo"
+           android:scaleType="fitXY"/>
