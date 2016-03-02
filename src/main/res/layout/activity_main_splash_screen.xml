@@ -5,5 +5,4 @@
            android:id="@+id/splashScreen_content"
            android:gravity="center"
            android:keepScreenOn="true"
-           android:src="@drawable/start_screen_logo"
-           android:visibility="invisible"/>
+           android:background="@drawable/start_screen_logo"/>

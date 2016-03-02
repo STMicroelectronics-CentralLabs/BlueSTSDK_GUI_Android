@@ -20,7 +20,6 @@
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:background="@android:color/white"
             android:visibility="invisible"
             android:id="@+id/main_content_controls">
             <Button
