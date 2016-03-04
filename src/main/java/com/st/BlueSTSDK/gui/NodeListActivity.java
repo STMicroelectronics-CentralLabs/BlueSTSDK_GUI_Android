@@ -1,19 +1,23 @@
 package com.st.BlueSTSDK.gui;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.NodeScanActivity;
+import com.st.BlueSTSDK.gui.util.DividerItemDecoration;
 
 public abstract class NodeListActivity extends NodeScanActivity implements NodeRecyclerViewAdapter
-.OnNodeSelectedListener, NodeRecyclerViewAdapter.FilterNode{
+.OnNodeSelectedListener, NodeRecyclerViewAdapter.FilterNode, View.OnClickListener{
     private final static String TAG = NodeListActivity.class.getCanonicalName();
 
     private Manager.ManagerListener mUpdateDiscoverGui = new Manager.ManagerListener() {
@@ -70,6 +74,9 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
      * SwipeLayout used for refresh the list when the user pull down the fragment
      */
     private SwipeRefreshLayout mSwipeLayout;
+
+    private FloatingActionButton mStartStopButton;
+
     /**
      * class that manage the node discovery
      */
@@ -106,6 +113,8 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         // Set the adapter
         RecyclerView recyclerView = (RecyclerView) findViewById(android.R.id.list);
         recyclerView.setAdapter(mAdapter);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL_LIST));
 
         mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id
                 .swiperRefreshDeviceList);
@@ -123,6 +132,8 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
                 R.color.swipeColor_3, R.color.swipeColor_4);
 
         mSwipeLayout.setSize(SwipeRefreshLayout.DEFAULT);
+        mStartStopButton = (FloatingActionButton) findViewById(R.id.fab);
+        mStartStopButton.setOnClickListener(this);
 
     }
 
@@ -176,15 +187,6 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.menu_start_scan) {
-            resetNodeList();
-            startNodeDiscovery();
-            return true;
-        }//else
-        if (id == R.id.menu_stop_scan) {
-            stopNodeDiscovery();
-            return true;
-        }//else
         if (id == R.id.action_clear_list) {
             resetNodeList();
             return true;
@@ -209,7 +211,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
     private void startNodeDiscovery() {
         setRefreshing(mSwipeLayout, true);
         super.startNodeDiscovery(SCAN_TIME_MS);
-        invalidateOptionsMenu();
+        mStartStopButton.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
         mManager.addVirtualNode();
     }
 
@@ -219,7 +221,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
     @Override
     public void stopNodeDiscovery() {
         super.stopNodeDiscovery();
-        invalidateOptionsMenu();
+        mStartStopButton.setImageResource(android.R.drawable.ic_menu_search);
         setRefreshing(mSwipeLayout, false);
     }
 
@@ -232,8 +234,17 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         });
     }
 
+    public void onClick(View view) {
+        if(mManager.isDiscovering()){
+            stopNodeDiscovery();
+        }else{
+            startNodeDiscovery();
+        }
+    }
+
     protected boolean clearCacheIsSelected(){
         return mClearDeviceCache;
     }
+
 
 }
