@@ -6,7 +6,17 @@
         android:allowBackup="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
+        <activity
+            android:name=".DebugConsoleActivity"
+            android:label="@string/title_activity_debug_console"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings">
+        </activity>
     </application>
+
+
 
 </manifest>

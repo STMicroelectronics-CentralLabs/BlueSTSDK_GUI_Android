@@ -33,6 +33,7 @@ import com.st.BlueSTSDK.Log.FeatureLogLogCat;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.BlueSTSDK.gui.demos.DemoFragment;
+import com.st.BlueSTSDK.gui.preferences.LogPreferenceFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -334,8 +335,8 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
     @Override
     protected Feature.FeatureLoggerListener getLogger() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String logType = "";//sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_STORE, "LogCat");
-        String dumpPath = ""; //sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_DUMP_PATH,"");
+        String logType = sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_STORE, "LogCat");
+        String dumpPath =sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_DUMP_PATH,"");
         switch (logType) {
             case "LogCat":
                 return new FeatureLogLogCat();
@@ -355,7 +356,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
     protected String getLogDirectory(){
         final SharedPreferences sharedPref = PreferenceManager
                                 .getDefaultSharedPreferences(DemosActivity.this);
-        return "";// sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_DUMP_PATH,"");
+        return sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_DUMP_PATH,"");
     }
 
     /**
@@ -425,14 +426,13 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
 
         if (id == R.id.settings) {
             mNodeContainer.keepConnectionOpen(true);
-            //startActivity(SettingsActivity.getStartIntent(this, mNodeContainer.getNode()));
+            startSettingsActivity(this, mNodeContainer.getNode());
             return true;
         }
 
         if(id == R.id.openDebugConsole){
-            //Intent i = DebugConsoleActivity.getStartIntent(this, mNodeContainer.getNode());
             mNodeContainer.keepConnectionOpen(true);
-            //startActivity(i);
+            startDebugConsoleActivity(this, mNodeContainer.getNode());
             return true;
         }
 
@@ -463,6 +463,25 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
         return false;
     }//onNavigationItemSelected
 
+    /**
+     * start an activity that will show the debug console
+     * @param c context used for create the intent
+     * @param n node where send the message
+     */
+    protected void startDebugConsoleActivity(Context c,Node n){
+        Intent i = DebugConsoleActivity.getStartIntent(c,n);
+        startActivity(i);
+    }
+
+    /**
+     * start an activity where the use can change the settings
+     * @param c context used for create the intent
+     * @param n node that will be configurated
+     */
+    protected void startSettingsActivity(Context c,Node n){
+        Intent i = SettingsActivity.getStartIntent(c,n);
+        startActivity(i);
+    }
 
     /**
      * adapter that contains all the demos to show. The demos are a subset of {@code

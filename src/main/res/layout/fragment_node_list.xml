@@ -10,5 +10,5 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context="com.st.stblestar.NodeListFragment"
+    tools:context="com.st.SensNet.NodeListFragment"
     tools:listitem="@layout/node_list_item"/>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:key="prefLog_exportPath"
+        android:title="@string/pref_exportPath"
+        android:summary="@string/pref_exportPath_summary"
+        android:defaultValue="@string/pref_exportPath_defaultValue"
+        android:selectAllOnFocus="true"
+        android:inputType="textCapWords"
+        android:singleLine="true"
+        android:maxLines="1" />
+
+    <ListPreference
+        android:key="prefLog_logStore"
+        android:summary="@string/pref_logStore_summary"
+        android:title="@string/pref_logStore"
+        android:entries="@array/pref_logStoreString"
+        android:entryValues="@array/pref_logStoreValue"
+        android:defaultValue="File"/>
+        <!--android:negativeButtonText="@null"
+        android:positiveButtonText="@null" />-->
+
+    <Preference android:title="@string/pref_logClear"
+        android:summary="@string/pref_logClear_summary"
+        android:key="prefLog_clearLog">
+        <intent android:action="android.intent.action.VIEW"
+                android:data="http://www.example.com" />
+    </Preference>
+
+</PreferenceScreen>
