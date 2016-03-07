@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
@@ -15,6 +16,7 @@ import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.NodeScanActivity;
 import com.st.BlueSTSDK.gui.util.DividerItemDecoration;
+import com.st.BlueSTSDK.gui.util.ItemOffsetDecoration;
 
 public abstract class NodeListActivity extends NodeScanActivity implements NodeRecyclerViewAdapter
 .OnNodeSelectedListener, NodeRecyclerViewAdapter.FilterNode, View.OnClickListener{
@@ -113,6 +115,11 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         // Set the adapter
         RecyclerView recyclerView = (RecyclerView) findViewById(android.R.id.list);
         recyclerView.setAdapter(mAdapter);
+        int nCol = getNumNodeColum();
+        if(nCol!=1){
+            recyclerView.setLayoutManager(new GridLayoutManager(this,nCol));
+        }
+        //recyclerView.addItemDecoration(new ItemOffsetDecoration(this,R.dimen.nodeItemPadding));
         recyclerView.addItemDecoration(new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL_LIST));
 
@@ -246,5 +253,6 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         return mClearDeviceCache;
     }
 
+    protected abstract int getNumNodeColum();
 
 }
