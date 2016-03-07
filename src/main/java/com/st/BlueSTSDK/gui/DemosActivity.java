@@ -295,6 +295,14 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
             menu.findItem(R.id.showDebugConsole).setTitle(R.string.showDebugConsole);
         }//if-else
 
+        //hide debug stuff if not available
+        Debug debug = mNodeContainer.getNode().getDebug();
+        if(debug==null){
+            menu.findItem(R.id.openDebugConsole).setVisible(false);
+            menu.findItem(R.id.showDebugConsole).setVisible(false);
+        }
+
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -388,16 +396,17 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
      */
     private void showConsoleOutput(boolean enable) {
         Debug debug = mNodeContainer.getNode().getDebug();
-        if (debug == null) {
-            Toast.makeText(this, R.string.debugNotAvailable, Toast.LENGTH_SHORT).show();
-            return;
-        }//else
+
         if (enable) {
+            if (debug == null) {
+                Toast.makeText(this, R.string.debugNotAvailable, Toast.LENGTH_SHORT).show();
+                return;
+            }//else
             mConsoleView.setVisibility(View.VISIBLE);
             debug.setDebugOutputListener(mDebugListener);
         } else {
             mConsoleView.setVisibility(View.GONE);
-            debug.setDebugOutputListener(null);
+            if (debug!=null) debug.setDebugOutputListener(null);
         }
     }
 
