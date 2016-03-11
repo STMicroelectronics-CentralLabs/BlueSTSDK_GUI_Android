@@ -22,7 +22,8 @@ public abstract class MainActivity extends AppCompatActivity {
      * user interaction before hiding the system UI.
      */
     private static final int AUTO_HIDE_DELAY_MILLIS = 2000;
-    private static boolean sSplashWasShown=false;
+    private static final String SPLASH_SCREEN_WAS_SHOWN = MainActivity.class.getCanonicalName()+"" +
+            ".SplashWasShown";
     /**
      * Some older devices needs a small delay between UI widget updates
      * and a change of the status and navigation bar.
@@ -30,6 +31,7 @@ public abstract class MainActivity extends AppCompatActivity {
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler mHideHandler = new Handler();
     private ImageView mSplashView;
+
     private final Runnable mShowSplashPart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
@@ -57,7 +59,6 @@ public abstract class MainActivity extends AppCompatActivity {
                 actionBar.show();
             }
             mControlsView.setVisibility(View.VISIBLE);
-            sSplashWasShown=true;
 
         }
     };
@@ -104,10 +105,15 @@ public abstract class MainActivity extends AppCompatActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
+        boolean splashWasShown=false;
+        if(savedInstanceState!=null){
+            splashWasShown = savedInstanceState.getBoolean(SPLASH_SCREEN_WAS_SHOWN,false);
+        }//if
+
         // Trigger the initial showSplashScreen() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
         // are available.
-        if(!sSplashWasShown) {
+        if(!splashWasShown) {
             showSplashScreen();
             delayedShowContent(AUTO_HIDE_DELAY_MILLIS);
         }else{
@@ -115,6 +121,9 @@ public abstract class MainActivity extends AppCompatActivity {
         }
     }
 
+    protected void onSaveInstanceState(Bundle savedInstanceState){
+        savedInstanceState.putBoolean(SPLASH_SCREEN_WAS_SHOWN,true);
+    }
 
     private void showSplashScreen() {
         // Hide UI first

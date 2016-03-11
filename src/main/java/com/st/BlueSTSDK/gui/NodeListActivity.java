@@ -216,7 +216,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         setRefreshing(mSwipeLayout, true);
         super.startNodeDiscovery(SCAN_TIME_MS);
         mStartStopButton.setImageResource(R.drawable.ic_close_24dp);
-        mManager.addVirtualNode();
+        //mManager.addVirtualNode();
     }
 
     /**
