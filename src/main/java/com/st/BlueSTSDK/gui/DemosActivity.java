@@ -36,6 +36,7 @@ import com.st.BlueSTSDK.gui.demos.DemoFragment;
 import com.st.BlueSTSDK.gui.preferences.LogPreferenceFragment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -336,24 +337,24 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
     protected Feature.FeatureLoggerListener getLogger() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String logType = sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_STORE, "LogCat");
-        String dumpPath =sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_DUMP_PATH,"");
+        String dumpPath = getLogDirectory();
         switch (logType) {
             case "LogCat":
                 return new FeatureLogLogCat();
             case "DB":
-                return new FeatureLogDB(this, mNodeContainer.getNode().getFeatures());
+                return new FeatureLogDB(this,dumpPath,getNodesToLog());
             case "File":
-                return new FeatureLogCSVFile(dumpPath);
+                return new FeatureLogCSVFile(dumpPath,getNodesToLog());
             default:
                 return null;
         }//switch
     }//getFeatureLogger
 
-    protected Node getNodeToLog(){
-        return mNodeContainer.getNode();
+    protected List<Node> getNodesToLog(){
+        return Arrays.asList(mNodeContainer.getNode());
     }
 
-    protected String getLogDirectory(){
+    protected String getLogDirectory() {
         final SharedPreferences sharedPref = PreferenceManager
                                 .getDefaultSharedPreferences(DemosActivity.this);
         return sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_DUMP_PATH,"");

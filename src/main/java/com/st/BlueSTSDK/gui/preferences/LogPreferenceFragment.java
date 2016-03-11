@@ -8,6 +8,7 @@ import android.preference.PreferenceScreen;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
 
+import com.st.BlueSTSDK.Log.FeatureLogBase;
 import com.st.BlueSTSDK.Log.FeatureLogCSVFile;
 import com.st.BlueSTSDK.Log.FeatureLogDB;
 import com.st.BlueSTSDK.gui.R;
@@ -37,8 +38,7 @@ public class LogPreferenceFragment extends PreferenceFragment {
     void clearLog(){
         SharedPreferences sharedPref = getPreferenceManager().getSharedPreferences();
         String path = sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_DUMP_PATH,"");
-        FeatureLogCSVFile.clean(path);
-        FeatureLogDB.clean(path);
+        FeatureLogBase.clean(getActivity(), path);
     }
 
     /**

@@ -118,7 +118,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
             recyclerView.setLayoutManager(new GridLayoutManager(this,nCol));
         }
 
-        recyclerView.addItemDecoration(new BorderItemDecoration(this));
+        //recyclerView.addItemDecoration(new BorderItemDecoration(this));
 
         mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id
                 .swiperRefreshDeviceList);
@@ -215,7 +215,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
     private void startNodeDiscovery() {
         setRefreshing(mSwipeLayout, true);
         super.startNodeDiscovery(SCAN_TIME_MS);
-        mStartStopButton.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
+        mStartStopButton.setImageResource(R.drawable.ic_close_24dp);
         mManager.addVirtualNode();
     }
 
@@ -225,7 +225,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
     @Override
     public void stopNodeDiscovery() {
         super.stopNodeDiscovery();
-        mStartStopButton.setImageResource(android.R.drawable.ic_menu_search);
+        mStartStopButton.setImageResource(R.drawable.ic_search_24dp);
         setRefreshing(mSwipeLayout, false);
     }
 

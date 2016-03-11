@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#39a9dc</color>
-    <color name="colorPrimaryDark">#002052</color>
-    <color name="colorAccent">#2b7fa6</color>
+    <color name="colorPrimaryDark">#2088B7</color>
+    <color name="colorAccent">#d4007a</color>
 
     <color name="black_overlay">#66000000</color>
 
-    <color name="swipeColor_1">#b0ddf1</color>
-    <color name="swipeColor_2">#88cbea</color>
-    <color name="swipeColor_3">#39a9dc</color>
-    <color name="swipeColor_4">#1f83b1</color>
+    <color name="swipeColor_1">#D9EFF8</color>
+    <color name="swipeColor_2">#6DC0E5</color>
+    <color name="swipeColor_3">#39A9DC</color>
+    <color name="swipeColor_4">#2088B7</color>
 </resources>
