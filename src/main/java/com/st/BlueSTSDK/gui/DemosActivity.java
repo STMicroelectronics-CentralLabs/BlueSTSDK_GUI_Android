@@ -146,6 +146,9 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //set default settings for the logging
+        PreferenceManager.setDefaultValues(this, R.xml.pref_logging, false);
+
         setContentView(R.layout.activity_demos);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.demoDrawerLayout);
