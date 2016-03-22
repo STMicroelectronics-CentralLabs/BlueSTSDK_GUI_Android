@@ -250,6 +250,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         return mClearDeviceCache;
     }
 
+    //TODO implement this method and keep it protected for castomize the behavior
     protected abstract int getNumNodeColum();
 
 }
