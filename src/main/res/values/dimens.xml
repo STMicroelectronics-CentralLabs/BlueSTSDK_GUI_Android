@@ -6,4 +6,5 @@
     <dimen name="table_cell_horizontal_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <integer name="nNodeListColum">1</integer>
 </resources>
