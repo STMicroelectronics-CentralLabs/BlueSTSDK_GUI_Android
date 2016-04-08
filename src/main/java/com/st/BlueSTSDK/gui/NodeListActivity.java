@@ -113,7 +113,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         // Set the adapter
         RecyclerView recyclerView = (RecyclerView) findViewById(android.R.id.list);
         recyclerView.setAdapter(mAdapter);
-        int nCol = getNumNodeColum();
+        int nCol =getResources().getInteger(R.integer.nNodeListColum);
         if(nCol!=1){
             recyclerView.setLayoutManager(new GridLayoutManager(this,nCol));
         }
@@ -249,8 +249,5 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
     protected boolean clearCacheIsSelected(){
         return mClearDeviceCache;
     }
-
-    //TODO implement this method and keep it protected for castomize the behavior
-    protected abstract int getNumNodeColum();
 
 }

@@ -71,7 +71,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
      * @param node node to use for the demo
      * @return intent for start a demo activity that use the node as data source
      */
-    public static Intent getStartIntent(Context c, @NonNull Node node) {
+    protected static Intent getStartIntent(Context c, @NonNull Node node) {
         Intent i = new Intent(c, DemosActivity.class);
         setIntentParamiters(i,node,false);
         return i;
@@ -124,6 +124,20 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
     private boolean mShowDebugConsole = false;
 
     private NodeContainerFragment mNodeContainer;
+
+    private Node.NodeStateListener mUpdateMenuOnConnection = new Node.NodeStateListener() {
+        @Override
+        public void onStateChange(Node node, Node.State newState, Node.State prevState) {
+            if(newState==Node.State.Connected){
+                DemosActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        DemosActivity.this.invalidateOptionsMenu();
+                    }
+                });
+            }
+        }
+    };
 
 
     /**
@@ -240,10 +254,9 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
             return;
         Node node = mNodeContainer.getNode();
         if(node==null){
-            startActivity(new Intent(this,NodeListActivity.class));
-            finish();
+            onBackPressed(); // go to the previous activity
             return;
-        }
+        }//if
         //else
         //we have to initialize here the adapter since now the nodeContainer is build
         final DemosTabAdapter adapter=new DemosTabAdapter(node,getAllDemos(), getFragmentManager());
@@ -258,6 +271,10 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
         }//for
 
         mNavigationTab.setNavigationItemSelectedListener(this);
+
+        if(!node.isConnected()){
+            node.addNodeStateListener(mUpdateMenuOnConnection);
+        }
     }
 
     @Override
@@ -288,6 +305,11 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
         super.onPause();
     }
 
+    @Override
+    protected void onStop(){
+        mNodeContainer.getNode().removeNodeStateListener(mUpdateMenuOnConnection);
+        super.onStop();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
