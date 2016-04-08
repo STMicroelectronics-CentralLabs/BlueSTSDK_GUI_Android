@@ -4,8 +4,6 @@
              android:layout_height="match_parent"
              tools:context="com.st.BlueSTSDK.gui.MainActivity">
 
-    <include layout="@layout/activity_main_splash_screen"/>
-
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows.-->
     <FrameLayout android:layout_width="match_parent"
