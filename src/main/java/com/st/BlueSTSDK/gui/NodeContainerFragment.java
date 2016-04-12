@@ -188,7 +188,7 @@ public class NodeContainerFragment extends Fragment implements NodeContainer {
     /*
      * This method will be called from one of the two previous method
      */
-    protected void onAttachToContext(Context context) {
+    private void onAttachToContext(Context context) {
         String nodeTag = getArguments().getString(NODE_TAG);
         mResetNodeCache = getArguments().getBoolean(RESETCACHE_TAG,false);
         mNode = Manager.getSharedInstance().getNodeWithTag(nodeTag);
