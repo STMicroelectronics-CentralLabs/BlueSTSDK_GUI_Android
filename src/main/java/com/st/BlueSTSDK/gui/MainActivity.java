@@ -62,13 +62,6 @@ public abstract class MainActivity extends AppCompatActivity {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             version = pInfo.versionName;
             appName = getPackageManager().getApplicationLabel(pInfo.applicationInfo);
-            if(versionText!=null) {
-                String temp = pInfo.versionName;
-                if (temp != null)
-                    versionText.append(temp);
-                else
-                    versionText.setText("");
-            }//if
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }//try-catch
