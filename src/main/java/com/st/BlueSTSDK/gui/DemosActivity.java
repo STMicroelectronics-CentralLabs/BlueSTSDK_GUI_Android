@@ -46,8 +46,8 @@ import java.util.List;
  * The activity will required that the node is already connected or in a connecting state
  * </p>
  */
-public abstract class DemosActivity extends LogFeatureActivity implements NavigationView
-        .OnNavigationItemSelectedListener {
+public abstract class DemosActivity extends LogFeatureActivity implements NodeContainer,
+        NavigationView.OnNavigationItemSelectedListener {
 
     private final static String NODE_FRAGMENT = DemosActivity.class.getCanonicalName() + "" +
             ".NODE_FRAGMENT";
@@ -350,6 +350,14 @@ public abstract class DemosActivity extends LogFeatureActivity implements Naviga
      */
     public Node getNode() {
         return mNodeContainer.getNode();
+    }
+
+    /**
+     * Keep the node connection open also when the activity is destroied
+     * @param keepOpen true for keep the node connection
+     */
+    public void keepConnectionOpen(boolean keepOpen){
+        mNodeContainer.keepConnectionOpen(keepOpen);
     }
 
     /**

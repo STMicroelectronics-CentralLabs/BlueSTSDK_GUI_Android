@@ -5,13 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
 
-public abstract class ActivityWithNode extends AppCompatActivity {
+public abstract class ActivityWithNode extends AppCompatActivity implements NodeContainer {
 
     private final static String NODE_FRAGMENT = ActivityWithNode.class.getCanonicalName()
             +".NODE_FRAGMENT";
@@ -102,6 +103,14 @@ public abstract class ActivityWithNode extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }//onOptionsItemSelected
 
+    @Override
+    public Node getNode(){
+        return mNode;
+    }
 
+    @Override
+    public void keepConnectionOpen(boolean keepOpen){
+        mNodeContainer.keepConnectionOpen(keepOpen);
+    }
 
 }
