@@ -207,7 +207,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
                 .string.closeDemoList);
 
         // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
 
         if (needShowHelpView()) {
             View view = findViewById(R.id.helpDemoLayout);
@@ -271,6 +271,13 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         }//for
 
         mNavigationTab.setNavigationItemSelectedListener(this);
+
+        //if only a demo is available hide the left menu
+        if(adapter.getCount()==1){
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            mDrawerToggle.setDrawerIndicatorEnabled(false);
+            mDrawerToggle.syncState();
+        }
 
         if(!node.isConnected()){
             node.addNodeStateListener(mUpdateMenuOnConnection);
