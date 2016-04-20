@@ -92,6 +92,14 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         mAdapter.addAll(mManager.getNodes());
     }
 
+    /**
+     * Return the adapter view used for display the node
+     * you can overwrite this method for use a custom adapter.
+     * @return adapter view for the node.
+     */
+    protected NodeRecyclerViewAdapter getNodeAdapter(){
+        return new NodeRecyclerViewAdapter(mManager.getNodes(),this,this);
+    }
 
     /**
      * set the manager and and ask to draw the menu
@@ -104,7 +112,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
 
         mManager = Manager.getSharedInstance();
 
-        mAdapter = new NodeRecyclerViewAdapter(mManager.getNodes(),this,this);
+        mAdapter = getNodeAdapter();
         //disconnect all the already discovered device
         mAdapter.disconnectAllNodes();
 
@@ -137,7 +145,8 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
 
         mSwipeLayout.setSize(SwipeRefreshLayout.DEFAULT);
         mStartStopButton = (FloatingActionButton) findViewById(R.id.fab);
-        mStartStopButton.setOnClickListener(this);
+        if(mStartStopButton!=null)
+            mStartStopButton.setOnClickListener(this);
 
     }
 
