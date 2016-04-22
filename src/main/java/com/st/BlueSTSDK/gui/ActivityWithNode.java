@@ -59,15 +59,14 @@ public abstract class ActivityWithNode extends AppCompatActivity implements Node
         mKeepConnectionOpen = i.getBooleanExtra(KEEP_CONNECTION_OPEN,false);
 
         //create/recover the NodeContainerFragment
-        if (savedInstanceState == null) {
+        mNodeContainer = (NodeContainerFragment) getFragmentManager()
+                .findFragmentByTag(NODE_FRAGMENT);
+        if (mNodeContainer == null) {
             mNodeContainer = new NodeContainerFragment();
             mNodeContainer.setArguments(i.getExtras());
             getFragmentManager().beginTransaction()
                     .add(mNodeContainer, NODE_FRAGMENT).commit();
-        } else {
-            mNodeContainer = (NodeContainerFragment) getFragmentManager()
-                    .findFragmentByTag(NODE_FRAGMENT);
-        }//if-else
+        }
 
     }//onCreate
 
