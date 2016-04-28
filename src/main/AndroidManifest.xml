@@ -16,7 +16,38 @@
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.Settings" >
         </activity>
+        <activity
+            android:name=".licenseManager.LicenseManagerActivity"
+            android:label="@string/licenseManager_statusActivityName"
+            android:launchMode="singleTop">
+        </activity>
+        <activity android:name=".licenseManager.ApproveLicenseActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.st.BlueSTSDK.gui.licenseManager.LicenseManagerActivity"/>
+        </activity>
+        <activity
+            android:name=".licenseManager.LoadLicenseActivity"
+            android:label="@string/licenseManager_loadActivityName"
+            android:parentActivityName=".licenseManager.LicenseManagerActivity"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.st.BlueSTSDK.gui.licenseManager.LicenseManagerActivity"/>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.EDIT"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+
+                <data
+                    android:mimeType="application/octet-stream"
+                    android:pathPattern=".*\\.osxlicense"/>
+            </intent-filter>
+        </activity>
     </application>
+
 
 
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_license_refresh"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_refresh_24dp"
+        android:title="@string/licenseManager_refresh"/>
+    <item
+        android:id="@+id/menu_license_clearDb"
+        android:title="@string/licenseManager_clearDb"
+        app:showAsAction="never"/>
+</menu>

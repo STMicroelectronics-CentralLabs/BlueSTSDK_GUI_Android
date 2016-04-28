@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="licenseManager_refresh">Refresh</string>
+    <string name="licenseManager_loadDataTitle">Loading…</string>
+    <string name="licenseManager_loadUidDesc">Load stm32 data</string>
+    <string name="licenseManager_loadDataDesc">Load license data</string>
+    <string name="licenseManager_availableLicense">Available license are:</string>
+    <string name="licenseManager_loadLicButton">Load license</string>
+    <string name="licenseManager_debugNotAvailable">Debug console needed</string>
+    <string name="licenseManager_licenseLoadComplete">License load</string>
+    <string name="licenseManager_licenseLoadFail">License fail</string>
+    <string name="licenseManager_wrongBoardFail">Wrong board for the license</string>
+    <string name="licenseManager_snakeLicenseKnow">Some licenses already know</string>
+    <string name="licenseManager_snakeLicenseKnow_action">Load licenses</string>
+    <string name="licenseManager_statusActivityName">License Status</string>
+    <string name="licenseManager_loadActivityName">Load License</string>
+    <string name="licenseManager_requestLicenseButton">Request</string>
+    <string name="licenseManager_clearDb">Clear app license db</string>
+    <string name="licenseManager_clearDbMessage">License db erase</string>
+
+</resources>

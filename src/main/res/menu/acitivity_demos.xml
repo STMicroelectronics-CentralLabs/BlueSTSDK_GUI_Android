@@ -16,7 +16,10 @@
           android:title="@string/showDebugConsole"
           android:orderInCategory="100"
           app:showAsAction="never"/>
-
-
+    <item
+        android:id="@+id/menu_start_license_manager"
+        android:title="@string/licenseManager"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
 
 </menu>

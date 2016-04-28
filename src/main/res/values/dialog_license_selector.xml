@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="licenseManager_selectLicDialog_title">Some license already know, select them
+        to upload</string>
+</resources>

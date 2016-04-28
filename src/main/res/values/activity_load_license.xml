@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="licenseManager_licenseCodeNotFound">License code not found</string>
+    <string name="licenseManager_licenseNameNotFound">License name not found</string>
+    <string name="paste_license_code">Paste license code</string>
+</resources>

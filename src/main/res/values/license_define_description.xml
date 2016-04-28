@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="licenseDesc_FX">Mems sensor fusion</string>
+    <string name="licenseDesc_AR">Activity recognition</string>
+    <string name="licenseDesc_CP">Carry position</string>
+    <string name="licenseDesc_GR">Gesture recognition</string>
+    <string name="licenseDesc_PM">Pedomiter</string>
+</resources>

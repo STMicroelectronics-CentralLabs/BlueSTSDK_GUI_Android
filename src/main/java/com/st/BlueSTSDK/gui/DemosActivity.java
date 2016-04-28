@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 
 import android.support.v13.app.FragmentPagerAdapter;
@@ -33,6 +34,8 @@ import com.st.BlueSTSDK.Log.FeatureLogLogCat;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.BlueSTSDK.gui.demos.DemoFragment;
+import com.st.BlueSTSDK.gui.licenseManager.LicenseManagerActivity;
+import com.st.BlueSTSDK.gui.licenseManager.LoadLicenseTask;
 import com.st.BlueSTSDK.gui.preferences.LogPreferenceFragment;
 
 import java.util.ArrayList;
@@ -336,6 +339,9 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             menu.findItem(R.id.showDebugConsole).setVisible(false);
         }
 
+        if(enableLicenseManager()==null){
+            menu.findItem(R.id.menu_start_license_manager).setVisible(false);
+        }
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -483,6 +489,13 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             invalidateOptionsMenu();
             return true;
         }
+        if(item.getItemId() == R.id.menu_start_license_manager){
+            keepConnectionOpen(true);
+            startActivity(LicenseManagerActivity.getStartIntent(this,enableLicenseManager(),
+                    getNode(),true));
+            return true;
+        }
+
         if (id == android.R.id.home)
             mNodeContainer.keepConnectionOpen(false);
 
@@ -522,6 +535,17 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     protected void startSettingsActivity(Context c,Node n){
         Intent i = SettingsActivity.getStartIntent(c,n);
         startActivity(i);
+    }
+
+
+    /**
+     * Override this method if you want handle the license loading to the node.
+     * As default behavior this method return null.
+     * @return action to perform when a license is loaded null for disable the license loading
+     */
+    protected @Nullable
+    LoadLicenseTask.LoadLicenseTaskCallback enableLicenseManager(){
+        return null;
     }
 
     /**
@@ -603,11 +627,11 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             return mDemos.get(position).getAnnotation(DemoDescriptionAnnotation.class).name();
         }
 
-        public
-        @DrawableRes
-        int getDemoIconRes(int position) {
+        public @DrawableRes int getDemoIconRes(int position) {
             return mDemos.get(position).getAnnotation(DemoDescriptionAnnotation.class).iconRes();
         }
     }
+
+
 
 }
