@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.st.BlueSTSDK.Manager;
@@ -50,6 +51,19 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         holder.mItem = n;
         holder.mNodeNameLabel.setText(n.getName());
         holder.mNodeTagLabel.setText(n.getTag());
+
+        switch (n.getType()){
+            case GENERIC:
+                holder.mNodeImage.setImageResource(R.drawable.board_generic);
+                break;
+            case STEVAL_WESU1:
+                holder.mNodeImage.setImageResource(R.drawable.board_steval_wesu1);
+                break;
+            case NUCLEO:
+                holder.mNodeImage.setImageResource(R.drawable.board_nucleo);
+                break;
+        }
+
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,11 +130,13 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         public final View mView;
         public final TextView mNodeNameLabel;
         public final TextView mNodeTagLabel;
+        public final ImageView mNodeImage;
         public Node mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
+            mNodeImage = (ImageView) view.findViewById(R.id.nodeBoardIcon);
             mNodeNameLabel = (TextView) view.findViewById(R.id.nodeName);
             mNodeTagLabel = (TextView) view.findViewById(R.id.nodeTag);
         }
