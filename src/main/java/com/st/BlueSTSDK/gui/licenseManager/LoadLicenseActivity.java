@@ -13,6 +13,7 @@ import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.licenseManager.licenseConsole.LicenseConsole;
+import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseInfo;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseManagerDBContract;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseManagerDbHelper;
 
@@ -26,6 +27,8 @@ import java.util.regex.Pattern;
  */
 public class LoadLicenseActivity extends ActivityWithNode {
 
+    private static final String LICENSE_INFO =LoadLicenseActivity.class.getCanonicalName()+"" +
+            ".LICENSE_INFO";
     private static final String BOARD_ID = LoadLicenseActivity.class.getCanonicalName()+"" +
             ".BOARD_ID";
 
@@ -45,12 +48,14 @@ public class LoadLicenseActivity extends ActivityWithNode {
      * @param c context
      * @param node node where load the license
      * @param boardId board id
+     * @param info
      * @return Intent for start this activity
      */
     public static Intent getStartIntent(Context c, @NonNull Node node, String
-            boardId){
+            boardId, LicenseInfo info){
         Intent temp = ActivityWithNode.getStartIntent(c,LoadLicenseActivity.class,node,true);
         temp.putExtra(BOARD_ID,boardId);
+        temp.putExtra(LICENSE_INFO,info);
         return temp;
     }
 
@@ -58,6 +63,9 @@ public class LoadLicenseActivity extends ActivityWithNode {
      * View where the user has to write the license data
      */
     private TextView mLicText;
+    private TextView mLicName;
+
+    private  LicenseInfo mLicenseInfo;
 
     /**
      * id of the board where load the data
@@ -69,11 +77,25 @@ public class LoadLicenseActivity extends ActivityWithNode {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_load_license);
 
-        Intent i = getIntent();
+        Bundle args;
+        if(savedInstanceState!=null){
+            args = savedInstanceState;
+        }else
+            args = getIntent().getExtras();
 
-        mBoardId = i.getStringExtra(BOARD_ID);
+        mBoardId = args.getString(BOARD_ID);
+        mLicenseInfo = args.getParcelable(LICENSE_INFO);
 
         mLicText = (TextView) findViewById(R.id.loadLic_text);
+        mLicName = (TextView) findViewById(R.id.loadLic_licenseName);
+        mLicName.setText(mLicenseInfo.longName);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(BOARD_ID,mBoardId);
+        outState.putParcelable(LICENSE_INFO,mLicenseInfo);
     }
 
     /**
@@ -132,8 +154,13 @@ public class LoadLicenseActivity extends ActivityWithNode {
 
         //if both data are present load the license
         if(licCode!=null && licName!=null){
+            if(!licName.equalsIgnoreCase(mLicenseInfo.shortName)){
+                Snackbar.make(mLicName, R.string.invalidLicenseType,Snackbar.LENGTH_LONG).show();
+                return;
+            }//else
             final Node node = getNode();
             new LoadLicenseTask(this, LicenseConsole.getLicenseConsole(node),
+                    //create a wrapper around the user callback
                     new LoadLicenseTask.LoadLicenseTaskCallback() {
                         @Override
                         public void onLicenseLoad(Context c, LoadLicenseTask loader) {

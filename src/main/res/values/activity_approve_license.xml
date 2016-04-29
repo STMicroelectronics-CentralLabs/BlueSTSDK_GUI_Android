@@ -2,4 +2,5 @@
 <resources>
     <string name="agreeButton">Agree</string>
     <string name="disagreeButton">Disagree</string>
+    <string name="approveLicenseActivityName">Approve license</string>
 </resources>

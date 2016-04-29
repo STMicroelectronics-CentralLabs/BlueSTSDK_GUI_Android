@@ -1,5 +1,7 @@
 package com.st.BlueSTSDK.gui.licenseManager.licenseConsole;
 
+import android.support.annotation.Nullable;
+
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.licenseManager.LicenseStatus;
@@ -11,12 +13,16 @@ import java.util.List;
  */
 public abstract class LicenseConsole {
 
-    static public LicenseConsole getLicenseConsole(Node node){
+    static public @Nullable LicenseConsole getLicenseConsole(Node node){
+        Debug debug = node.getDebug();
+        if(debug==null)
+            return null;
+        //else
         switch (node.getType()) {
             case STEVAL_WESU1:
-                return new LicenseConsoleWesu(node.getDebug());
+                return new LicenseConsoleWesu(debug);
             case NUCLEO:
-                return new LicenseConsoleNucleo(node.getDebug());
+                return new LicenseConsoleNucleo(debug);
         }
         return  null;
     }

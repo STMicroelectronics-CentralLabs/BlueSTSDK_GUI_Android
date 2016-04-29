@@ -1,6 +1,8 @@
 package com.st.BlueSTSDK.gui.licenseManager.licenseConsole;
 
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -117,7 +119,7 @@ public class LicenseConsoleWesu extends LicenseConsole {
      */
     LicenseConsoleWesu(Debug console, LicenseConsoleCallback callback) {
         super(console,callback);
-        mTimeout = new Handler();
+        mTimeout = new Handler(Looper.getMainLooper());
         mBuffer = new StringBuilder();
         mConsoleGetIdListener = new TimeOutConsoleListener(new Runnable() {
             @Override

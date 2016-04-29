@@ -17,5 +17,9 @@
     <string name="licenseManager_requestLicenseButton">Request</string>
     <string name="licenseManager_clearDb">Clear app license db</string>
     <string name="licenseManager_clearDbMessage">License db erase</string>
+    <string name="upload">Upload</string>
+    <string name="clear_board_license">Clear board license</string>
+    <string name="errorClearBoardLic">Error cleaning the board license</string>
+    <string name="clearBoardLicOk">License removed</string>
 
 </resources>

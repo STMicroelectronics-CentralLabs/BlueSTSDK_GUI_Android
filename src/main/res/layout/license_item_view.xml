@@ -39,6 +39,12 @@
         android:visibility="visible"
         android:text="@string/licenseManager_requestLicenseButton"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/upload"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:id="@+id/licUploadButton"/>
 
 
 </LinearLayout>

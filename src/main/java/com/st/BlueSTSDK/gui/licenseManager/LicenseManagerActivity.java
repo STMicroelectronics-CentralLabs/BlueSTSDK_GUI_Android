@@ -19,10 +19,12 @@ import android.view.View;
 
 import android.widget.Toast;
 
+import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.licenseManager.licenseConsole.LicenseConsole;
+import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseInfo;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseManagerDBContract.LicenseEntry;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseManagerDbHelper;
 
@@ -35,19 +37,18 @@ import java.util.List;
  */
 public class LicenseManagerActivity extends ActivityWithNode implements
         LicenseStatusRecyclerViewAdapter.LicenseStatusViewCallback,
-        LicenseSelectorDialogFragment.LicenseSelectorCallback,
         LoaderManager.LoaderCallbacks<Cursor>{
 
     static @Nullable LoadLicenseTask.LoadLicenseTaskCallback sUserLoadLicenseCallback;
 
-    private static final String DIALOG_TAG =  LicenseManagerActivity.class.getCanonicalName
-            ()+".SELECT_LIC_DIALOG";
     private static final String BOARD_UID_KEY= LicenseManagerActivity.class.getCanonicalName
             ()+".BOARD_UID";
     private static final String LICENSE_STATUS_KEY= LicenseManagerActivity.class.getCanonicalName
             ()+".LICENSE_STATUS";
     private static final String LICENSE_KNOW_KEY= LicenseManagerActivity.class.getCanonicalName
             ()+".LICENSE_KNOW";
+
+    private static final String CLEAR_BOARD_LIC_COMMAND="XX0\n";
 
     /**
      * id used for load the cursor with the license available
@@ -83,7 +84,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
     /**
      * Board id
      */
-    private String mBoardUid;
+    private String mBoardUid=null;
 
     /**
      * list of license available in the board
@@ -93,7 +94,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
     /**
      * List of license for the current board available inside the Db (already uploaded one time)
      */
-    private ArrayList<LicenseEntry> mKnowLic=new ArrayList<>();
+    private ArrayList<LicenseEntry> mKnowLic=null;
 
     /**
      * When the node is connected, start retrieving the license information
@@ -102,7 +103,9 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         @Override
         public void onStateChange(Node node, Node.State newState, Node.State prevState) {
             if(newState==Node.State.Connected){
-                loadLicenseStatus();
+                mConsole = buildLicenseConsole();
+                if(mBoardUid==null || mLicStatus==null)
+                    loadLicenseStatus();
             }//if
         }//
     };
@@ -114,21 +117,36 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         setContentView(R.layout.activity_license_manager);
         mLicListView = (RecyclerView) findViewById(R.id.licListView);
         //if the fist time, load data from the node
-        if(savedInstanceState==null){
-            if(getNode().isConnected()){
-                loadLicenseStatus();
-            }else{
-                getNode().addNodeStateListener(mOnConnection);
-            }
-        }else{ //otherwise load data from the previous run
-            mBoardUid = savedInstanceState.getString(BOARD_UID_KEY);
-            mLicStatus = savedInstanceState.getParcelableArrayList(LICENSE_STATUS_KEY);
-            mKnowLic = savedInstanceState.getParcelableArrayList(LICENSE_KNOW_KEY);
-            //create the adapter and the console
-            mLicListView.setAdapter(new LicenseStatusRecyclerViewAdapter
-                    (mLicStatus, LicenseManagerActivity.this));
+
+        if(getNode().isConnected()){
             mConsole = buildLicenseConsole();
+            if(savedInstanceState==null)
+                loadLicenseStatus();
+        }else{
+
+            getNode().addNodeStateListener(mOnConnection);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState (Bundle outState){
+        if(mLicStatus!=null && !mLicStatus.isEmpty())
+            outState.putParcelableArrayList(LICENSE_STATUS_KEY,new ArrayList<>(mLicStatus));
+        if(mKnowLic!=null && !mKnowLic.isEmpty())
+            outState.putParcelableArrayList(LICENSE_KNOW_KEY,mKnowLic);
+        if(mBoardUid!=null && !mBoardUid.isEmpty())
+            outState.putString(BOARD_UID_KEY,mBoardUid);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mBoardUid = savedInstanceState.getString(BOARD_UID_KEY);
+        mLicStatus = savedInstanceState.getParcelableArrayList(LICENSE_STATUS_KEY);
+        mKnowLic = savedInstanceState.getParcelableArrayList(LICENSE_KNOW_KEY);
+        //create the adapter and the console
+        mLicListView.setAdapter(new LicenseStatusRecyclerViewAdapter
+                (mLicStatus, LicenseManagerActivity.this));
     }
 
     @Override
@@ -150,21 +168,29 @@ public class LicenseManagerActivity extends ActivityWithNode implements
             Snackbar.make(mLicListView, R.string.licenseManager_clearDbMessage,
                     Snackbar.LENGTH_SHORT).show();
             return true;
+        }else if (i == R.id.menu_license_clearBoard){
+            clearBoardLicense();
+            return true;
+
         }
 
         return super.onOptionsItemSelected(item);
     }//onOptionsItemSelected
 
-    @Override
-    protected void onSaveInstanceState (Bundle outState){
-        if(mLicStatus!=null && !mLicStatus.isEmpty())
-            outState.putParcelableArrayList(LICENSE_STATUS_KEY,new ArrayList<>(mLicStatus));
-        if(mKnowLic!=null && !mKnowLic.isEmpty())
-            outState.putParcelableArrayList(LICENSE_KNOW_KEY,mKnowLic);
-        if(mBoardUid!=null && !mBoardUid.isEmpty())
-            outState.putString(BOARD_UID_KEY,mBoardUid);
-
-    }
+    /**
+     * send the command for remove the board license and close this activity
+     */
+    private void clearBoardLicense(){
+        Debug console = mNode.getDebug();
+        if(console!=null){
+            console.write(CLEAR_BOARD_LIC_COMMAND);
+            Snackbar.make(mLicListView, R.string.clearBoardLicOk ,
+                    Snackbar.LENGTH_SHORT).show();
+        }else{
+            Snackbar.make(mLicListView, R.string.errorClearBoardLic,
+                    Snackbar.LENGTH_SHORT).show();
+        }//if-else
+    }//clearBoardLicense
 
     @Override
     public void onPause(){
@@ -266,7 +292,6 @@ public class LicenseManagerActivity extends ActivityWithNode implements
     private void loadLicenseStatus() {
 
         //the first time we create the console
-        mConsole = buildLicenseConsole();
         if (mConsole == null){
             debugConsoleNotAvailable();
         }else{
@@ -296,20 +321,27 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         startActivity(ApproveLicenseActivity.getStartIntent(this,lic.info,mBoardUid));
     }
 
-    /**
-     * Called when the fab button is pressed, ask to the user to select the available license or
-     * start the activity for insert a new license
-     * @param v button pressed (not used)
-     */
-    public void onLicenseUploadClick(View v){
-        //ask to the user to upload the available license or start the activity for add a new
-        // license
-        if(!askToLoadKnowLicense(mKnowLic)) {
-            keepConnectionOpen(true);
-            startActivity(LoadLicenseActivity.getStartIntent(this, getNode(), mBoardUid));
-        }//if
-    }//onLicenseUploadClick
 
+    private @Nullable LicenseEntry isKnowLicense(LicenseInfo lic){
+        if(mKnowLic==null)
+            return null;
+
+        for(LicenseEntry entry : mKnowLic){
+            if(lic.equals(entry))
+                return entry;
+        }
+        return null;
+    }
+
+    @Override
+    public void onLicenseUploadClick(LicenseStatus lic) {
+        LicenseEntry knowLic = isKnowLicense(lic.info);
+        if(knowLic==null)
+            startActivity(LoadLicenseActivity.getStartIntent(this, getNode(), mBoardUid,lic.info));
+        else{
+            new LoadLicenseTask(this,mConsole,sUserLoadLicenseCallback).load(knowLic);
+        }
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
@@ -346,21 +378,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         return newKnowLic;
     }//findKnowLicense
 
-    /**
-     * Display a dialog for select the license to load in the node
-     * @param availableAndKnowLic list of license
-     * @return true if the list is not empty -> the dialog was shown, false otherwise
-     */
-    private  boolean askToLoadKnowLicense(ArrayList<LicenseEntry> availableAndKnowLic) {
-        //can be null if we restore the activity but we have not store it in the bundle
-        //because is empty
-        if (availableAndKnowLic==null || availableAndKnowLic.isEmpty())
-            return false ;
-        DialogFragment dialog =
-                LicenseSelectorDialogFragment.newInstance(availableAndKnowLic);
-        dialog.show(getFragmentManager(), DIALOG_TAG);
-        return true;
-    }
+
 
     /**
      * called when the data are extracted from the DB
@@ -379,66 +397,9 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         //extract the license form the cursor
         List<LicenseEntry> temp = LicenseManagerDbHelper.buildLicenseEntryList(cursor);
         mKnowLic = findKnowLicense(temp, mLicStatus);
-        //if we have something useful
-        if(!mKnowLic.isEmpty()){
-            //inform the user that it can load some data
-            Snackbar.make(mLicListView,R.string.licenseManager_snakeLicenseKnow,Snackbar.LENGTH_LONG).
-                    setAction(R.string.licenseManager_snakeLicenseKnow_action,
-                            new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    askToLoadKnowLicense(mKnowLic);
-                                }
-                            }).show();
-        }
-
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { }
 
-    /**
-     * callback from the dialog, it will load the licenses or start the LoadLicenseActivity activity
-     * if the selected list is empty
-     * @param licenses selected license, the list can be empty
-     */
-    @Override
-    public void onLicenseSelected(final List<LicenseEntry> licenses) {
-        if(licenses.isEmpty()){ // no license selected or cancel pressed
-            keepConnectionOpen(true);
-            startActivity(LoadLicenseActivity.getStartIntent(this, getNode(), mBoardUid));
-        }
-        final Iterator<LicenseEntry> licIt = licenses.iterator();
-        if(licIt.hasNext()){
-            LicenseEntry lic = licIt.next();
-            final LoadLicenseTask loadLicenseTask = new LoadLicenseTask(this,mConsole,
-                    new LoadLicenseTask.LoadLicenseTaskCallback(){
-                        @Override
-                        public void onLicenseLoad(Context c, LoadLicenseTask loader) {
-                            if(licIt.hasNext()){
-                                LicenseEntry lic = licIt.next();
-                                loader.load(lic.getBoardId(),lic.getLicenseType(),lic.getLicenseCode());
-                            }else{
-                                if(sUserLoadLicenseCallback!=null)
-                                    sUserLoadLicenseCallback.onLicenseLoad(c,loader);
-                            }//if-else
-                        }
-
-                        @Override
-                        public void onInvalidLicense(Context c, LoadLicenseTask loader) {
-                            if(sUserLoadLicenseCallback!=null)
-                                sUserLoadLicenseCallback.onInvalidLicense(c,loader);
-                        }
-
-                        @Override
-                        public void onWrongBoardId(Context c, LoadLicenseTask loader) {
-                            if(sUserLoadLicenseCallback!=null)
-                                sUserLoadLicenseCallback.onWrongBoardId(c,loader);
-                        }
-                    });
-            loadLicenseTask.load(lic.getBoardId(),lic.getLicenseType(),lic.getLicenseCode());
-        }
-
-
-    }
 }

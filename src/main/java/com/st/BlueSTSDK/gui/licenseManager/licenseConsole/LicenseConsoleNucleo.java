@@ -1,6 +1,8 @@
 package com.st.BlueSTSDK.gui.licenseManager.licenseConsole;
 
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.gui.licenseManager.LicenseStatus;
@@ -195,8 +197,9 @@ public class LicenseConsoleNucleo extends LicenseConsole {
      */
     LicenseConsoleNucleo(Debug console, LicenseConsoleCallback callback) {
         super(console,callback);
-        mTimeout = new Handler();
+        mTimeout = new Handler(Looper.getMainLooper());
         mBuffer = new StringBuilder();
+
     }
 
     /**

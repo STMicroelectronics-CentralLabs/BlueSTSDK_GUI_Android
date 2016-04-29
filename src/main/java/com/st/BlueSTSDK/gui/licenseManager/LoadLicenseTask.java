@@ -3,6 +3,7 @@ package com.st.BlueSTSDK.gui.licenseManager;
 import android.content.Context;
 
 import com.st.BlueSTSDK.gui.licenseManager.licenseConsole.LicenseConsole;
+import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseManagerDBContract;
 
 import java.util.List;
 
@@ -17,18 +18,21 @@ public class LoadLicenseTask {
     public interface LoadLicenseTaskCallback{
         /**
          * call when the upload correctly finish
+         * @param c context where the load is started
          * @param loader object that finish to load the license
          */
         void onLicenseLoad(Context c,LoadLicenseTask loader);
 
         /**
          * call when the license doesn't work for the board
+         * @param c context where the load is started
          * @param loader object that finish to load the license
          */
         void onInvalidLicense(Context c,LoadLicenseTask loader);
 
         /**
          * call when the boardId is different from the expected
+         * @param c context where the load is started
          * @param loader object that finish to load the license
          */
         void onWrongBoardId(Context c,LoadLicenseTask loader);
@@ -121,5 +125,9 @@ public class LoadLicenseTask {
         //trigger the process, star reading the uid
         mConsole.readBoardId();
     }//load
+
+    void load(LicenseManagerDBContract.LicenseEntry entry){
+        load(entry.getBoardId(),entry.getLicenseType(),entry.getLicenseCode());
+    }
 
 }

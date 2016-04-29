@@ -21,5 +21,9 @@
         android:title="@string/licenseManager"
         android:orderInCategory="100"
         app:showAsAction="never"/>
-
+    <item
+        android:id="@+id/menu_start_fw_upgrade"
+        android:title="@string/firmware_upgrade"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
 </menu>

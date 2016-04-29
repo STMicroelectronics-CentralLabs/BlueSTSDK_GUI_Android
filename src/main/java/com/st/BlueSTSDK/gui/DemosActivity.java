@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 
 import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -34,6 +35,7 @@ import com.st.BlueSTSDK.Log.FeatureLogLogCat;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.BlueSTSDK.gui.demos.DemoFragment;
+import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeActivity;
 import com.st.BlueSTSDK.gui.licenseManager.LicenseManagerActivity;
 import com.st.BlueSTSDK.gui.licenseManager.LoadLicenseTask;
 import com.st.BlueSTSDK.gui.preferences.LogPreferenceFragment;
@@ -317,7 +319,9 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
     @Override
     protected void onStop(){
-        mNodeContainer.getNode().removeNodeStateListener(mUpdateMenuOnConnection);
+        Node n = mNodeContainer.getNode();
+        if(n!=null)
+            n.removeNodeStateListener(mUpdateMenuOnConnection);
         super.onStop();
     }
 
@@ -337,6 +341,8 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         if(debug==null){
             menu.findItem(R.id.openDebugConsole).setVisible(false);
             menu.findItem(R.id.showDebugConsole).setVisible(false);
+            menu.findItem(R.id.menu_start_license_manager).setVisible(false);
+            menu.findItem(R.id.menu_start_fw_upgrade).setVisible(false);
         }
 
         if(enableLicenseManager()==null){
@@ -495,6 +501,11 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
                     getNode(),true));
             return true;
         }
+        if(item.getItemId() == R.id.menu_start_fw_upgrade){
+            keepConnectionOpen(true);
+            startActivity(FwUpgradeActivity.getStartIntent(this,getNode(),true));
+            return true;
+        }
 
         if (id == android.R.id.home)
             mNodeContainer.keepConnectionOpen(false);
@@ -552,7 +563,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      * adapter that contains all the demos to show. The demos are a subset of {@code
      * DemosActivity.ALL_DEMOS}
      */
-    private static class DemosTabAdapter extends FragmentPagerAdapter {
+    private static class DemosTabAdapter extends FragmentStatePagerAdapter {
 
         /**
          * demos that will be displayed to the user

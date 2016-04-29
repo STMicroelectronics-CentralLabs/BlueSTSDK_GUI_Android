@@ -6,6 +6,8 @@
 
     <color name="black_overlay">#66000000</color>
 
+    <color name="green">#FFAEEA00</color>
+
     <color name="swipeColor_1">#D9EFF8</color>
     <color name="swipeColor_2">#6DC0E5</color>
     <color name="swipeColor_3">#39A9DC</color>

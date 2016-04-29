@@ -18,11 +18,17 @@
         android:layout_height="match_parent" android:orientation="vertical">
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Large Text"
+            android:id="@+id/loadLic_licenseName" android:layout_gravity="center_horizontal"/>
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/paste_license_code"
-            android:id="@+id/loadLic_licenseName" android:gravity="center_horizontal"/>
+            android:layout_marginTop="8dp"/>
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

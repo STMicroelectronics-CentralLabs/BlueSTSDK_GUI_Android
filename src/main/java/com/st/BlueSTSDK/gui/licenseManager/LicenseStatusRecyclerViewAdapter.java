@@ -27,6 +27,7 @@ public class LicenseStatusRecyclerViewAdapter extends
          * @param lic license associate to that button
          */
         void onLicenseRequestClick(LicenseStatus lic);
+        void onLicenseUploadClick(LicenseStatus lic);
     }
 
     /**
@@ -66,9 +67,11 @@ public class LicenseStatusRecyclerViewAdapter extends
         if(lic.isPresent){ // if the license is present show only the tick image
             holder.mLicenseIsOk.setVisibility(View.VISIBLE);
             holder.mLicenseRequest.setVisibility(View.GONE);
+            holder.mLicenseUpload.setVisibility(View.GONE);
         }else{ // otherwise show the load/request button
             holder.mLicenseIsOk.setVisibility(View.GONE);
             holder.mLicenseRequest.setVisibility(View.VISIBLE);
+            holder.mLicenseUpload.setVisibility(View.VISIBLE);
         }//if-else
     }//onBindViewHolder
 
@@ -85,6 +88,7 @@ public class LicenseStatusRecyclerViewAdapter extends
         public final TextView mLicenseDesc;
         public final ImageView mLicenseIsOk;
         public final View mLicenseRequest;
+        public final View mLicenseUpload;
         public LicenseStatus mLic;
 
         public ViewHolder(View view) {
@@ -93,6 +97,7 @@ public class LicenseStatusRecyclerViewAdapter extends
             mLicenseDesc = (TextView) view.findViewById(R.id.licNameDesc);
             mLicenseIsOk = (ImageView) view.findViewById(R.id.licIsPresentImage);
             mLicenseRequest = view.findViewById(R.id.licRequestButton);
+            mLicenseUpload = view.findViewById(R.id.licUploadButton);
 
             //when clicked call onLicenseRequestClick
             mLicenseRequest.setOnClickListener(new View.OnClickListener() {
@@ -100,6 +105,14 @@ public class LicenseStatusRecyclerViewAdapter extends
                 public void onClick(View view) {
                     if(mCallback!=null){
                         mCallback.onLicenseRequestClick(mLic);
+                    }//if
+                }//onClick
+            });
+            mLicenseUpload.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(mCallback!=null){
+                        mCallback.onLicenseUploadClick(mLic);
                     }//if
                 }//onClick
             });

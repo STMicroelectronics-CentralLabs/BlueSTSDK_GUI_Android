@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
@@ -12,7 +13,10 @@ import android.widget.Toast;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseInfo;
 
-public class ApproveLicenseActivity extends Activity {
+/**
+ * Activity that display the license text that the user has to agree for request the license
+ */
+public class ApproveLicenseActivity extends AppCompatActivity {
 
     private static String LICENSE_INFO = ApproveLicenseActivity.class.getCanonicalName()+"" +
             ".LicenseInfo";
@@ -80,11 +84,19 @@ public class ApproveLicenseActivity extends Activity {
         }
     }
 
+    /**
+     * prepare the request mail and end the activity
+     * @param view
+     */
     public void onAgreeClick(View view) {
         prepareLicenseRequestMail();
         finish();
     }
 
+    /**
+     * just got back
+     * @param view
+     */
     public void onDisagreeClick(View view) {
         finish(); //go back
     }
