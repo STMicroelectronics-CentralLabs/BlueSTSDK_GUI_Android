@@ -1,30 +1,35 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.st.BlueSTSDK.Debug;
-import com.st.BlueSTSDK.Utils.NumberConversion;
-import com.st.BlueSTSDK.gui.licenseManager.LicenseStatus;
-import com.st.BlueSTSDK.gui.licenseManager.licenseConsole.LicenseConsole;
-import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseDefines;
-import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseInfo;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.ImgFileInputStream;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
-    static private final String GET_VERSION_FW="versionFw\n";
-    static private final String UPLOAD_FW="updateFw%d\n";
+    static private final String GET_VERSION_BOARD_FW="versionFw\n";
+    static private final String GET_VERSION_BLE_FW="versionBle\n";
+    static private final String UPLOAD_BOARD_FW="upgradeFw%d\n";
+    static private final String UPLOAD_BLE_FW="upgradeBle%d\n";
+
+    static private final String NODE_READY_TO_RECEIVE="Ready\r\n";
+    static private final String ACK_MSG="\u0001";
+    static private final String NACK_MSG="\u00ff";
+    static private final int MAX_MSG_SIZE=16;
+    static private final int LOST_MSG_TIMEOUT_MS=500;
 
     /**
      * object that will receive the console data
@@ -39,16 +44,49 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
     /**
      * object used for manage the get board id command
      */
-    private Debug.DebugOutputListener mConsoleGetFwVersion = new Debug.DebugOutputListener() {
+    private GetVersionProtocol mConsoleGetFwVersion= new GetVersionProtocol();
+
+    private class GetVersionProtocol implements Debug.DebugOutputListener {
+
+        private @FirmwareType int mRequestFwType;
+
+        public void requestVersion(@FirmwareType int fwType){
+            mRequestFwType=fwType;
+            switch (fwType) {
+                case FwUpgradeConsole.BLE_FW:
+                    mConsole.write(GET_VERSION_BLE_FW);
+                    break;
+                case FwUpgradeConsole.BOARD_FW:
+                    mConsole.write(GET_VERSION_BOARD_FW);
+                    break;
+                default:
+                    if(mCallback!=null){
+                        mCallback.onVersionRead(FwUpgradeConsoleNucleo.this,fwType,null);
+                    }
+                    break;
+            }
+        }
 
         @Override
         public void onStdOutReceived(Debug debug, String message) {
             if (message.endsWith("\r\n")) {
                 mBuffer.append(message, 0, message.length() - 2);
                 setConsoleListener(null);
+                FwVersion version=null;
+                try {
+                    switch (mRequestFwType) {
+                        case FwUpgradeConsole.BLE_FW:
+                            version = new FwVersionBle(mBuffer.toString());
+                            break;
+                        case FwUpgradeConsole.BOARD_FW:
+                            version = new FwVersionBoard(mBuffer.toString());
+                            break;
+                    }
+                }catch (IllegalVersionFormatException e){
+                    e.printStackTrace();
+                }
                 if (mCallback != null)
-                    mCallback.onVersionRead(FwUpgradeConsoleNucleo.this,
-                            new FwVersion(mBuffer.toString()));
+                    mCallback.onVersionRead(FwUpgradeConsoleNucleo.this,mRequestFwType,version);
             } else {
                 mBuffer.append(message);
             }
@@ -61,11 +99,155 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         public void onStdInSent(Debug debug, String message, boolean writeResult) { }
     };
 
+
+    private class UploadFileProtocol implements  Debug.DebugOutputListener{
+
+        /**
+         * file that we are uploading
+         */
+        private Uri mFile;
+
+        /**
+         * buffer where we are reading the file
+         */
+        private BufferedInputStream mFileData;
+
+        /**
+         * number of byte send to the node
+         */
+        private long mByteSend;
+
+        private long mByteToSend;
+
+        /**
+         * size of the last package send
+         */
+        private byte[] mLastPackageSend;
+
+        /**
+         * if the timeout is rise, resend the last package
+         */
+        private Runnable onTimeout = new Runnable() {
+            @Override
+            public void run() {
+                Log.d("onTimeout:","fired");
+
+                onStdOutReceived(mConsole,NACK_MSG);
+            }
+        };
+
+        private void onLoadComplete(boolean status){
+            if(mCallback!=null)
+                mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo.this,mFile,status);
+            setConsoleListener(null);
+        }
+
+        private void dumpFile(File f){
+            File output = new File("/sdcard/dump.bin");
+            try{
+                ImgFileInputStream in=new ImgFileInputStream(f);
+                FileOutputStream out = new FileOutputStream(output);
+                byte data[] = new byte[MAX_MSG_SIZE];
+                while (in.read(data)>0){
+                    out.write(data);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void loadFile(@FirmwareType int fwType,Uri file){
+            mFile=file;
+            File f = new File(file.getPath());
+            mByteToSend = f.length();
+            try {
+                if(f.getName().toLowerCase().endsWith("img")) {
+                    ImgFileInputStream input = new ImgFileInputStream(f);
+                    mFileData = new BufferedInputStream(input);
+                    mByteToSend = input.length();
+                    dumpFile(f);
+
+                }else
+                    mFileData = new BufferedInputStream(new FileInputStream(f));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                onLoadComplete(false);
+                return;
+            }
+            //send the start command
+
+            switch (fwType) {
+                case FwUpgradeConsole.BLE_FW:
+                    mConsole.write(String.format(UPLOAD_BLE_FW,mByteToSend));
+                    break;
+                case FwUpgradeConsole.BOARD_FW:
+                    mConsole.write(String.format(UPLOAD_BOARD_FW,mByteToSend));
+                    break;
+                default:
+                    onLoadComplete(false);
+            }
+        }
+
+        //each time an ack is received a new package is send
+        @Override
+        public void onStdOutReceived(Debug debug, String message) {
+            Log.d("onStdOutReceived",message);
+            if(message.equalsIgnoreCase(ACK_MSG) ||
+                    message.equalsIgnoreCase(NODE_READY_TO_RECEIVE)){
+                //stop resend timeout
+                mTimeout.removeCallbacks(onTimeout);
+
+                if(mByteToSend!=mByteSend)
+                    mCallback.onLoadFwProgresUpdate(FwUpgradeConsoleNucleo.this,mFile,
+                            mByteToSend-mByteSend);
+                else {
+                    onLoadComplete(true);
+                    return;
+                }
+
+                int byteToRead = (int)Math.min(mByteToSend-mByteSend,MAX_MSG_SIZE);
+                byte buffer[] = new byte[byteToRead];
+                try {
+                    int byteRead = mFileData.read(buffer);
+                    mByteSend+=byteRead;
+                    mLastPackageSend=buffer;
+                    if(byteToRead==byteRead) {
+                        mConsole.write(buffer);
+                        mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
+                    }else
+                        //it read an unaspected number of byte, something bad happen
+                        onLoadComplete(false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    onLoadComplete(false);
+                }//try-catch
+            }else if(message.equals(NACK_MSG)){ //error
+                Log.d("onStdOutReceived:","nack");
+                onLoadComplete(false);
+
+                /*mTimeout.removeCallbacks(onTimeout);
+                mConsole.write(mLastPackageSend);
+                mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
+                */
+            }
+        }//onStdOutReceived
+
+        @Override
+        public void onStdErrReceived(Debug debug, String message) { }
+
+        @Override
+        public void onStdInSent(Debug debug, String message, boolean writeResult) { }
+    };
+
+    /**
+     * object used for manage the get board id command
+     */
+    private UploadFileProtocol mConsoleUpgradeFw = new UploadFileProtocol();
+
     /**
      * handler used for the command timeout
      */
     private Handler mTimeout;
-
 
     /**
      * build a debug console without a callback
@@ -106,81 +288,25 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
     }
 
     @Override
-    public boolean readVersion() {
+    public boolean readVersion(@FirmwareType int fwType) {
         if (isWaitingAnswer())
             return false;
 
         mBuffer.setLength(0); //reset the buffer
         setConsoleListener(mConsoleGetFwVersion);
-        mConsole.write(GET_VERSION_FW);
+        mConsoleGetFwVersion.requestVersion(fwType);
         return true;
     }
 
-    private byte[] startUploadCommand(long fileSize){
-        byte[] size = NumberConversion.BigEndian.uint32ToBytes(fileSize);
-        byte[] command = new byte[UPLOAD_FW.length()+size.length+1];
-        for(int i=0; i<UPLOAD_FW.length();i++){
-            command[i]=(byte)UPLOAD_FW.charAt(i);
-        }
-        System.arraycopy(command,UPLOAD_FW.length(),size,0,size.length);
-        command[command.length-1]=(byte)'\n';
-        return command;
-    }
-
     @Override
-    public boolean loadFw(final Uri fwFile) {
+    public boolean loadFw(@FirmwareType int fwType,final Uri fwFile) {
         if (isWaitingAnswer())
             return false;
 
         mBuffer.setLength(0); //reset the buffer
 
-        final File f = new File(fwFile.getPath());
-        final long fileSize= f.length();
-
-        mConsole.write(String.format(UPLOAD_FW,fileSize));
-        new AsyncTask<Void,Integer,Boolean>(){
-
-            @Override
-            protected Boolean doInBackground(Void... uris) {
-                byte packet[] = new byte[20];
-                try {
-                    BufferedInputStream buf = new BufferedInputStream(new FileInputStream(f));
-                    int nPacketSend = 0;
-                    while (buf.read(packet,0,packet.length)>0){
-                        mConsole.write(packet);
-                        this.publishProgress(nPacketSend++);
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-
-                } catch (java.io.IOException e) {
-                    e.printStackTrace();
-                    return false;
-                }
-
-                return true;
-            }
-
-            @Override
-            protected void onProgressUpdate(Integer... values) {
-                super.onProgressUpdate(values);
-                if(mCallback!=null){
-                    mCallback.onLoadFwProgresUpdate(FwUpgradeConsoleNucleo.this,fwFile,values[0]);
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Boolean aBoolean) {
-                super.onPostExecute(aBoolean);
-                if(mCallback!=null){
-                    mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo.this,fwFile,aBoolean);
-                }
-            }
-        }.execute();
-        return true;
+        setConsoleListener(mConsoleUpgradeFw);
+        mConsoleUpgradeFw.loadFile(fwType,fwFile);
+        return  true;
     }
 }

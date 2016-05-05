@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".fwUpgrade.FwUpgradeActivity">
 
-    <RelativeLayout
+    <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -17,30 +17,50 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Version"
-            android:id="@+id/versionText" android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"/>
+            android:text="Version Ble"
+            android:id="@+id/versionBleText"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="File:"
-            android:id="@+id/fwFileText" android:layout_below="@+id/versionText"
-            android:layout_alignParentStart="true"/>
+            android:id="@+id/fwBleFileText"/>
         <Button
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Select"
-            android:id="@+id/button" android:layout_alignBottom="@id/fwFileText"
-            android:layout_alignParentEnd="true" android:onClick="onSelectFileClick"/>
-    </RelativeLayout>
+            android:text="Select Ble"
+            android:onClick="onSelectBleFileClick"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Version Board"
+            android:id="@+id/versionBoardText"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="File Board:"
+            android:id="@+id/fwBoardFileText"/>
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Board"
+            android:onClick="onSelectFileBoardClick"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/loadStatusText"/>
+    </LinearLayout>
 
 
     <android.support.design.widget.FloatingActionButton
