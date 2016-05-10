@@ -6,26 +6,29 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.st.BlueSTSDK.Debug;
+import com.st.BlueSTSDK.Utils.NumberConversion;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.ImgFileInputStream;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.STM32Crc32;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
     static private final String GET_VERSION_BOARD_FW="versionFw\n";
     static private final String GET_VERSION_BLE_FW="versionBle\n";
-    static private final String UPLOAD_BOARD_FW="upgradeFw%d\n";
-    static private final String UPLOAD_BLE_FW="upgradeBle%d\n";
+    static private final byte[] UPLOAD_BOARD_FW={'u','p','g','r','a','d','e','F','w'};
+    static private final byte[] UPLOAD_BLE_FW={'u','p','g','r','a','d','e','B','l','e'};
 
-    static private final String NODE_READY_TO_RECEIVE="Ready\r\n";
     static private final String ACK_MSG="\u0001";
     static private final String NACK_MSG="\u00ff";
     static private final int MAX_MSG_SIZE=16;
@@ -110,7 +113,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         /**
          * buffer where we are reading the file
          */
-        private BufferedInputStream mFileData;
+        private InputStream mFileData;
 
         /**
          * number of byte send to the node
@@ -119,11 +122,15 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
         private long mByteToSend;
 
+        private long mCrc;
+
+        private boolean mFirstAck;
+
         /**
          * size of the last package send
          */
-        private byte[] mLastPackageSend;
-
+        private byte[] mLastPackageSend = new byte[MAX_MSG_SIZE];
+        private int mLastPackageSize;
         /**
          * if the timeout is rise, resend the last package
          */
@@ -131,7 +138,6 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             @Override
             public void run() {
                 Log.d("onTimeout:","fired");
-
                 onStdOutReceived(mConsole,NACK_MSG);
             }
         };
@@ -142,33 +148,69 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             setConsoleListener(null);
         }
 
-        private void dumpFile(File f){
-            File output = new File("/sdcard/dump.bin");
-            try{
-                ImgFileInputStream in=new ImgFileInputStream(f);
-                FileOutputStream out = new FileOutputStream(output);
-                byte data[] = new byte[MAX_MSG_SIZE];
-                while (in.read(data)>0){
-                    out.write(data);
+        private void openFile(File f) throws FileNotFoundException {
+            if(f.getName().toLowerCase().endsWith("img")) {
+                ImgFileInputStream input = new ImgFileInputStream(f);
+                mFileData =input;
+                mByteToSend = input.length();
+            }else {
+                mFileData = new FileInputStream(f);
+                mByteToSend = f.length();
+            }
+        }
+
+
+        private long computeCrc32(File f){
+            Checksum crc = new STM32Crc32();
+            byte buffer[] = new byte[4];
+            try {
+                openFile(f);
+                //the file must be multiple of 32bit,
+                long fileSize = mByteToSend - mByteToSend%4;
+                BufferedInputStream inputStream = new BufferedInputStream(mFileData);
+                for(long i=0;i<fileSize;i+=4){
+                    if(inputStream.read(buffer)==buffer.length)
+                        crc.update(buffer,0,buffer.length);
+                    else{
+                        Log.d("computeCrc32", "computeCrc32: Error Read");
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                return -1;
             }
+
+            return crc.getValue();
+        }
+
+        private byte[] prepareLoadCommand(@FirmwareType int fwType,long fileSize,long
+                fileCrc){
+            byte[] command;
+            int offset;
+            if(fwType==BLE_FW){
+                offset = UPLOAD_BLE_FW.length;
+                command =new byte[offset+8];
+                System.arraycopy(UPLOAD_BLE_FW,0,command,0,offset);
+            }else{
+                offset = UPLOAD_BOARD_FW.length;
+                command =new byte[offset+8];
+                System.arraycopy(UPLOAD_BOARD_FW,0,command,0,offset);
+            }
+            byte temp[] = NumberConversion.LittleEndian.uint32ToBytes(fileSize);
+            System.arraycopy(temp,0,command,offset,temp.length);
+            offset+=temp.length;
+            temp = NumberConversion.LittleEndian.uint32ToBytes(fileCrc);
+            System.arraycopy(temp,0,command,offset,temp.length);
+
+            return command;
         }
 
         public void loadFile(@FirmwareType int fwType,Uri file){
             mFile=file;
             File f = new File(file.getPath());
-            mByteToSend = f.length();
+            mCrc = computeCrc32(f);
             try {
-                if(f.getName().toLowerCase().endsWith("img")) {
-                    ImgFileInputStream input = new ImgFileInputStream(f);
-                    mFileData = new BufferedInputStream(input);
-                    mByteToSend = input.length();
-                    dumpFile(f);
-
-                }else
-                    mFileData = new BufferedInputStream(new FileInputStream(f));
+                openFile(f);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 onLoadComplete(false);
@@ -176,59 +218,66 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             }
             //send the start command
 
-            switch (fwType) {
-                case FwUpgradeConsole.BLE_FW:
-                    mConsole.write(String.format(UPLOAD_BLE_FW,mByteToSend));
-                    break;
-                case FwUpgradeConsole.BOARD_FW:
-                    mConsole.write(String.format(UPLOAD_BOARD_FW,mByteToSend));
-                    break;
-                default:
-                    onLoadComplete(false);
-            }
+            Log.d("LoadFile",String.format("Crc: %X",mCrc));
+            mFirstAck =true;
+            mConsole.write(prepareLoadCommand(fwType,mByteToSend,mCrc));
         }
+
+        private boolean checkCrc(String message){
+            byte rcvCrc[] = message.getBytes(Charset.forName("ISO-8859-1"));
+            byte myCrc[] = NumberConversion.LittleEndian.uint32ToBytes(mCrc);
+            return Arrays.equals(rcvCrc,myCrc);
+        }
+
+        private boolean sendFwPackage(){
+            mLastPackageSize = (int) Math.min(mByteToSend - mByteSend, MAX_MSG_SIZE);
+            int byteRead = 0;
+            try {
+                byteRead = mFileData.read(mLastPackageSend, 0, mLastPackageSize);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            if (mLastPackageSize == byteRead) {
+                mByteSend += byteRead;
+                return mConsole.write(mLastPackageSend, 0, mLastPackageSize)==mLastPackageSize;
+            } else
+                //it read an unaspected number of byte, something bad happen
+                return false;
+        }//sendFwPackage
 
         //each time an ack is received a new package is send
         @Override
         public void onStdOutReceived(Debug debug, String message) {
-            Log.d("onStdOutReceived",message);
-            if(message.equalsIgnoreCase(ACK_MSG) ||
-                    message.equalsIgnoreCase(NODE_READY_TO_RECEIVE)){
-                //stop resend timeout
-                mTimeout.removeCallbacks(onTimeout);
-
-                if(mByteToSend!=mByteSend)
-                    mCallback.onLoadFwProgresUpdate(FwUpgradeConsoleNucleo.this,mFile,
-                            mByteToSend-mByteSend);
-                else {
-                    onLoadComplete(true);
-                    return;
-                }
-
-                int byteToRead = (int)Math.min(mByteToSend-mByteSend,MAX_MSG_SIZE);
-                byte buffer[] = new byte[byteToRead];
-                try {
-                    int byteRead = mFileData.read(buffer);
-                    mByteSend+=byteRead;
-                    mLastPackageSend=buffer;
-                    if(byteToRead==byteRead) {
-                        mConsole.write(buffer);
-                        mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
-                    }else
-                        //it read an unaspected number of byte, something bad happen
-                        onLoadComplete(false);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            if(mFirstAck){
+                if(checkCrc(message)) {
+                    mFirstAck = false;
+                    onStdOutReceived(debug,ACK_MSG); //send the fist package
+                }else
                     onLoadComplete(false);
-                }//try-catch
-            }else if(message.equals(NACK_MSG)){ //error
-                Log.d("onStdOutReceived:","nack");
-                onLoadComplete(false);
+            }else {
+                if (message.equalsIgnoreCase(ACK_MSG)) {
+                    //stop resend timeout
+                    mTimeout.removeCallbacks(onTimeout);
 
-                /*mTimeout.removeCallbacks(onTimeout);
-                mConsole.write(mLastPackageSend);
-                mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
-                */
+                    if (mByteToSend != mByteSend)
+                        mCallback.onLoadFwProgresUpdate(FwUpgradeConsoleNucleo.this, mFile,
+                                mByteToSend - mByteSend);
+                    else {
+                        onLoadComplete(true);
+                        return;
+                    }//if-else
+
+                    if(sendFwPackage())
+                        mTimeout.postDelayed(onTimeout, LOST_MSG_TIMEOUT_MS);
+                    else //error reading/sending the data
+                        onLoadComplete(false);
+
+                } else if (message.equals(NACK_MSG)) { //error
+                    mTimeout.removeCallbacks(onTimeout);
+                    mConsole.write(mLastPackageSend, 0, mLastPackageSize);
+                    mTimeout.postDelayed(onTimeout, LOST_MSG_TIMEOUT_MS);
+                }//if-else
             }
         }//onStdOutReceived
 

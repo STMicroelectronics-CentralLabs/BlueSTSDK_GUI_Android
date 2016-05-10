@@ -563,7 +563,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      * adapter that contains all the demos to show. The demos are a subset of {@code
      * DemosActivity.ALL_DEMOS}
      */
-    private static class DemosTabAdapter extends FragmentStatePagerAdapter {
+    private static class DemosTabAdapter extends FragmentPagerAdapter {
 
         /**
          * demos that will be displayed to the user

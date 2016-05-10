@@ -8,7 +8,6 @@ import android.os.PersistableBundle;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
@@ -53,6 +52,9 @@ public class FwUpgradeActivity extends ActivityWithNode {
 
     private FwUpgradeConsole mConsole;
     private FwUpgradeConsole.FwUpgradeCallback mConsoleListener = new FwUpgradeConsole.FwUpgradeCallback() {
+
+        private long startUploadTime=-1;
+
         @Override
         public void onVersionRead(final FwUpgradeConsole console,
                                   @FwUpgradeConsole.FirmwareType final int fwType,
@@ -73,20 +75,40 @@ public class FwUpgradeActivity extends ActivityWithNode {
 
         @Override
         public void onLoadFwComplete(FwUpgradeConsole console, Uri fwFile, boolean status) {
+            long totalTimeMs = System.currentTimeMillis()-startUploadTime;
+            float totalTimeS= totalTimeMs/1000.0f;
+            final String newStatus;
             if(status)
-                Toast.makeText(FwUpgradeActivity.this,"Update done",Toast.LENGTH_LONG).show();
+                newStatus=String.format("Update done: %.2f",totalTimeS);
             else
-                Toast.makeText(FwUpgradeActivity.this,"Update FAIL",Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onLoadFwProgresUpdate(FwUpgradeConsole console, Uri fwFile, final long loadBytes) {
+                newStatus=String.format("Update Fail: %.2f",totalTimeS);
             FwUpgradeActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mLoadStatus.setText("load: "+loadBytes);
+                    mLoadStatus.setText(newStatus);
                 }
             });
+            startUploadTime=-1;
+        }
+
+        private long nLastByteSend=Long.MAX_VALUE;
+        @Override
+        public void onLoadFwProgresUpdate(FwUpgradeConsole console, Uri fwFile, final long remainingBytes) {
+            if(startUploadTime<0) {
+                startUploadTime = System.currentTimeMillis();
+            }
+
+            //update the gui only after 128bytes are send, for avoid stress the ui thread
+            if(nLastByteSend-remainingBytes>128) {
+                FwUpgradeActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLoadStatus.setText("load: " + remainingBytes);
+                    }
+                });
+                nLastByteSend=remainingBytes;
+            }
+
         }
     };
 
