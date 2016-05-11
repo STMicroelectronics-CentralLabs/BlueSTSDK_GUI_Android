@@ -22,6 +22,8 @@ public abstract class LicenseConsole {
             case STEVAL_WESU1:
                 return new LicenseConsoleWesu(debug);
             case NUCLEO:
+            case SENSOR_TILE:
+            case BLUE_COIN:
                 return new LicenseConsoleNucleo(debug);
         }
         return  null;

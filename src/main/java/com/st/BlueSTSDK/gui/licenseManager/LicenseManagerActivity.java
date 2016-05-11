@@ -1,6 +1,5 @@
 package com.st.BlueSTSDK.gui.licenseManager;
 
-import android.app.DialogFragment;
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.content.Context;

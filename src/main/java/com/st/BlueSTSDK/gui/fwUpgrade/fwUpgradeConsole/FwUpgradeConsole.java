@@ -22,6 +22,8 @@ public abstract class FwUpgradeConsole {
     static public @Nullable FwUpgradeConsole getFwUpgradeConsole(Node node){
         switch (node.getType()) {
             case NUCLEO:
+            case SENSOR_TILE:
+            case BLUE_COIN:
                 return new FwUpgradeConsoleNucleo(node.getDebug());
         }
         return  null;
