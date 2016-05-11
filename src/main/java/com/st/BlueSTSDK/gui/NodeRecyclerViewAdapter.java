@@ -53,14 +53,14 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         holder.mNodeTagLabel.setText(n.getTag());
 
         switch (n.getType()){
-            case GENERIC:
-                holder.mNodeImage.setImageResource(R.drawable.board_generic);
-                break;
             case STEVAL_WESU1:
                 holder.mNodeImage.setImageResource(R.drawable.board_steval_wesu1);
                 break;
             case NUCLEO:
                 holder.mNodeImage.setImageResource(R.drawable.board_nucleo);
+                break;
+            default:
+                holder.mNodeImage.setImageResource(R.drawable.board_generic);
                 break;
         }
 
