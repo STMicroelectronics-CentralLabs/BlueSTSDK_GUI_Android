@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="username">Username</string>
+    <string name="e_mail">E-Mail</string>
+    <string name="company_name">Company Name</string>
+    <string name="sendButton">Send</string>
+    <string name="invalidUserName">Invalid username</string>
+    <string name="invalidEmail">Invalid email address</string>
+    <string name="invalidCompanyName">Invalid company name</string>
+
+</resources>

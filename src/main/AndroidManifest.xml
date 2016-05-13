@@ -3,7 +3,9 @@
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- needed for read the fw file -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18"/>
 
     <application
         android:allowBackup="true"
@@ -24,8 +26,9 @@
             android:label="@string/licenseManager_statusActivityName"
             android:launchMode="singleTop">
         </activity>
-        <activity android:name=".licenseManager.ApproveLicenseActivity"
-            android:label="@string/approveLicenseActivityName">
+        <activity android:name=".licenseManager.RequestLicenseActivity"
+            android:label="@string/approveLicenseActivityName"
+                  android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.st.BlueSTSDK.gui.licenseManager.LicenseManagerActivity"/>

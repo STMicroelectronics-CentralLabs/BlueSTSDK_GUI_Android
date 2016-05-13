@@ -59,6 +59,8 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
             case NUCLEO:
                 holder.mNodeImage.setImageResource(R.drawable.board_nucleo);
                 break;
+            case SENSOR_TILE:
+                holder.mNodeImage.setImageResource(R.drawable.board_sensor_tile);
             default:
                 holder.mNodeImage.setImageResource(R.drawable.board_generic);
                 break;

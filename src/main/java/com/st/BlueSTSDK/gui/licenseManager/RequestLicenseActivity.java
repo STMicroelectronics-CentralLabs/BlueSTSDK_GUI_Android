@@ -1,6 +1,6 @@
 package com.st.BlueSTSDK.gui.licenseManager;
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,14 +16,16 @@ import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseInfo;
 /**
  * Activity that display the license text that the user has to agree for request the license
  */
-public class ApproveLicenseActivity extends AppCompatActivity {
+public class RequestLicenseActivity extends AppCompatActivity implements
+        ApproveLicenseFragment.OnFragmentInteractionListener,
+        RequestUserDataFragment.OnFragmentInteractionListener {
 
-    private static String LICENSE_INFO = ApproveLicenseActivity.class.getCanonicalName()+"" +
+    private static String LICENSE_INFO = RequestLicenseActivity.class.getCanonicalName()+"" +
             ".LicenseInfo";
-    private static String BOARD_ID = ApproveLicenseActivity.class.getCanonicalName()+".BoardId";
+    private static String BOARD_ID = RequestLicenseActivity.class.getCanonicalName()+".BoardId";
 
     public static Intent getStartIntent(Context c, LicenseInfo licenseName, String boardId){
-        Intent i = new Intent(c,ApproveLicenseActivity.class);
+        Intent i = new Intent(c,RequestLicenseActivity.class);
         i.putExtra(LICENSE_INFO,licenseName);
         i.putExtra(BOARD_ID,boardId);
         return i;
@@ -57,8 +59,11 @@ public class ApproveLicenseActivity extends AppCompatActivity {
         TextView title = (TextView) findViewById(R.id.licTitle);
         title.setText(mLicense.longName);
 
-        WebView licView = (WebView) findViewById(R.id.licView);
-        licView.loadUrl(mLicense.licensePage);
+        Fragment licApprove = ApproveLicenseFragment.newInstance(mLicense.disclaimerFile);
+        getFragmentManager()
+                .beginTransaction()
+                    .add(R.id.licRequestFragment,licApprove)
+                .commit();
     }
 
     @Override
@@ -68,36 +73,28 @@ public class ApproveLicenseActivity extends AppCompatActivity {
         outState.putParcelable(LICENSE_INFO,mLicense);
     }
 
-    /**
-     * prepare the mail content for request the license
-     */
-    void prepareLicenseRequestMail(){
-        Intent i = new Intent(Intent.ACTION_SEND);
-        i.setType("message/rfc822");
-        i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"recipient@example.com"});
-        i.putExtra(Intent.EXTRA_SUBJECT, "Request License for: "+mLicense.longName);
-        i.putExtra(Intent.EXTRA_TEXT, "License: "+mLicense.longName+"\n STM32 UID: "+mBoardUid);
+    @Override
+    public void onDisagreeButtonPressed() {
+        finish();
+    }
+
+    @Override
+    public void onAgreeButtonPressed() {
+        getFragmentManager()
+                .beginTransaction()
+                    .replace(R.id.licRequestFragment,RequestUserDataFragment.newInstance())
+                .commit();
+    }
+
+    @Override
+    public void onDataIsInserted(String userName, String email, String company) {
+        Intent i = new GenerateMailText(userName,company,email,mLicense,mBoardUid)
+                .prepareSendMailIntent(this);
         try {
             startActivity(Intent.createChooser(i, "Send mail..."));
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    /**
-     * prepare the request mail and end the activity
-     * @param view
-     */
-    public void onAgreeClick(View view) {
-        prepareLicenseRequestMail();
         finish();
-    }
-
-    /**
-     * just got back
-     * @param view
-     */
-    public void onDisagreeClick(View view) {
-        finish(); //go back
     }
 }

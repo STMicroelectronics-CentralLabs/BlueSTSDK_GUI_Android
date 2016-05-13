@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="agreeButton">Agree</string>
-    <string name="disagreeButton">Disagree</string>
     <string name="approveLicenseActivityName">Approve license</string>
 </resources>

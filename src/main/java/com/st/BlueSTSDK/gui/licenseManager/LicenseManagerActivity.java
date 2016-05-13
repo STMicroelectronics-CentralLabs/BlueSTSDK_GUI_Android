@@ -28,7 +28,6 @@ import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseManagerDBContract.Lice
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseManagerDbHelper;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -317,7 +316,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
      */
     @Override
     public void onLicenseRequestClick(LicenseStatus lic) {
-        startActivity(ApproveLicenseActivity.getStartIntent(this,lic.info,mBoardUid));
+        startActivity(RequestLicenseActivity.getStartIntent(this,lic.info,mBoardUid));
     }
 
 
