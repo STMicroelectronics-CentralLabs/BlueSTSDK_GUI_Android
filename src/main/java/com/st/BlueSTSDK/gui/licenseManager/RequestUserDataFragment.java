@@ -1,5 +1,6 @@
 package com.st.BlueSTSDK.gui.licenseManager;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +22,7 @@ import java.util.regex.Pattern;
 
 public class RequestUserDataFragment extends Fragment {
 
-    private static final Pattern VALID_EMAIL_PATTERN= Pattern.compile("^([a-zA-Z0-9_\\-\\.]+)"+
-            "@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|" +
-                    "(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$");
+
 
     private OnFragmentInteractionListener mListener;
 
@@ -94,7 +94,7 @@ public class RequestUserDataFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(Activity context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
@@ -177,7 +177,7 @@ public class RequestUserDataFragment extends Fragment {
     }
 
     private static boolean isValidEmail(String email) {
-        return !TextUtils.isEmpty(email) && VALID_EMAIL_PATTERN.matcher(email).matches();
+        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     private void requestFocus(View view) {

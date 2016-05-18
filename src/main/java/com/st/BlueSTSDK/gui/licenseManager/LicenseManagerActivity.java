@@ -334,9 +334,10 @@ public class LicenseManagerActivity extends ActivityWithNode implements
     @Override
     public void onLicenseUploadClick(LicenseStatus lic) {
         LicenseEntry knowLic = isKnowLicense(lic.info);
-        if(knowLic==null)
-            startActivity(LoadLicenseActivity.getStartIntent(this, getNode(), mBoardUid,lic.info));
-        else{
+        if(knowLic==null) {
+            keepConnectionOpen(true);
+            startActivity(LoadLicenseActivity.getStartIntent(this, getNode(), mBoardUid, lic.info));
+        }else{
             new LoadLicenseTask(this,mConsole,sUserLoadLicenseCallback).load(knowLic);
         }
     }

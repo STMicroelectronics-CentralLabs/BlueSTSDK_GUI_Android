@@ -4,5 +4,6 @@
     <string name="licenseDesc_AR">Activity recognition</string>
     <string name="licenseDesc_CP">Carry position</string>
     <string name="licenseDesc_GR">Gesture recognition</string>
-    <string name="licenseDesc_PM">Pedomiter</string>
+    <string name="licenseDesc_PM">Pedometer</string>
+    <string name="licenseDesc_SL">Acoustic source-localization</string>
 </resources>

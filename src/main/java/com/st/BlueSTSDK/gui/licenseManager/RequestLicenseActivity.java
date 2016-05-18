@@ -59,11 +59,13 @@ public class RequestLicenseActivity extends AppCompatActivity implements
         TextView title = (TextView) findViewById(R.id.licTitle);
         title.setText(mLicense.longName);
 
-        Fragment licApprove = ApproveLicenseFragment.newInstance(mLicense.disclaimerFile);
-        getFragmentManager()
-                .beginTransaction()
-                    .add(R.id.licRequestFragment,licApprove)
-                .commit();
+        if(savedInstanceState==null) { // the first time add the fragment
+            Fragment licApprove = ApproveLicenseFragment.newInstance(mLicense.disclaimerFile);
+            getFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.licRequestFragment, licApprove)
+                    .commit();
+        }
     }
 
     @Override

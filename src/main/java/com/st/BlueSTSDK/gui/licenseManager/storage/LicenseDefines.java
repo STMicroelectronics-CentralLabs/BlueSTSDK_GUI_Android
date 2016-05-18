@@ -14,30 +14,35 @@ public class LicenseDefines {
     private static ArrayList<LicenseInfo> sLicenseInfo = new ArrayList<>();
 
     static{
-        //mems sensor fusion
+        //Mems sensor fusion
         sLicenseInfo.add(new LicenseInfo("FX","osxMotionFX","OSX_MOTION_FX_V140",
                 "MotionFX v1.4.0 - 6x/9x Sensor Fusion",
                 LicenseType.OpenMems, R.raw.fx_disclaimer,  R.string.licenseDesc_FX));
 
-        //mems activity recognition
+        //Mems activity recognition
         sLicenseInfo.add(new LicenseInfo("AR","osxMotionAR","OSX_MOTION_AR_V130",
                 "MotionAR v1.3.0 - Activity Recognition",
                 LicenseType.OpenMems,R.raw.generic_disclaimer, R.string.licenseDesc_AR));
 
-        //mems carry position
+        //Mems carry position
         sLicenseInfo.add(new LicenseInfo("CP","osxMotionCP","OSX_MOTION_CP_V120",
                 "MotionCP v1.2.0 - Carry Position Recognition",
                 LicenseType.OpenMems,R.raw.generic_disclaimer, R.string.licenseDesc_CP));
 
-        //mems gesture recognition
+        //Mems gesture recognition
         sLicenseInfo.add(new LicenseInfo("GR","osxMotionGR","OSX_MOTION_GR_V110",
                 "MotionGR v1.1.0 - Gesture Recognition",
                 LicenseType.OpenMems,R.raw.generic_disclaimer,R.string.licenseDesc_GR));
 
-        //mems pedometer
+        //Mems pedometer
         sLicenseInfo.add(new LicenseInfo("PM","osxMotionPM","OSX_MOTION_PM_V100",
                 "MotionPM v1.0.0 - Pedometer",
                 LicenseType.OpenMems,R.raw.generic_disclaimer,R.string.licenseDesc_PM));
+
+        //Audio source localization
+        sLicenseInfo.add(new LicenseInfo("SL","osxAcusticSL","OSX_ACOUSTIC_SL_V100",
+                "AcousticSL v1.0.0 - Acoustic source-localization",
+                LicenseType.OpenAudio,R.raw.generic_disclaimer,R.string.licenseDesc_SL));
     }
 
     /**

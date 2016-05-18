@@ -1,7 +1,7 @@
 package com.st.BlueSTSDK.gui.licenseManager;
 
+import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.RawRes;
@@ -111,7 +111,7 @@ public class ApproveLicenseFragment extends Fragment {
 
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(Activity context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
