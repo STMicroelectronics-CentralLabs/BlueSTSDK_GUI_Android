@@ -161,12 +161,13 @@ public abstract class DemoFragment extends Fragment {
         //if the fragment is loaded
         if(isResumed()) {
             //if it became visible and the demo is not already running
-            if (visible && !isRunning())
-                startDemo();
-            else
+            if (visible) {
+                if (!isRunning())
+                    startDemo();
+            }else {
                 stopDemo();
+            }
         }//isResumed
-
     }
 
     /**
