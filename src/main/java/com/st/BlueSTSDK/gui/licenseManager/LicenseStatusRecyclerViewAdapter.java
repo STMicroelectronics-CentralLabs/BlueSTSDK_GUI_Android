@@ -64,13 +64,16 @@ public class LicenseStatusRecyclerViewAdapter extends
         holder.mLic = lic;
         holder.mLicenseName.setText(lic.info.longName);
         holder.mLicenseDesc.setText(lic.info.licenseDesc);
-        if(lic.isPresent){ // if the license is present show only the tick image
+        if(lic.isPresentOnTheBoard){ // if the license is present show only the tick image
             holder.mLicenseIsOk.setVisibility(View.VISIBLE);
             holder.mLicenseRequest.setVisibility(View.GONE);
             holder.mLicenseUpload.setVisibility(View.GONE);
         }else{ // otherwise show the load/request button
             holder.mLicenseIsOk.setVisibility(View.GONE);
-            holder.mLicenseRequest.setVisibility(View.VISIBLE);
+            if(!lic.isPresentOnDB) // hide the request if the license is already present in the db
+                holder.mLicenseRequest.setVisibility(View.VISIBLE);
+            else
+                holder.mLicenseRequest.setVisibility(View.GONE);
             holder.mLicenseUpload.setVisibility(View.VISIBLE);
         }//if-else
     }//onBindViewHolder

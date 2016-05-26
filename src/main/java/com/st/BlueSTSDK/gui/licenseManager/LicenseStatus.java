@@ -16,18 +16,29 @@ public class LicenseStatus implements Parcelable{
     public final LicenseInfo info;
 
     /**
-     * True if the license is present
+     * True if the license is present on the board
      */
-    public final boolean isPresent;
+    public final boolean isPresentOnTheBoard;
+
+    /**
+     * True if the license is present on the mobile DB
+     */
+    public boolean isPresentOnDB;
 
     /**
      * Create a new license status
      * @param lic license info
-     * @param status license status
+     * @param boardLicStatus license board status
+     * @param DBLicStatus true if the license is present in the mobile db
      */
-    public LicenseStatus(LicenseInfo lic,boolean status){
+    public LicenseStatus(LicenseInfo lic,boolean boardLicStatus,boolean DBLicStatus){
         info=lic;
-        isPresent=status;
+        isPresentOnTheBoard =boardLicStatus;
+        isPresentOnDB=DBLicStatus;
+    }
+
+    public LicenseStatus(LicenseInfo lic,boolean boardLicStatus){
+        this(lic,boardLicStatus,false);
     }
 
 
@@ -35,7 +46,8 @@ public class LicenseStatus implements Parcelable{
 
     protected LicenseStatus(Parcel in) {
         info = in.readParcelable(LicenseInfo.class.getClassLoader());
-        isPresent = in.readByte() != 0;
+        isPresentOnTheBoard = in.readByte() != 0;
+        isPresentOnDB = in.readByte() != 0;
     }
 
     public static final Creator<LicenseStatus> CREATOR = new Creator<LicenseStatus>() {
@@ -58,7 +70,8 @@ public class LicenseStatus implements Parcelable{
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeParcelable(info, i);
-        parcel.writeByte((byte) (isPresent ? 1 : 0));
+        parcel.writeByte((byte) (isPresentOnTheBoard ? 1 : 0));
+        parcel.writeByte((byte) (isPresentOnDB ? 1 : 0));
     }
 
     ////////////////End Parcelable Interface///////////////////////////

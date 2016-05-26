@@ -365,10 +365,10 @@ public class LicenseManagerActivity extends ActivityWithNode implements
             return newKnowLic;
 
         for(LicenseStatus s : licStatus){
-            if(!s.isPresent) // if the license is not present, search in the know list
+            if(!s.isPresentOnTheBoard) // if the license is not present, search in the know list
                 for(LicenseEntry e: knowLic){
                     //if we found the license
-                    if(s.info.shortName.equalsIgnoreCase(e.getLicenseType())){
+                    if(s.info.equals(e)){
                         newKnowLic.add(e);
                         break;
                     }//if
@@ -377,6 +377,11 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         return newKnowLic;
     }//findKnowLicense
 
+    private void updateDBLicStatus(){
+        for(LicenseStatus s: mLicStatus){
+            s.isPresentOnDB=isKnowLicense(s.info)!=null;
+        }
+    }
 
 
     /**
@@ -396,6 +401,11 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         //extract the license form the cursor
         List<LicenseEntry> temp = LicenseManagerDbHelper.buildLicenseEntryList(cursor);
         mKnowLic = findKnowLicense(temp, mLicStatus);
+        if(!mKnowLic.isEmpty()) {
+            updateDBLicStatus();
+            mLicListView.getAdapter().notifyDataSetChanged();
+        }
+
     }
 
     @Override
