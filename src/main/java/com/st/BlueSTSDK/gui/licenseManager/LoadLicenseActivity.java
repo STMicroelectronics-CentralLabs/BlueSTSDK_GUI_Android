@@ -23,7 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Activity where the use has to past the license test
+ * Activity where the use has to paste the license code
  */
 public class LoadLicenseActivity extends ActivityWithNode {
 
@@ -41,7 +41,7 @@ public class LoadLicenseActivity extends ActivityWithNode {
     /**
      * pattern used for extract the license name
      */
-    private static final Pattern EXTRACT_lIB_NAME = Pattern.compile("osx_m(..)_license\\[3\\]\\[4\\]");
+    private static final Pattern EXTRACT_lIB_NAME = Pattern.compile("osx_.(..)_license\\[3\\]\\[4\\]");
 
     /**
      * Create an intent for start this activity

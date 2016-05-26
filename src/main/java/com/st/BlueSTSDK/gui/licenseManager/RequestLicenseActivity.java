@@ -14,7 +14,8 @@ import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseInfo;
 
 /**
- * Activity that display the license text that the user has to agree for request the license
+ * Activity that display the license text that the user has to agree for request the license and
+ * the field to fill for requiring the license
  */
 public class RequestLicenseActivity extends AppCompatActivity implements
         ApproveLicenseFragment.OnFragmentInteractionListener,
@@ -24,9 +25,17 @@ public class RequestLicenseActivity extends AppCompatActivity implements
             ".LicenseInfo";
     private static String BOARD_ID = RequestLicenseActivity.class.getCanonicalName()+".BoardId";
 
-    public static Intent getStartIntent(Context c, LicenseInfo licenseName, String boardId){
+
+    /**
+     * Create an intent for start this activity
+     * @param c context
+     * @param license to request
+     * @param boardId board where the license will run
+     * @return intent for start the activity
+     */
+    public static Intent getStartIntent(Context c, LicenseInfo license, String boardId){
         Intent i = new Intent(c,RequestLicenseActivity.class);
-        i.putExtra(LICENSE_INFO,licenseName);
+        i.putExtra(LICENSE_INFO,license);
         i.putExtra(BOARD_ID,boardId);
         return i;
     }
@@ -40,7 +49,6 @@ public class RequestLicenseActivity extends AppCompatActivity implements
      * board id where the license will be used
      */
     private String mBoardUid;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +88,9 @@ public class RequestLicenseActivity extends AppCompatActivity implements
         finish();
     }
 
+    /**
+     * when the user agree the license, display the fragment for ask the data
+     */
     @Override
     public void onAgreeButtonPressed() {
         getFragmentManager()
@@ -88,6 +99,7 @@ public class RequestLicenseActivity extends AppCompatActivity implements
                 .commit();
     }
 
+    /** when the user gives the data, send the request mail */
     @Override
     public void onDataIsInserted(String userName, String email, String company) {
         Intent i = new GenerateMailText(userName,company,email,mLicense,mBoardUid)
@@ -96,7 +108,7 @@ public class RequestLicenseActivity extends AppCompatActivity implements
             startActivity(Intent.createChooser(i, "Send mail..."));
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
-        }
+        }//try-catch
         finish();
     }
 }

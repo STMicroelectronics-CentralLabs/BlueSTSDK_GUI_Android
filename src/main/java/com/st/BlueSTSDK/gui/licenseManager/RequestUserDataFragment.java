@@ -2,7 +2,6 @@ package com.st.BlueSTSDK.gui.licenseManager;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -18,11 +17,11 @@ import android.widget.EditText;
 
 import com.st.BlueSTSDK.gui.R;
 
-import java.util.regex.Pattern;
-
+/**
+ * Fragment used for ask the user to insert its data, the activity that will contain this fragment
+ * MUST implement the interface {@link RequestUserDataFragment.OnFragmentInteractionListener}
+ */
 public class RequestUserDataFragment extends Fragment {
-
-
 
     private OnFragmentInteractionListener mListener;
 
@@ -111,6 +110,10 @@ public class RequestUserDataFragment extends Fragment {
     }
 
 
+    /**
+     * check that all the input are correct, if one is wrong show a message
+     * @return true if all the input are correct
+     */
     private boolean validateInput(){
         if(!validateUserName()) {
             Snackbar.make(root, R.string.invalidUserName, Snackbar.LENGTH_SHORT).show();
@@ -127,10 +130,19 @@ public class RequestUserDataFragment extends Fragment {
         return true;
     }
 
+    /**
+     * remove strange characters from the string and remove the starting end ending space
+     * @param sequence string to clean
+     * @return string without strange characters
+     */
     private String removeDangerousChar(CharSequence sequence){
         return sequence.toString().replace(",","").trim();
     }
 
+    /**
+     * check it the user name is valid
+     * @return true if is not empty
+     */
     private boolean validateUserName() {
         String input = removeDangerousChar(mUserName.getText());
         if (input.isEmpty()) {
@@ -145,10 +157,23 @@ public class RequestUserDataFragment extends Fragment {
         return true;
     }
 
+    /**
+     * check the the string is a valid email
+     * @param email string to check
+     * @return true if is not empty and with a valid email format
+     */
+    private static boolean isValidEmail(String email) {
+        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    /**
+     * check it the email is valid
+     * @return true if is not empty and a valid email
+     */
     private boolean validateEmail() {
         String input = removeDangerousChar(mEMail.getText());
 
-        if (input.isEmpty() || !isValidEmail(input)) {
+        if (!isValidEmail(input)) {
             mEMailLayout.setErrorEnabled(true);
             mEMailLayout.setError(getString(R.string.invalidEmail));
             requestFocus(mEMail);
@@ -161,6 +186,10 @@ public class RequestUserDataFragment extends Fragment {
         return true;
     }
 
+    /**
+     * check it the company name is valid
+     * @return true if is not empty
+     */
     private boolean validateCompanyName() {
         String input = removeDangerousChar(mCompany.getText());
         if (input.isEmpty()) {
@@ -176,10 +205,6 @@ public class RequestUserDataFragment extends Fragment {
         return true;
     }
 
-    private static boolean isValidEmail(String email) {
-        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
-    }
-
     private void requestFocus(View view) {
         if (view.requestFocus()) {
             getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams
@@ -187,6 +212,9 @@ public class RequestUserDataFragment extends Fragment {
         }
     }
 
+    /**
+     * helper used for remove the 2 method from the interface
+     */
     private static abstract class ValidateInputFiled implements TextWatcher {
 
         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -197,7 +225,15 @@ public class RequestUserDataFragment extends Fragment {
 
     }
 
+
     public interface OnFragmentInteractionListener {
+
+        /**
+         * callback called when the user finish to insert the data
+         * @param userName inserted user name
+         * @param email inserted email
+         * @param company inserted company
+         */
         void onDataIsInserted(String userName,String email,String company);
     }
     

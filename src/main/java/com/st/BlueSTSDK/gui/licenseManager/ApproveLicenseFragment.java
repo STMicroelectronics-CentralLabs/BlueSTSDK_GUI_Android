@@ -17,21 +17,39 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-
+/**
+ * Fragment that will show the license agreement and the button for agree it
+ * the activity that will use this frament MUST implement the {@link ApproveLicenseFragment.OnFragmentInteractionListener}
+ * interface
+ */
 public class ApproveLicenseFragment extends Fragment {
     private static final String DISCLAIMER_FILE = ApproveLicenseFragment.class.getCanonicalName()
             +".DISCLAIMER_FILE";
 
+    /**
+     * object used for notify the user action
+     */
     private OnFragmentInteractionListener mListener;
 
+    /**
+     * reference to the file to show
+     */
     private @RawRes int mDisclaimerFile;
+
+    /**
+     * text view where show the file
+     */
     private TextView mLicenseTextView;
 
     public ApproveLicenseFragment() {
         // Required empty public constructor
     }
 
-
+    /**
+     * create the fragment and set its arguments
+     * @param disclaimerFile resource to read for display the license
+     * @return a fragment reference
+     */
     public static ApproveLicenseFragment newInstance(@RawRes int disclaimerFile) {
         ApproveLicenseFragment fragment = new ApproveLicenseFragment();
         Bundle args = new Bundle();
@@ -45,10 +63,13 @@ public class ApproveLicenseFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mDisclaimerFile = getArguments().getInt(DISCLAIMER_FILE);
-        }
+        }//if
     }
 
-    private void loadLicenseFile(){
+    /**
+     * Create an async task for read the file and display the final string in the textView
+     */
+    private void asyncLoadLicenseFile(){
 
         InputStream fileStream = getResources().openRawResource(mDisclaimerFile);
 
@@ -86,7 +107,7 @@ public class ApproveLicenseFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_approve_license, container, false);
         mLicenseTextView = (TextView) root.findViewById(R.id.licView);
 
-        loadLicenseFile();
+        asyncLoadLicenseFile();
 
         root.findViewById(R.id.licAgreeButton).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,7 +139,7 @@ public class ApproveLicenseFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
-        }
+        }//if-else
     }
 
     @Override
@@ -128,17 +149,17 @@ public class ApproveLicenseFragment extends Fragment {
     }
 
     /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
+     * interface used for notify the user interaction with this fragment
      */
     public interface OnFragmentInteractionListener {
+        /**
+         * called when the agree button is pressed
+         */
         void onAgreeButtonPressed();
+
+        /**
+         * called when the disagrree button is pressed
+         */
         void onDisagreeButtonPressed();
     }
 }
