@@ -21,5 +21,7 @@
     <string name="clear_board_license">Clear board license</string>
     <string name="errorClearBoardLic">Error cleaning the board license</string>
     <string name="clearBoardLicOk">License removed</string>
+    <string name="LicenseManagerNotAvailable_title">License Manager</string>
+    <string name="LicenseManagerNotAvailable_msg">License manager not available</string>
 
 </resources>

@@ -30,8 +30,6 @@ public class FwUpgradeActivity extends ActivityWithNode {
                 keepTheConnectionOpen);
     }
 
-
-
     private Uri mFwBleFile;
     private TextView mVersionBleText;
     private TextView mFwFileBleText;

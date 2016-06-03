@@ -3,6 +3,7 @@ package com.st.BlueSTSDK.gui.licenseManager;
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -233,6 +235,15 @@ public class LicenseManagerActivity extends ActivityWithNode implements
                 public void onLicenseStatusRead(LicenseConsole console, List<LicenseStatus>
                         licenses) {
                     mLicStatus = licenses;
+                    if(licenses.isEmpty()){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showLicenseStatusNotAvailableDialog();
+                            }
+                        });
+                        return;
+                    }//if
 
                     //start load the previous license for that node
                     getLoaderManager().initLoader(LOAD_KNOW_LICENSE, null,
@@ -411,4 +422,22 @@ public class LicenseManagerActivity extends ActivityWithNode implements
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { }
 
+
+    private void showLicenseStatusNotAvailableDialog(){
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.LicenseManagerNotAvailable_title)
+                .setMessage(R.string.LicenseManagerNotAvailable_msg)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setCancelable(true)
+                .setNeutralButton(android.R.string.ok,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            if(mLoadLicenseWait.isShowing())
+                                mLoadLicenseWait.dismiss();
+                            dialog.dismiss();
+                            keepConnectionOpen(true);
+                            finish();
+                    }
+                }).create().show();
+    }
 }

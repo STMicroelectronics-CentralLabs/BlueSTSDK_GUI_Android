@@ -40,7 +40,7 @@ public class LicenseConsoleNucleo extends LicenseConsole {
      * patter used for split/capture the license name and its status, each line has the format:
      * licenseName [OK|--]
      */
-    private static final Pattern LICENSE_STATUS_PARSE = Pattern.compile("(\\w+)\\s*(..)");
+    private static final Pattern LICENSE_STATUS_PARSE = Pattern.compile("(\\w+)\\s+(..)");
 
     /**
      * pattern used for understand if the license is successfully load
@@ -64,13 +64,13 @@ public class LicenseConsoleNucleo extends LicenseConsole {
 
         @Override
         public void onStdOutReceived(Debug debug, String message) {
-            if (message.endsWith("\r\n")) {
-                mBuffer.append(message, 0, message.length() - 2);
+            mBuffer.append(message);
+            if (mBuffer.length()>2 &&
+                    mBuffer.substring(mBuffer.length()-2).equals("\r\n")) {
+                mBuffer.delete(mBuffer.length()-2,mBuffer.length());
                 setConsoleListener(null);
                 if (mCallback != null)
                     mCallback.onBoardIdRead(LicenseConsoleNucleo.this, mBuffer.toString());
-            } else {
-                mBuffer.append(message);
             }
         }
 
@@ -157,15 +157,15 @@ public class LicenseConsoleNucleo extends LicenseConsole {
          */
         @Override
         public void onStdOutReceived(Debug debug, String message) {
-            if (message.endsWith("\r\n")) {
+            mBuffer.append(message);
+            if (mBuffer.length()>2 &&
+                    mBuffer.substring(mBuffer.length()-2).equals("\r\n")) {
+                mBuffer.delete(mBuffer.length()-2,mBuffer.length());
                 mTimeout.removeCallbacks(onTimeout);
-                mBuffer.append(message, 0, message.length() - 2);
                 setConsoleListener(null);
                 if (mCallback != null)
                     mCallback.onLicenseLoad(LicenseConsoleNucleo.this,
                             LICENSE_LOAD_STATUS_PARSE.matcher(mBuffer).find());
-            } else {
-                mBuffer.append(message);
             }
         }
 
@@ -212,7 +212,6 @@ public class LicenseConsoleNucleo extends LicenseConsole {
         ArrayList<LicenseStatus> licStatus = new ArrayList<>();
         Matcher parseLine = LICENSE_STATUS_PARSE.matcher(resp);
         while (parseLine.find()) {
-
             String licName = parseLine.group(1);
             //last 2 char are the license short name/code
             LicenseInfo info = LicenseDefines.getLicenseInfo(licName.substring(licName.length()-2));

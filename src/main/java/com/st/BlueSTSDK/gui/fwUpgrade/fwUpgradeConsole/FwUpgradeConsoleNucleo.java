@@ -72,8 +72,10 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
         @Override
         public void onStdOutReceived(Debug debug, String message) {
-            if (message.endsWith("\r\n")) {
-                mBuffer.append(message, 0, message.length() - 2);
+            mBuffer.append(message);
+            if (mBuffer.length()>2 &&
+                    mBuffer.substring(mBuffer.length()-2).equals("\r\n")) {
+                mBuffer.delete(mBuffer.length()-2,mBuffer.length());
                 setConsoleListener(null);
                 FwVersion version=null;
                 try {
@@ -90,8 +92,6 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                 }
                 if (mCallback != null)
                     mCallback.onVersionRead(FwUpgradeConsoleNucleo.this,mRequestFwType,version);
-            } else {
-                mBuffer.append(message);
             }
         }
 
