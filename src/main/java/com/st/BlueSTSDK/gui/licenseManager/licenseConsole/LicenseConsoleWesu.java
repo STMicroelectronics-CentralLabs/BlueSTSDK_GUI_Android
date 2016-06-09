@@ -220,4 +220,10 @@ public class LicenseConsoleWesu extends LicenseConsole {
         return true;
     }
 
+    @Override
+    public boolean cleanAllLicense() {
+        mCallback.onLicenseCleared(this,false);
+        return true;
+    }
+
 }

@@ -47,6 +47,11 @@ public class LicenseConsoleNucleo extends LicenseConsole {
      */
     private static final Pattern LICENSE_LOAD_STATUS_PARSE = Pattern.compile(".*Succes.*");
 
+    private static final Pattern LICENSE_CLEAR_STATUS_PARSE = Pattern.compile(".*Reset of All.*");
+
+    private static final String CLEAR_BOARD_LIC_COMMAND="XX0\n";
+
+
     /**
      * object that will receive the console data
      */
@@ -181,6 +186,58 @@ public class LicenseConsoleNucleo extends LicenseConsole {
         }
     };
 
+    /**
+     * object used to manage the clean console license
+     */
+    private Debug.DebugOutputListener mConsoleCleanLicenseListener = new Debug.DebugOutputListener() {
+
+        /**
+         * remove the listener and notify the failure
+         */
+        private Runnable onTimeout = new Runnable() {
+            @Override
+            public void run() {
+                setConsoleListener(null);
+                mCallback.onLicenseCleared(LicenseConsoleNucleo.this, false);
+            }
+        };
+        /**
+         * when the fist message is send, start a timeout, that if we don't receive an answer we
+         * notify a failure.
+         * we need the boolean since the license command is send in more than one message
+         */
+        private boolean mFistWrite = true;
+
+        /**
+         *
+         * @param debug   object that send the message
+         * @param message message that someone write in the debug console
+         */
+        @Override
+        public void onStdOutReceived(Debug debug, String message) {
+            if (message.endsWith("\r\n")) {
+                mTimeout.removeCallbacks(onTimeout);
+                mBuffer.append(message, 0, message.length() - 2);
+                setConsoleListener(null);
+                if (mCallback != null)
+                    mCallback.onLicenseCleared(LicenseConsoleNucleo.this,
+                            LICENSE_CLEAR_STATUS_PARSE.matcher(mBuffer).find());
+            } else {
+                mBuffer.append(message);
+            }
+        }
+
+        @Override
+        public void onStdErrReceived(Debug debug, String message) {
+
+        }
+
+        @Override
+        public void onStdInSent(Debug debug, String message, boolean writeResult) {
+            if (mFistWrite)
+                mTimeout.postDelayed(onTimeout, COMMAND_TIMEOUT_MS);
+        }
+    };
 
     /**
      * build a debug console without a callback
@@ -208,7 +265,7 @@ public class LicenseConsoleNucleo extends LicenseConsole {
      * @param resp node response to the command for list the license status
      * @return list of license status
      */
-    private List<LicenseStatus> parseLicStatusResponse(String resp) {
+    private static List<LicenseStatus> parseLicStatusResponse(String resp) {
         ArrayList<LicenseStatus> licStatus = new ArrayList<>();
         Matcher parseLine = LICENSE_STATUS_PARSE.matcher(resp);
         while (parseLine.find()) {
@@ -267,10 +324,21 @@ public class LicenseConsoleNucleo extends LicenseConsole {
         if (isWaitingAnswer())
             return false;
 
-        setConsoleListener(mConsoleLoadLicenseListener);
         mBuffer.setLength(0); //reset the buffer
+        setConsoleListener(mConsoleLoadLicenseListener);
         mConsole.write(licName);
         mConsole.write(licCode);
+        return true;
+    }
+
+    @Override
+    public boolean cleanAllLicense() {
+        if(isWaitingAnswer())
+            return false;
+
+        mBuffer.setLength(0);
+        setConsoleListener(mConsoleCleanLicenseListener);
+        mConsole.write(CLEAR_BOARD_LIC_COMMAND);
         return true;
     }
 }

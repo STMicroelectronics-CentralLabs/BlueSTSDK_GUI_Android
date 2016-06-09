@@ -90,6 +90,13 @@ public abstract class LicenseConsole {
     public abstract boolean writeLicenseCode(String licName, byte[] licCode);
 
     /**
+     * remove all the license into the node, when the process end the method
+     * {@link LicenseConsoleCallback#onLicenseCleared(LicenseConsole, boolean)}
+     * @return true if the message is correctly send, false otherwise
+     */
+    public abstract boolean cleanAllLicense();
+
+    /**
      * callback interface used to notify to the caller that we receive an answer from the node
      */
     public interface LicenseConsoleCallback {
@@ -117,6 +124,22 @@ public abstract class LicenseConsole {
          * @param status  true if the license is valid, false otherwise
          */
         void onLicenseLoad(LicenseConsole console, boolean status);
+
+        void onLicenseCleared(LicenseConsole console, boolean status);
     }//LicenseConsoleCallback
 
+
+    public static class LicenseConsoleCallbackEmpty implements LicenseConsoleCallback{
+        @Override
+        public void onBoardIdRead(LicenseConsole console, String uid) {}
+
+        @Override
+        public void onLicenseStatusRead(LicenseConsole console, List<LicenseStatus> licenses) {}
+
+        @Override
+        public void onLicenseLoad(LicenseConsole console, boolean status) {}
+
+        @Override
+        public void onLicenseCleared(LicenseConsole console, boolean status) {}
+    }
 }

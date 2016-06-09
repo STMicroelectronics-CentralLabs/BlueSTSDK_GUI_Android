@@ -48,8 +48,6 @@ public class LicenseManagerActivity extends ActivityWithNode implements
     private static final String LICENSE_KNOW_KEY= LicenseManagerActivity.class.getCanonicalName
             ()+".LICENSE_KNOW";
 
-    private static final String CLEAR_BOARD_LIC_COMMAND="XX0\n";
-
     /**
      * id used for load the cursor with the license available
      */
@@ -103,7 +101,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         @Override
         public void onStateChange(Node node, Node.State newState, Node.State prevState) {
             if(newState==Node.State.Connected){
-                mConsole = buildLicenseConsole();
+                mConsole = LicenseConsole.getLicenseConsole(mNode);
                 if(mBoardUid==null || mLicStatus==null)
                     loadLicenseStatus();
             }//if
@@ -119,7 +117,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         //if the fist time, load data from the node
 
         if(getNode().isConnected()){
-            mConsole = buildLicenseConsole();
+            mConsole = LicenseConsole.getLicenseConsole(mNode);
             if(savedInstanceState==null)
                 loadLicenseStatus();
         }else{
@@ -181,15 +179,19 @@ public class LicenseManagerActivity extends ActivityWithNode implements
      * send the command for remove the board license and close this activity
      */
     private void clearBoardLicense(){
-        Debug console = mNode.getDebug();
-        if(console!=null){
-            console.write(CLEAR_BOARD_LIC_COMMAND);
-            Snackbar.make(mLicListView, R.string.clearBoardLicOk ,
-                    Snackbar.LENGTH_SHORT).show();
-        }else{
-            Snackbar.make(mLicListView, R.string.errorClearBoardLic,
-                    Snackbar.LENGTH_SHORT).show();
-        }//if-else
+        mConsole.setLicenseConsoleListener(new LicenseConsole.LicenseConsoleCallbackEmpty(){
+            @Override
+            public void onLicenseCleared(LicenseConsole console, boolean status) {
+                if(status){
+                    Snackbar.make(mLicListView, R.string.clearBoardLicOk ,
+                            Snackbar.LENGTH_SHORT).show();
+                }else{
+                    Snackbar.make(mLicListView, R.string.errorClearBoardLic,
+                            Snackbar.LENGTH_SHORT).show();
+                }//if-else
+            }
+        });
+        mConsole.cleanAllLicense();
     }//clearBoardLicense
 
     @Override
@@ -207,7 +209,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
      * Console listener that receive the board id and ask for the license status
      */
     private LicenseConsole.LicenseConsoleCallback mLoadLicCallback =
-            new LicenseConsole.LicenseConsoleCallback() {
+            new LicenseConsole.LicenseConsoleCallbackEmpty() {
 
                 /**
                  * when receive the board uid, store it and ask for the license status
@@ -280,22 +282,6 @@ public class LicenseManagerActivity extends ActivityWithNode implements
     }
 
     /**
-     * create an object of type LicenseConsole, this object will manage the protocol for load/
-     * request the license
-     * @return object that will manage the license communication or null if it is not possible
-     * build it.
-     */
-    private @Nullable
-    LicenseConsole buildLicenseConsole(){
-        if(mConsole!=null)
-            return mConsole;
-        LicenseConsole temp =LicenseConsole.getLicenseConsole(mNode);
-        if(temp!=null)
-            temp.setLicenseConsoleListener(mLoadLicCallback);
-        return temp;
-    }//buildLicenseConsole
-
-    /**
      * load the license status from the board
      */
     private void loadLicenseStatus() {
@@ -304,6 +290,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         if (mConsole == null){
             debugConsoleNotAvailable();
         }else{
+            mConsole.setLicenseConsoleListener(mLoadLicCallback);
             //the console is already doing something
             if (!mConsole.isWaitingAnswer()) {
 

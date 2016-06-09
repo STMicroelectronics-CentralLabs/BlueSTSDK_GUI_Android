@@ -66,7 +66,7 @@ public class LoadLicenseTask {
      */
     LoadLicenseTask(final Context c, LicenseConsole console, final LoadLicenseTaskCallback callback){
         mConsole =console;
-        mConsole.setLicenseConsoleListener(new LicenseConsole.LicenseConsoleCallback() {
+        mConsole.setLicenseConsoleListener(new LicenseConsole.LicenseConsoleCallbackEmpty() {
 
             /**
              * if the board is is equal to the one that we are using load the license otherwise
