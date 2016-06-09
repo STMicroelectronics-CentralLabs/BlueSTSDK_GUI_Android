@@ -184,10 +184,10 @@ public class LicenseManagerActivity extends ActivityWithNode implements
             public void onLicenseCleared(LicenseConsole console, boolean status) {
                 if(status){
                     Snackbar.make(mLicListView, R.string.clearBoardLicOk ,
-                            Snackbar.LENGTH_SHORT).show();
+                            Snackbar.LENGTH_LONG).show();
                 }else{
                     Snackbar.make(mLicListView, R.string.errorClearBoardLic,
-                            Snackbar.LENGTH_SHORT).show();
+                            Snackbar.LENGTH_LONG).show();
                 }//if-else
             }
         });

@@ -215,7 +215,10 @@ public class LicenseConsoleNucleo extends LicenseConsole {
          */
         @Override
         public void onStdOutReceived(Debug debug, String message) {
-            if (message.endsWith("\r\n")) {
+            mBuffer.append(message);
+            if (mBuffer.length()>2 &&
+                    mBuffer.substring(mBuffer.length()-2).equals("\r\n")) {
+                mBuffer.delete(mBuffer.length()-2,mBuffer.length());
                 mTimeout.removeCallbacks(onTimeout);
                 mBuffer.append(message, 0, message.length() - 2);
                 setConsoleListener(null);
