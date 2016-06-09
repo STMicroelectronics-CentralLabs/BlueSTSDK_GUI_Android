@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="username">Username</string>
+    <string name="username">Name</string>
     <string name="e_mail">E-Mail</string>
     <string name="company_name">Company Name</string>
     <string name="sendButton">Send</string>
-    <string name="invalidUserName">Invalid username</string>
+    <string name="notLatinChar">Please use only Latin characters</string>
+    <string name="invalidUserName">Invalid name</string>
     <string name="invalidEmail">Invalid email address</string>
     <string name="invalidCompanyName">Invalid company name</string>
 

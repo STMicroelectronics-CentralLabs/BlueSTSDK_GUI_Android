@@ -2,6 +2,8 @@ package com.st.BlueSTSDK.gui.licenseManager;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -17,11 +19,19 @@ import android.widget.EditText;
 
 import com.st.BlueSTSDK.gui.R;
 
+import java.util.regex.Pattern;
+
 /**
  * Fragment used for ask the user to insert its data, the activity that will contain this fragment
  * MUST implement the interface {@link RequestUserDataFragment.OnFragmentInteractionListener}
  */
 public class RequestUserDataFragment extends Fragment {
+
+    private static final Pattern ONLY_LATIN_CHAR = Pattern.compile("[\\u0020-\\u007F]*");
+
+    private static final String USER_NAME = RequestUserDataFragment.class.getName()+".USER_NAME";
+    private static final String USER_EMAIL = RequestUserDataFragment.class.getName()+".USER_EMAIL";
+    private static final String USER_COMPANY = RequestUserDataFragment.class.getName()+".USER_COMPANY";
 
     private OnFragmentInteractionListener mListener;
 
@@ -48,11 +58,14 @@ public class RequestUserDataFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE);
+
         // Inflate the layout for this fragment
         root=inflater.inflate(R.layout.fragment_request_user_data, container, false);
 
         mUserNameLayout = (TextInputLayout) root.findViewById(R.id.usernameWrapper);
         mUserName = (EditText) root.findViewById(R.id.username);
+        mUserName.setText(pref.getString(USER_NAME,""));
         mUserName.addTextChangedListener(new ValidateInputFiled() {
             @Override
             public void afterTextChanged(Editable editable) {
@@ -62,6 +75,7 @@ public class RequestUserDataFragment extends Fragment {
 
         mEMailLayout = (TextInputLayout) root.findViewById(R.id.emailWrapper);
         mEMail = (EditText) root.findViewById(R.id.email);
+        mEMail.setText(pref.getString(USER_EMAIL,""));
         mEMail.addTextChangedListener(new ValidateInputFiled() {
             @Override
             public void afterTextChanged(Editable editable) {
@@ -71,6 +85,7 @@ public class RequestUserDataFragment extends Fragment {
 
         mCompanyLayout = (TextInputLayout) root.findViewById(R.id.companyWrapper);
         mCompany = (EditText) root.findViewById(R.id.company);
+        mCompany.setText(pref.getString(USER_COMPANY,""));
         mCompany.addTextChangedListener(new ValidateInputFiled() {
             @Override
             public void afterTextChanged(Editable editable) {
@@ -82,14 +97,25 @@ public class RequestUserDataFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (mListener != null && validateInput()) {
+                    saveInputAsDefault();
                     mListener.onDataIsInserted(removeDangerousChar(mUserName.getText()),
                             removeDangerousChar(mEMail.getText()),
                             removeDangerousChar(mCompany.getText()));
+
                 }
             }
         });
 
         return root;
+    }
+
+    private void saveInputAsDefault() {
+        SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        pref.edit()
+                .putString(USER_NAME,mUserName.getText().toString())
+                .putString(USER_EMAIL,mEMail.getText().toString())
+                .putString(USER_COMPANY,mCompany.getText().toString())
+                .apply();
     }
 
     @Override
@@ -145,7 +171,12 @@ public class RequestUserDataFragment extends Fragment {
      */
     private boolean validateUserName() {
         String input = removeDangerousChar(mUserName.getText());
-        if (input.isEmpty()) {
+        if(!ONLY_LATIN_CHAR.matcher(input).matches()){
+            mUserNameLayout.setErrorEnabled(true);
+            mUserNameLayout.setError(getString(R.string.notLatinChar));
+            requestFocus(mUserName);
+            return false;
+        }else if (input.isEmpty()) {
             mUserNameLayout.setErrorEnabled(true);
             mUserNameLayout.setError(getString(R.string.invalidUserName));
             requestFocus(mUserName);
@@ -172,14 +203,18 @@ public class RequestUserDataFragment extends Fragment {
      */
     private boolean validateEmail() {
         String input = removeDangerousChar(mEMail.getText());
-
-        if (!isValidEmail(input)) {
+        if(!ONLY_LATIN_CHAR.matcher(input).matches()){
+            mEMailLayout.setErrorEnabled(true);
+            mEMailLayout.setError(getString(R.string.notLatinChar));
+            requestFocus(mEMail);
+            return false;
+        }else if (!isValidEmail(input)) {
             mEMailLayout.setErrorEnabled(true);
             mEMailLayout.setError(getString(R.string.invalidEmail));
             requestFocus(mEMail);
             return false;
         } else {
-            mUserNameLayout.setError(null);
+            mEMailLayout.setError(null);
             mEMailLayout.setErrorEnabled(false);
         }
 
@@ -192,13 +227,18 @@ public class RequestUserDataFragment extends Fragment {
      */
     private boolean validateCompanyName() {
         String input = removeDangerousChar(mCompany.getText());
-        if (input.isEmpty()) {
+        if(!ONLY_LATIN_CHAR.matcher(input).matches()){
+            mCompanyLayout.setErrorEnabled(true);
+            mCompanyLayout.setError(getString(R.string.notLatinChar));
+            requestFocus(mCompany);
+            return false;
+        }else if (input.isEmpty()) {
             mCompanyLayout.setErrorEnabled(true);
             mCompanyLayout.setError(getString(R.string.invalidCompanyName));
             requestFocus(mCompany);
             return false;
         } else {
-            mUserNameLayout.setError(null);
+            mCompanyLayout.setError(null);
             mCompanyLayout.setErrorEnabled(false);
         }
 
