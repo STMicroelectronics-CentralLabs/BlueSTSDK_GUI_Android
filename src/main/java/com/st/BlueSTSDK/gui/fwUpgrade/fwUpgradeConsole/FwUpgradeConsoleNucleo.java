@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
 public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
@@ -105,6 +104,8 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
     private class UploadFileProtocol implements  Debug.DebugOutputListener{
 
+        private static final int TRUNK_PKG_SIZE = 10;
+
         /**
          * file that we are uploading
          */
@@ -124,13 +125,13 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
         private long mCrc;
 
-        private boolean mFirstAck;
+        private boolean mNodeReadyToReceiveFile;
+        private int mNPackageReceived;
 
         /**
          * size of the last package send
          */
         private byte[] mLastPackageSend = new byte[MAX_MSG_SIZE];
-        private int mLastPackageSize;
         /**
          * if the timeout is rise, resend the last package
          */
@@ -219,7 +220,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             //send the start command
 
             Log.d("LoadFile",String.format("Crc: %X",mCrc));
-            mFirstAck =true;
+            mNodeReadyToReceiveFile =false;
             mConsole.write(prepareLoadCommand(fwType,mByteToSend,mCrc));
         }
 
@@ -230,62 +231,70 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         }
 
         private boolean sendFwPackage(){
-            mLastPackageSize = (int) Math.min(mByteToSend - mByteSend, MAX_MSG_SIZE);
+            int lastPackageSize = (int) Math.min(mByteToSend - mByteSend, MAX_MSG_SIZE);
             int byteRead = 0;
             try {
-                byteRead = mFileData.read(mLastPackageSend, 0, mLastPackageSize);
+                byteRead = mFileData.read(mLastPackageSend, 0, lastPackageSize);
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;
             }
-            if (mLastPackageSize == byteRead) {
+            if (lastPackageSize == byteRead) {
                 mByteSend += byteRead;
-                return mConsole.write(mLastPackageSend, 0, mLastPackageSize)==mLastPackageSize;
+                return mConsole.write(mLastPackageSend, 0, lastPackageSize)==lastPackageSize;
             } else
                 //it read an unaspected number of byte, something bad happen
                 return false;
         }//sendFwPackage
 
+        private boolean sendPackageTrunk(){
+            for(int i=0;i<TRUNK_PKG_SIZE;i++){
+                if(!sendFwPackage())
+                    return false;
+            }
+            return true;
+        }
+
+
         //each time an ack is received a new package is send
         @Override
         public void onStdOutReceived(Debug debug, String message) {
-            if(mFirstAck){
+            if(!mNodeReadyToReceiveFile){
                 if(checkCrc(message)) {
-                    mFirstAck = false;
-                    onStdOutReceived(debug,ACK_MSG); //send the fist package
+                    mNodeReadyToReceiveFile = true;
+                    mNPackageReceived=0;
+                    sendPackageTrunk();
                 }else
                     onLoadComplete(false);
-            }else {
-                if (message.equalsIgnoreCase(ACK_MSG)) {
-                    //stop resend timeout
-                    mTimeout.removeCallbacks(onTimeout);
-
-                    if (mByteToSend != mByteSend)
-                        mCallback.onLoadFwProgresUpdate(FwUpgradeConsoleNucleo.this, mFile,
-                                mByteToSend - mByteSend);
-                    else {
-                        onLoadComplete(true);
-                        return;
-                    }//if-else
-
-                    if(sendFwPackage())
-                        mTimeout.postDelayed(onTimeout, LOST_MSG_TIMEOUT_MS);
-                    else //error reading/sending the data
-                        onLoadComplete(false);
-
-                } else if (message.equals(NACK_MSG)) { //error
-                    mTimeout.removeCallbacks(onTimeout);
-                    mConsole.write(mLastPackageSend, 0, mLastPackageSize);
-                    mTimeout.postDelayed(onTimeout, LOST_MSG_TIMEOUT_MS);
-                }//if-else
+            }else { //transfer complete
+                mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo.this,mFile,message.equalsIgnoreCase(ACK_MSG));
             }
         }//onStdOutReceived
 
         @Override
         public void onStdErrReceived(Debug debug, String message) { }
 
+        private void notifyNodeReceivedFwMessage(){
+            if(mNodeReadyToReceiveFile){
+                mNPackageReceived++;
+                if(mNPackageReceived%TRUNK_PKG_SIZE==0){
+                    mCallback.onLoadFwProgresUpdate(FwUpgradeConsoleNucleo.this,mFile,
+                            mByteToSend-mByteSend);
+                    sendPackageTrunk();
+                }//if
+            }//if
+        }
+
         @Override
-        public void onStdInSent(Debug debug, String message, boolean writeResult) { }
+        public void onStdInSent(Debug debug, String message, boolean writeResult) {
+            if(writeResult){
+                if(mNodeReadyToReceiveFile){
+                    notifyNodeReceivedFwMessage();
+                }
+            }else{
+                mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo.this,mFile,false);
+            }
+        }
     };
 
     /**

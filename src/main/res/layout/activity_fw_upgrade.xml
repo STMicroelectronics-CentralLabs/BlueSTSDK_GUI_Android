@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".fwUpgrade.FwUpgradeActivity">
 
-    <LinearLayout
+    <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -22,45 +22,44 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Version Ble"
-            android:id="@+id/versionBleText"/>
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/fwName" android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" android:text="@string/fwUpgrade_loading"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="File:"
-            android:id="@+id/fwBleFileText"/>
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Select Ble"
-            android:onClick="onSelectBleFileClick"/>
-
+            android:text="@string/fwUpgrade_version"
+            android:id="@+id/fwVersionBoardLabel"
+            android:layout_below="@+id/fwName"
+            android:layout_alignParentStart="true" android:layout_marginTop="16dp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Version Board"
-            android:id="@+id/versionBoardText"/>
+            android:text="@string/fwUpgrade_board_type"
+            android:id="@+id/boardTypeLabel"
+            android:layout_below="@+id/fwVersionBoardLabel"
+            android:layout_alignParentStart="true"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="File Board:"
-            android:id="@+id/fwBoardFileText"/>
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Select Board"
-            android:onClick="onSelectFileBoardClick"/>
+            android:id="@+id/fwVersionValue"
+            android:singleLine="false"
+            android:layout_toEndOf="@+id/fwVersionBoardLabel"
+            android:layout_alignBaseline="@+id/fwVersionBoardLabel"
+            android:layout_marginStart="8dp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/loadStatusText"/>
-    </LinearLayout>
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/boardTypeValue"
+            android:singleLine="false"
+            android:layout_toEndOf="@+id/boardTypeLabel"
+            android:layout_alignBaseline="@+id/boardTypeLabel"
+            android:layout_marginStart="8dp"/>
+    </RelativeLayout>
 
 
     <android.support.design.widget.FloatingActionButton

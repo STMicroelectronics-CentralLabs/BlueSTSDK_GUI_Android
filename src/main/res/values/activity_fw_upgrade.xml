@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_activity_fw_upgrade">Firmware upgrade</string>
+    <string name="fwUpgrade_loading">Loading...</string>
+    <string name="fwUpgrade_version">Version:</string>
+    <string name="fwUpgrade_board_type">Board Type:</string>
 </resources>

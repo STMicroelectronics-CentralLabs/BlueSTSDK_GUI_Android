@@ -1,10 +1,11 @@
 package com.st.BlueSTSDK.gui.fwUpgrade;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 import android.widget.TextView;
@@ -14,31 +15,21 @@ import com.st.BlueSTSDK.gui.ActivityWithNode;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersion;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersionBoard;
 
 public class FwUpgradeActivity extends ActivityWithNode {
 
-    private static final String FW_BOARD_FILE=FwUpgradeActivity.class.getCanonicalName()+
-            ".FwBoardFile";
-    private static final String FW_BLE_FILE=FwUpgradeActivity.class.getCanonicalName()+".FwBleFile";
-
     private static final int CHOOSE_BOARD_FILE_REQUESTCODE=1;
-    private static final int CHOOSE_BLE_FILE_REQUESTCODE=2;
-
 
     public static Intent getStartIntent(Context c, Node node, boolean keepTheConnectionOpen) {
         return ActivityWithNode.getStartIntent(c,FwUpgradeActivity.class,node,
                 keepTheConnectionOpen);
     }
 
-    private Uri mFwBleFile;
-    private TextView mVersionBleText;
-    private TextView mFwFileBleText;
-
-    private Uri mFwBoardFile;
     private TextView mVersionBoardText;
-    private TextView mFwFileBoardText;
+    private TextView mBoardTypeText;
+    private TextView mFwBoardName;
 
-    private TextView mLoadStatus;
     private Node.NodeStateListener mOnConnected = new Node.NodeStateListener() {
         @Override
         public void onStateChange(Node node, Node.State newState, Node.State prevState) {
@@ -60,13 +51,12 @@ public class FwUpgradeActivity extends ActivityWithNode {
             FwUpgradeActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(fwType==FwUpgradeConsole.BLE_FW){
-                        mVersionBleText.setText(version.toString());
-                        console.readVersion(FwUpgradeConsole.BOARD_FW);
-                    }else{
+                    if(fwType==FwUpgradeConsole.BOARD_FW) {
                         mVersionBoardText.setText(version.toString());
+                        mBoardTypeText.setText(((FwVersionBoard) version).getMcuType());
+                        mFwBoardName.setText(((FwVersionBoard) version).getName());
                     }
-
+                    mProgressDialog.dismiss();
                 }
             });
         }
@@ -83,38 +73,48 @@ public class FwUpgradeActivity extends ActivityWithNode {
             FwUpgradeActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mLoadStatus.setText(newStatus);
+                    mProgressDialog.dismiss();
+
                 }
             });
             startUploadTime=-1;
         }
 
-        private long nLastByteSend=Long.MAX_VALUE;
+        private long mFileLength=Long.MAX_VALUE;
         @Override
         public void onLoadFwProgresUpdate(FwUpgradeConsole console, Uri fwFile, final long remainingBytes) {
             if(startUploadTime<0) {
                 startUploadTime = System.currentTimeMillis();
+                mFileLength=remainingBytes;
+
             }
 
             //update the gui only after 128bytes are send, for avoid stress the ui thread
-            if(nLastByteSend-remainingBytes>128) {
-                FwUpgradeActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mLoadStatus.setText("load: " + remainingBytes);
+            FwUpgradeActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(mFileLength!=Long.MAX_VALUE){
+                        mProgressDialog.setMax((int)mFileLength);
                     }
-                });
-                nLastByteSend=remainingBytes;
-            }
-
+                    mProgressDialog.setProgress((int)(mFileLength-remainingBytes));
+                }
+            });
         }
     };
+
+    private ProgressDialog mProgressDialog;
 
     private  void initFwVersion(){
         mConsole = FwUpgradeConsole.getFwUpgradeConsole(mNode);
         if(mConsole!=null) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            mProgressDialog.setTitle("Loading...");
+            mProgressDialog.setMessage("Load firmware version");
+
             mConsole.setLicenseConsoleListener(mConsoleListener);
-            mConsole.readVersion(FwUpgradeConsole.BLE_FW);
+            mConsole.readVersion(FwUpgradeConsole.BOARD_FW);
+            mProgressDialog.show();
         }
 
     }
@@ -124,13 +124,9 @@ public class FwUpgradeActivity extends ActivityWithNode {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fw_upgrade);
 
-        mVersionBleText = (TextView) findViewById(R.id.versionBleText);
-        mFwFileBleText = (TextView) findViewById(R.id.fwBleFileText);
-
-        mVersionBoardText = (TextView) findViewById(R.id.versionBoardText);
-        mFwFileBoardText = (TextView) findViewById(R.id.fwBoardFileText);
-
-        mLoadStatus  = (TextView) findViewById(R.id.loadStatusText);
+        mVersionBoardText = (TextView) findViewById(R.id.fwVersionValue);
+        mBoardTypeText = (TextView) findViewById(R.id.boardTypeValue);
+        mFwBoardName =(TextView) findViewById(R.id.fwName);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.startUpgradeButton);
         if( fab!=null) {
@@ -156,26 +152,8 @@ public class FwUpgradeActivity extends ActivityWithNode {
         mNode.removeNodeStateListener(mOnConnected);
     }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        mFwBleFile = savedInstanceState.getParcelable(FW_BLE_FILE);
-        mFwBoardFile = savedInstanceState.getParcelable(FW_BOARD_FILE);
-        if(mFwBleFile!=null)
-            mFwFileBleText.setText(mFwBleFile.getPath());
-        if(mFwBleFile!=null)
-            mFwFileBoardText.setText(mFwBoardFile.getPath());
-    }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        outState.putParcelable(FW_BLE_FILE,mFwBleFile);
-        outState.putParcelable(FW_BOARD_FILE,mFwBoardFile);
-        super.onSaveInstanceState(outState, outPersistentState);
-    }
-
-
-    private Intent getFileSelectInttent(){
+    private Intent getFileSelectIntent(){
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
@@ -184,42 +162,35 @@ public class FwUpgradeActivity extends ActivityWithNode {
         //Intent i = Intent.createChooser(intent, "Open firmwere file");
     }
 
-    public void onSelectBleFileClick(View view) {
-        keepConnectionOpen(true);
-        startActivityForResult(getFileSelectInttent(), CHOOSE_BLE_FILE_REQUESTCODE);
-    }
-
-    public void onSelectFileBoardClick(View view) {
-        keepConnectionOpen(true);
-        startActivityForResult(getFileSelectInttent(), CHOOSE_BOARD_FILE_REQUESTCODE);
+    void uploadFwFile(@NonNull Uri file){
+        if(mConsole!=null){
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setTitle("Uploading");
+            mProgressDialog.setMessage("wait");
+            mProgressDialog.setCancelable(false);
+            mProgressDialog.setProgressNumberFormat("%1d/%2d Bytes");
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            mConsole.loadFw(FwUpgradeConsole.BOARD_FW, file);
+            mProgressDialog.show();
+        }//if
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode==RESULT_OK){
-            if(requestCode==CHOOSE_BLE_FILE_REQUESTCODE){
-                mFwBleFile=data.getData();
-                mFwFileBleText.setText(mFwBleFile.getPath());
-            }
             if(requestCode==CHOOSE_BOARD_FILE_REQUESTCODE) {
-                mFwBoardFile=data.getData();
-                mFwFileBoardText.setText(mFwBoardFile.getPath());
+                Uri file = data.getData();
+                if(file!=null)
+                    uploadFwFile(file);
             }
         }
 
     }
 
     private void startFwUpgrade(){
-        if(mConsole!=null){
-            if(mFwBoardFile!=null) {
-                mConsole.loadFw(FwUpgradeConsole.BOARD_FW, mFwBoardFile);
-            }else if(mFwBleFile!=null)
-                mConsole.loadFw(FwUpgradeConsole.BLE_FW, mFwBleFile);
-        }
+        keepConnectionOpen(true);
+        startActivityForResult(getFileSelectIntent(), CHOOSE_BOARD_FILE_REQUESTCODE);
     }
 
-
-
 }
-
