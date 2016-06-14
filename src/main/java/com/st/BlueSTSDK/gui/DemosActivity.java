@@ -495,14 +495,18 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             invalidateOptionsMenu();
             return true;
         }
-        if(item.getItemId() == R.id.menu_start_license_manager){
+        if(id == R.id.menu_start_license_manager){
             keepConnectionOpen(true);
+            if(mShowDebugConsole)
+                showConsoleOutput(false);
             startActivity(LicenseManagerActivity.getStartIntent(this,enableLicenseManager(),
                     getNode(),true));
             return true;
         }
-        if(item.getItemId() == R.id.menu_start_fw_upgrade){
+        if(id == R.id.menu_start_fw_upgrade){
             keepConnectionOpen(true);
+            if(mShowDebugConsole)
+                showConsoleOutput(false);
             startActivity(FwUpgradeActivity.getStartIntent(this,getNode(),true));
             return true;
         }
