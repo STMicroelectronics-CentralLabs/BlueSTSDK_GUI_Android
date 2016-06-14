@@ -1,11 +1,26 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FwVersionBoard extends FwVersion {
+public class FwVersionBoard extends FwVersion implements Parcelable{
+
+    public static final Creator<FwVersionBoard> CREATOR = new Creator<FwVersionBoard>() {
+        @Override
+        public FwVersionBoard createFromParcel(Parcel in) {
+            return new FwVersionBoard(in);
+        }
+
+        @Override
+        public FwVersionBoard[] newArray(int size) {
+            return new FwVersionBoard[size];
+        }
+    };
 
     private static final Pattern PARSE_FW_VERSION=Pattern.compile("(.*)_(.*)_(\\d+)\\.(\\d+)\\.(\\d+)");
 
@@ -32,8 +47,21 @@ public class FwVersionBoard extends FwVersion {
     }
 
     @Override
-    public String toString() {
-        return ""+majorVersion+"."+minorVersion+"."+patchVersion+"( "+mcuType+" )";
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        super.writeToParcel(parcel,i);
+        parcel.writeString(mcuType);
+        parcel.writeString(name);
+    }
+
+    protected FwVersionBoard(Parcel in) {
+        super(in);
+        mcuType = in.readString();
+        name = in.readString();
     }
 
 }

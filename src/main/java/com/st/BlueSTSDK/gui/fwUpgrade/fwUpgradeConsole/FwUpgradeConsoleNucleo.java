@@ -29,9 +29,8 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
     static private final byte[] UPLOAD_BLE_FW={'u','p','g','r','a','d','e','B','l','e'};
 
     static private final String ACK_MSG="\u0001";
-    static private final String NACK_MSG="\u00ff";
     static private final int MAX_MSG_SIZE=16;
-    static private final int LOST_MSG_TIMEOUT_MS=500;
+    static private final int LOST_MSG_TIMEOUT_MS=1000;
 
     /**
      * object that will receive the console data
@@ -75,7 +74,6 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             if (mBuffer.length()>2 &&
                     mBuffer.substring(mBuffer.length()-2).equals("\r\n")) {
                 mBuffer.delete(mBuffer.length()-2,mBuffer.length());
-                setConsoleListener(null);
                 FwVersion version=null;
                 try {
                     switch (mRequestFwType) {
@@ -87,8 +85,11 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                             break;
                     }
                 }catch (IllegalVersionFormatException e){
-                    e.printStackTrace();
+                    //clear the current buffer and wait for a new answer
+                    mBuffer.delete(0,mBuffer.length());
+                    return;
                 }
+                setConsoleListener(null);
                 if (mCallback != null)
                     mCallback.onVersionRead(FwUpgradeConsoleNucleo.this,mRequestFwType,version);
             }
@@ -138,14 +139,21 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         private Runnable onTimeout = new Runnable() {
             @Override
             public void run() {
-                Log.d("onTimeout:","fired");
-                onStdOutReceived(mConsole,NACK_MSG);
+                if(mCallback!=null)
+                    mCallback.onLoadFwError(FwUpgradeConsoleNucleo.this,mFile,
+                            FwUpgradeCallback.ERROR_TRANSMISSION);
             }
         };
 
-        private void onLoadComplete(boolean status){
+        private void onLoadFail(@FwUpgradeCallback.UpgradeErrorType int errorCode){
             if(mCallback!=null)
-                mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo.this,mFile,status);
+                mCallback.onLoadFwError(FwUpgradeConsoleNucleo.this,mFile,errorCode);
+            setConsoleListener(null);
+        }
+
+        private void onLoadComplete(){
+            if(mCallback!=null)
+                mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo.this,mFile);
             setConsoleListener(null);
         }
 
@@ -172,9 +180,6 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                 for(long i=0;i<fileSize;i+=4){
                     if(inputStream.read(buffer)==buffer.length)
                         crc.update(buffer,0,buffer.length);
-                    else{
-                        Log.d("computeCrc32", "computeCrc32: Error Read");
-                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -214,12 +219,11 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                 openFile(f);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                onLoadComplete(false);
+                onLoadFail(FwUpgradeCallback.ERROR_INVALID_FW_FILE);
                 return;
             }
             //send the start command
 
-            Log.d("LoadFile",String.format("Crc: %X",mCrc));
             mNodeReadyToReceiveFile =false;
             mConsole.write(prepareLoadCommand(fwType,mByteToSend,mCrc));
         }
@@ -255,7 +259,6 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             return true;
         }
 
-
         //each time an ack is received a new package is send
         @Override
         public void onStdOutReceived(Debug debug, String message) {
@@ -265,9 +268,13 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                     mNPackageReceived=0;
                     sendPackageTrunk();
                 }else
-                    onLoadComplete(false);
+                    onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
             }else { //transfer complete
-                mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo.this,mFile,message.equalsIgnoreCase(ACK_MSG));
+                mTimeout.removeCallbacks(onTimeout);
+                if(message.equalsIgnoreCase(ACK_MSG))
+                    mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo.this,mFile);
+                else
+                    onLoadFail(FwUpgradeCallback.ERROR_CORRUPTED_FILE);
             }
         }//onStdOutReceived
 
@@ -275,13 +282,11 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         public void onStdErrReceived(Debug debug, String message) { }
 
         private void notifyNodeReceivedFwMessage(){
-            if(mNodeReadyToReceiveFile){
-                mNPackageReceived++;
-                if(mNPackageReceived%TRUNK_PKG_SIZE==0){
-                    mCallback.onLoadFwProgresUpdate(FwUpgradeConsoleNucleo.this,mFile,
-                            mByteToSend-mByteSend);
-                    sendPackageTrunk();
-                }//if
+            mNPackageReceived++;
+            if(mNPackageReceived%TRUNK_PKG_SIZE==0){
+                mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleNucleo.this,mFile,
+                        mByteToSend-mByteSend);
+                sendPackageTrunk();
             }//if
         }
 
@@ -289,10 +294,12 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         public void onStdInSent(Debug debug, String message, boolean writeResult) {
             if(writeResult){
                 if(mNodeReadyToReceiveFile){
+                    mTimeout.removeCallbacks(onTimeout);
                     notifyNodeReceivedFwMessage();
+                    mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
                 }
             }else{
-                mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo.this,mFile,false);
+                onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
             }
         }
     };

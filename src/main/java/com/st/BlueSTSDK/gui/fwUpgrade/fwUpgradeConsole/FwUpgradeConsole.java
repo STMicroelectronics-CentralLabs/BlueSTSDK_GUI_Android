@@ -64,9 +64,45 @@ public abstract class FwUpgradeConsole {
     }
 
     public interface FwUpgradeCallback{
+        @IntDef({ERROR_CORRUPTED_FILE, ERROR_TRANSMISSION,ERROR_INVALID_FW_FILE,ERROR_UNKNOWN})
+        @Retention(RetentionPolicy.SOURCE)
+        @interface UpgradeErrorType {}
+
+        int ERROR_CORRUPTED_FILE = 0;
+        int ERROR_TRANSMISSION = 1;
+        int ERROR_INVALID_FW_FILE=2;
+        int ERROR_UNKNOWN=3;
+
+
         void onVersionRead(FwUpgradeConsole console,@FirmwareType int type, FwVersion version);
-        void onLoadFwComplete(FwUpgradeConsole console, Uri fwFile, boolean status);
-        void onLoadFwProgresUpdate(FwUpgradeConsole console, Uri fwFile, long loadBytes);
+        void onLoadFwComplete(FwUpgradeConsole console, Uri fwFile);
+        void onLoadFwError(FwUpgradeConsole console, Uri fwFile,
+                           @UpgradeErrorType int error);
+        void onLoadFwProgressUpdate(FwUpgradeConsole console, Uri fwFile, long loadBytes);
+    }
+
+    public static class SimpleFwUpgradeCallback implements FwUpgradeCallback{
+
+        @Override
+        public void onVersionRead(FwUpgradeConsole console, @FirmwareType int type, FwVersion version) {
+
+        }
+
+        @Override
+        public void onLoadFwComplete(FwUpgradeConsole console, Uri fwFile) {
+
+        }
+
+        @Override
+        public void onLoadFwError(FwUpgradeConsole console, Uri fwFile,
+                                  @UpgradeErrorType int error) {
+
+        }
+
+        @Override
+        public void onLoadFwProgressUpdate(FwUpgradeConsole console, Uri fwFile, long loadBytes) {
+
+        }
     }
 
 }

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_activity_fw_upgrade">Firmware upgrade</string>
-    <string name="fwUpgrade_loading">Loading...</string>
+    <string name="fwUpgrade_loading">Loading…</string>
     <string name="fwUpgrade_version">Version:</string>
     <string name="fwUpgrade_board_type">Board Type:</string>
+    <string name="fwUpgrade_loadFwVersion">Load firmware version</string>
+    <string name="fwUpgrade_formatting">Formatting</string>
+    <string name="fwUpgrade_uploading">Uploading</string>
+    <string name="fwUpgrade_upgradeNumberFormat">%1$d/%2$d Bytes</string>
 </resources>

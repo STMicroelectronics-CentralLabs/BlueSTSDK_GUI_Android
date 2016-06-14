@@ -1,12 +1,15 @@
 package com.st.BlueSTSDK.gui.fwUpgrade;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.TextView;
 
@@ -21,6 +24,9 @@ public class FwUpgradeActivity extends ActivityWithNode {
 
     private static final int CHOOSE_BOARD_FILE_REQUESTCODE=1;
 
+    private static final String VERSION = FwUpgradeActivity.class.getName()+"FW_VERSION";
+    private static final String FINAL_MESSAGE = FwUpgradeActivity.class.getName()+"FINAL_MESSAGE";
+
     public static Intent getStartIntent(Context c, Node node, boolean keepTheConnectionOpen) {
         return ActivityWithNode.getStartIntent(c,FwUpgradeActivity.class,node,
                 keepTheConnectionOpen);
@@ -29,6 +35,8 @@ public class FwUpgradeActivity extends ActivityWithNode {
     private TextView mVersionBoardText;
     private TextView mBoardTypeText;
     private TextView mFwBoardName;
+    private TextView mFinalMessage;
+    private FwVersionBoard mVersion;
 
     private Node.NodeStateListener mOnConnected = new Node.NodeStateListener() {
         @Override
@@ -39,10 +47,16 @@ public class FwUpgradeActivity extends ActivityWithNode {
         }
     };
 
-    private FwUpgradeConsole mConsole;
-    private FwUpgradeConsole.FwUpgradeCallback mConsoleListener = new FwUpgradeConsole.FwUpgradeCallback() {
+    private void displayVersion(FwVersionBoard version){
+        mVersion= version;
+        mVersionBoardText.setText(version.toString());
+        mBoardTypeText.setText(version.getMcuType());
+        mFwBoardName.setText(version.getName());
+    }
 
-        private long startUploadTime=-1;
+    private ProgressDialog mLoadVersionProgressDialog;
+    
+    private FwUpgradeConsole.FwUpgradeCallback mConsoleListener = new FwUpgradeConsole.SimpleFwUpgradeCallback() {
 
         @Override
         public void onVersionRead(final FwUpgradeConsole console,
@@ -52,69 +66,28 @@ public class FwUpgradeActivity extends ActivityWithNode {
                 @Override
                 public void run() {
                     if(fwType==FwUpgradeConsole.BOARD_FW) {
-                        mVersionBoardText.setText(version.toString());
-                        mBoardTypeText.setText(((FwVersionBoard) version).getMcuType());
-                        mFwBoardName.setText(((FwVersionBoard) version).getName());
+                        displayVersion((FwVersionBoard) version);
                     }
-                    mProgressDialog.dismiss();
+                    mLoadVersionProgressDialog.dismiss();
+                    mLoadVersionProgressDialog=null;
                 }
             });
         }
 
-        @Override
-        public void onLoadFwComplete(FwUpgradeConsole console, Uri fwFile, boolean status) {
-            long totalTimeMs = System.currentTimeMillis()-startUploadTime;
-            float totalTimeS= totalTimeMs/1000.0f;
-            final String newStatus;
-            if(status)
-                newStatus=String.format("Update done: %.2f",totalTimeS);
-            else
-                newStatus=String.format("Update Fail: %.2f",totalTimeS);
-            FwUpgradeActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mProgressDialog.dismiss();
-
-                }
-            });
-            startUploadTime=-1;
-        }
-
-        private long mFileLength=Long.MAX_VALUE;
-        @Override
-        public void onLoadFwProgresUpdate(FwUpgradeConsole console, Uri fwFile, final long remainingBytes) {
-            if(startUploadTime<0) {
-                startUploadTime = System.currentTimeMillis();
-                mFileLength=remainingBytes;
-
-            }
-
-            //update the gui only after 128bytes are send, for avoid stress the ui thread
-            FwUpgradeActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if(mFileLength!=Long.MAX_VALUE){
-                        mProgressDialog.setMax((int)mFileLength);
-                    }
-                    mProgressDialog.setProgress((int)(mFileLength-remainingBytes));
-                }
-            });
-        }
     };
 
-    private ProgressDialog mProgressDialog;
-
+    
     private  void initFwVersion(){
-        mConsole = FwUpgradeConsole.getFwUpgradeConsole(mNode);
-        if(mConsole!=null) {
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            mProgressDialog.setTitle("Loading...");
-            mProgressDialog.setMessage("Load firmware version");
+        FwUpgradeConsole console = FwUpgradeConsole.getFwUpgradeConsole(mNode);
+        if(console !=null) {
+            mLoadVersionProgressDialog = new ProgressDialog(this);
+            mLoadVersionProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            mLoadVersionProgressDialog.setTitle(R.string.fwUpgrade_loading);
+            mLoadVersionProgressDialog.setMessage(getString(R.string.fwUpgrade_loadFwVersion));
 
-            mConsole.setLicenseConsoleListener(mConsoleListener);
-            mConsole.readVersion(FwUpgradeConsole.BOARD_FW);
-            mProgressDialog.show();
+            console.setLicenseConsoleListener(mConsoleListener);
+            console.readVersion(FwUpgradeConsole.BOARD_FW);
+            mLoadVersionProgressDialog.show();
         }
 
     }
@@ -127,6 +100,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
         mVersionBoardText = (TextView) findViewById(R.id.fwVersionValue);
         mBoardTypeText = (TextView) findViewById(R.id.boardTypeValue);
         mFwBoardName =(TextView) findViewById(R.id.fwName);
+        mFinalMessage = (TextView) findViewById(R.id.upgradeFinishMessage);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.startUpgradeButton);
         if( fab!=null) {
@@ -138,18 +112,40 @@ public class FwUpgradeActivity extends ActivityWithNode {
             });
         }
 
-        if(mNode.isConnected()){
-            initFwVersion();
+        if(savedInstanceState==null) {
+            if (mNode.isConnected()) {
+                initFwVersion();
+            } else {
+                mNode.addNodeStateListener(mOnConnected);
+            }
         }else{
-            mNode.addNodeStateListener(mOnConnected);
+            mVersion= savedInstanceState.getParcelable(VERSION);
+            displayVersion(mVersion);
+            mFinalMessage.setText(savedInstanceState.getString(FINAL_MESSAGE,""));
         }
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(VERSION,mVersion);
+        outState.putString(FINAL_MESSAGE,mFinalMessage.getText().toString());
+    }
+
+    private static void releaseDialog(@Nullable Dialog d){
+        if(d!=null && d.isShowing())
+            d.dismiss();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mNode.removeNodeStateListener(mOnConnected);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        releaseDialog(mUploadFileProgressDialog);
+        releaseDialog(mFormattingProgressDialog);
+        releaseDialog(mLoadVersionProgressDialog);
     }
 
 
@@ -162,17 +158,109 @@ public class FwUpgradeActivity extends ActivityWithNode {
         //Intent i = Intent.createChooser(intent, "Open firmwere file");
     }
 
-    void uploadFwFile(@NonNull Uri file){
-        if(mConsole!=null){
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setTitle("Uploading");
-            mProgressDialog.setMessage("wait");
-            mProgressDialog.setCancelable(false);
-            mProgressDialog.setProgressNumberFormat("%1d/%2d Bytes");
-            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            mConsole.loadFw(FwUpgradeConsole.BOARD_FW, file);
-            mProgressDialog.show();
-        }//if
+    private ProgressDialog mUploadFileProgressDialog;
+    private ProgressDialog mFormattingProgressDialog;
+
+    private class FwUpgradeServiceActionReceiver extends BroadcastReceiver
+    {
+
+        private Context mContext;
+
+
+        FwUpgradeServiceActionReceiver(Context c){
+            mContext=c;
+        }
+
+        private ProgressDialog createUpgradeProgressDialog(Context c){
+            ProgressDialog dialog = new ProgressDialog(c);
+            dialog.setTitle(R.string.fwUpgrade_uploading);
+            //dialog.setMessage("Please wait");
+            dialog.setCancelable(false);
+            dialog.setProgressNumberFormat(c.getString(R.string.fwUpgrade_upgradeNumberFormat));
+            dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            return dialog;
+        }
+
+        private ProgressDialog createFormatProgressDialog(Context c){
+            ProgressDialog dialog = new ProgressDialog(c);
+            dialog.setTitle(R.string.fwUpgrade_formatting);
+            //dialog.setMessage("Board is ");
+            dialog.setCancelable(false);
+            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            return dialog;
+        }
+
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if(action.equals(FwUpgradeService.FW_UPLOAD_STARTED_ACTION))
+                uploadStarted();
+            if(action.equals(FwUpgradeService.FW_UPLOAD_STATUS_UPGRADE_ACTION)){
+                long total = intent.getLongExtra(FwUpgradeService
+                        .FW_UPLOAD_STATUS_UPGRADE_TOTAL_BYTE_EXTRA, Integer.MAX_VALUE);
+                long upload = intent.getLongExtra(FwUpgradeService
+                        .FW_UPLOAD_STATUS_UPGRADE_SEND_BYTE_EXTRA,0);
+                upgradeUploadStatus(upload,total);
+            }else if(action.equals(FwUpgradeService.FW_UPLOAD_FINISHED_ACTION)){
+                float time = intent.getFloatExtra(FwUpgradeService
+                        .FW_UPLOAD_FINISHED_TIME_S_EXTRA,0.0f);
+                uploadFinished(time);
+            }else if(action.equals(FwUpgradeService.FW_UPLOAD_ERROR_ACTION)){
+                String message = intent.getStringExtra(FwUpgradeService
+                        .FW_UPLOAD_ERROR_MESSAGE_EXTRA);
+                uploadError(message);
+
+            }
+        }
+
+        private void uploadStarted() {
+            mFormattingProgressDialog = createFormatProgressDialog(mContext);
+            mFormattingProgressDialog.show();
+        }
+
+        private void upgradeUploadStatus(long uploadBytes, long totalBytes){
+            if(mUploadFileProgressDialog==null){
+                mUploadFileProgressDialog= createUpgradeProgressDialog(mContext);
+                mUploadFileProgressDialog.setMax((int)totalBytes);
+                if(mFormattingProgressDialog!=null){
+                    mFormattingProgressDialog.dismiss();
+                    mFormattingProgressDialog=null;
+                }
+                mUploadFileProgressDialog.show();
+            }
+            mUploadFileProgressDialog.setProgress((int)uploadBytes);
+        }
+
+        private void uploadFinished(float timeS){
+            mUploadFileProgressDialog.dismiss();
+            mUploadFileProgressDialog=null;
+            mFinalMessage.setText(String.format("Upload Completed in: %.2f\nReset the board" +
+                    " for apply it",timeS));
+        }
+
+        private void uploadError(String msg){
+            mUploadFileProgressDialog.dismiss();
+            mUploadFileProgressDialog=null;
+            mFinalMessage.setText(msg);
+        }
+    }
+
+
+    private BroadcastReceiver mMessageReceiver;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMessageReceiver = new FwUpgradeServiceActionReceiver(this);
+        // Register mMessageReceiver to receive messages.
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                FwUpgradeService.getServiceActionFilter());
+    }
+
+
+
+    private void startFwUpgrade(){
+        keepConnectionOpen(true);
+        startActivityForResult(getFileSelectIntent(), CHOOSE_BOARD_FILE_REQUESTCODE);
     }
 
     @Override
@@ -182,15 +270,10 @@ public class FwUpgradeActivity extends ActivityWithNode {
             if(requestCode==CHOOSE_BOARD_FILE_REQUESTCODE) {
                 Uri file = data.getData();
                 if(file!=null)
-                    uploadFwFile(file);
+                    FwUpgradeService.startUpload(this,getNode(),file);
             }
         }
 
-    }
-
-    private void startFwUpgrade(){
-        keepConnectionOpen(true);
-        startActivityForResult(getFileSelectIntent(), CHOOSE_BOARD_FILE_REQUESTCODE);
     }
 
 }
