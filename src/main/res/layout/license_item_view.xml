@@ -42,7 +42,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/upload"
+        android:text="@string/licenseManager_uploadButton"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:id="@+id/licUploadButton"/>
 

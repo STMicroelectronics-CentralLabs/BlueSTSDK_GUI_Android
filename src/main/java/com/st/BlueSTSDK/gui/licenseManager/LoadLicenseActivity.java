@@ -155,7 +155,7 @@ public class LoadLicenseActivity extends ActivityWithNode {
         //if both data are present load the license
         if(licCode!=null && licName!=null){
             if(!licName.equalsIgnoreCase(mLicenseInfo.shortName)){
-                Snackbar.make(mLicName, R.string.invalidLicenseType,Snackbar.LENGTH_LONG).show();
+                Snackbar.make(mLicName, R.string.licenseManager_invalidLicenseType,Snackbar.LENGTH_LONG).show();
                 return;
             }//else
             final Node node = getNode();

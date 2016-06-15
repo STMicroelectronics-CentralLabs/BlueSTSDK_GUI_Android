@@ -1,32 +1,51 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
+import android.os.Parcel;
 import android.support.annotation.IntDef;
 
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.IllegalFormatException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Class that store a version for the ble firmware. The version is of type:
+ * Ble_x.y.z or BleMS_x.y.z where z is a char where 0=0, a = 1
+ * the Ble or BleMS prefix tell which type of ble chip the board is using
+ */
 public class FwVersionBle extends FwVersion {
 
     private static final String BLE_TYPE="Ble";
     private static final String BLEMS_TYPE="BleMS";
+    private static final Pattern PARSE_FW_VERSION=Pattern.compile("((?:"+BLE_TYPE+")|(?:"+
+            BLEMS_TYPE+"))_(\\d+)\\.(\\d+)\\.(\\w)");
 
+    /**
+     * enum with the ble chip
+     */
     @IntDef({BLE,BLE_MS})
     @Retention(RetentionPolicy.SOURCE)
     public @interface BleType {}
 
+    /**
+     * constant used when the node is using the BlueNRG chip (as the X-NUCLEO-IDB04A1 board)
+     */
     public static final int BLE = 0;
+
+    /**
+     *constant used when the node is using the  BlueNRG-MS chip (as the X-NUCLEO-IDB05A1)
+     */
     public static final int BLE_MS = 1;
 
     private @BleType int mType;
 
-    private static final Pattern PARSE_FW_VERSION=Pattern.compile("((?:"+BLE_TYPE+")|(?:"+
-            BLEMS_TYPE+"))_(\\d+)\\.(\\d+)\\.(\\w)");
-
+    /**
+     * convert a char into a number, the '0' is mapped as 0, a as 1 ecc
+     * @param c char to convert to integer
+     * @return integer version corresponding to the char
+     */
     private static int charToPatch(char c){
         if(c=='0')
             return 0;
@@ -34,6 +53,11 @@ public class FwVersionBle extends FwVersion {
             return (c-'a')+1;
     }
 
+    /**
+     * convert a number into a char version. the 0 is mapped as '0' 1 as 'a' ecc
+     * @param v version to convert
+     * @return char corresponding the number
+     */
     private static char patchToChar(int v){
         if(v==0){
             return '0';
@@ -63,4 +87,29 @@ public class FwVersionBle extends FwVersion {
         return ""+majorVersion+"."+minorVersion+"."+patchToChar(patchVersion)+"( "+
                 (mType==BLE ? BLE_TYPE : BLEMS_TYPE)+" )";
     }
+
+    public static final Creator<FwVersionBle> CREATOR = new Creator<FwVersionBle>() {
+        @Override
+        public FwVersionBle createFromParcel(Parcel in) {
+            return new FwVersionBle(in);
+        }
+
+        @Override
+        public FwVersionBle[] newArray(int size) {
+            return new FwVersionBle[size];
+        }
+    };
+
+    protected FwVersionBle(Parcel in) {
+        super(in);
+        //noinspection ResourceType
+        mType = in.readInt();
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        super.writeToParcel(parcel,i);
+        parcel.writeInt(mType);
+    }
+
 }

@@ -12,6 +12,6 @@
         app:showAsAction="never"/>
     <item
         android:id="@+id/menu_license_clearBoard"
-        android:title="@string/clear_board_license"
+        android:title="@string/licenseManager_clear_board_license"
         app:showAsAction="never"/>
 </menu>

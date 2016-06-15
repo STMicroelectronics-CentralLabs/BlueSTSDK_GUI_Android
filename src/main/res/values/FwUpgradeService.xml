@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="fwUpgrade_notificationTitle">Uploading the new firmware</string>
-    <string name="error_corrupted_file">Transmited data are corrupted</string>
-    <string name="error_transmission">Impossible send the data</string>
-    <string name="unknown_error">Unknown Error</string>
-</resources>

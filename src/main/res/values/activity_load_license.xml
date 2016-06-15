@@ -2,6 +2,6 @@
 <resources>
     <string name="licenseManager_licenseCodeNotFound">License code not found</string>
     <string name="licenseManager_licenseNameNotFound">License name not found</string>
-    <string name="paste_license_code">Paste license code</string>
-    <string name="invalidLicenseType">Invalid license type</string>
+    <string name="licenseManager_pasteLicenseCode">Paste license code</string>
+    <string name="licenseManager_invalidLicenseType">Invalid license type</string>
 </resources>

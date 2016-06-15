@@ -4,12 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Scanner;
 
 /**
- * Utility class that read a img file converting the char data into byte:
+ * Utility class that read a img file converting the char data into byte.
+ * the file is read as block of uint32(8char) and it will invert the byte order
  * it the file as the string "01020304" a sequence of read will return the bytes: 0x04,0x03,0x02,
  * 0x01
  */
@@ -67,12 +67,7 @@ public class ImgFileInputStream extends InputStream {
     public boolean markSupported(){
         return false;
     }
-/*
-    @Override
-    public int available(){
-        return mBuffer.size();
-    }
-*/
+
     public long length(){
        return mFileSize;
     }

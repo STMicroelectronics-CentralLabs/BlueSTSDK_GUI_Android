@@ -17,11 +17,11 @@
     <string name="licenseManager_requestLicenseButton">Request</string>
     <string name="licenseManager_clearDb">Clear app license db</string>
     <string name="licenseManager_clearDbMessage">License db erase</string>
-    <string name="upload">Upload</string>
-    <string name="clear_board_license">Clear board license</string>
-    <string name="errorClearBoardLic">Error cleaning the board license</string>
-    <string name="clearBoardLicOk">License removed, board is resetting</string>
-    <string name="LicenseManagerNotAvailable_title">License Manager</string>
-    <string name="LicenseManagerNotAvailable_msg">License manager not available</string>
+    <string name="licenseManager_uploadButton">Upload</string>
+    <string name="licenseManager_clear_board_license">Clear board license</string>
+    <string name="licenseManager_errorClearBoardLic">Error cleaning the board license</string>
+    <string name="licenseManager_clearBoardLicOk">License removed, board is resetting</string>
+    <string name="licenseManager_notAvailableDialogTitle">License Manager</string>
+    <string name="licenseManager_notAvailableDialogMsg">License manager not available</string>
 
 </resources>

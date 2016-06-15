@@ -10,17 +10,6 @@ import java.util.regex.Pattern;
 
 public class FwVersionBoard extends FwVersion implements Parcelable{
 
-    public static final Creator<FwVersionBoard> CREATOR = new Creator<FwVersionBoard>() {
-        @Override
-        public FwVersionBoard createFromParcel(Parcel in) {
-            return new FwVersionBoard(in);
-        }
-
-        @Override
-        public FwVersionBoard[] newArray(int size) {
-            return new FwVersionBoard[size];
-        }
-    };
 
     private static final Pattern PARSE_FW_VERSION=Pattern.compile("(.*)_(.*)_(\\d+)\\.(\\d+)\\.(\\d+)");
 
@@ -46,9 +35,24 @@ public class FwVersionBoard extends FwVersion implements Parcelable{
         return name;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    ///////////////////////Parcelable implementation//////////////////
+
+    public static final Creator<FwVersionBoard> CREATOR = new Creator<FwVersionBoard>() {
+        @Override
+        public FwVersionBoard createFromParcel(Parcel in) {
+            return new FwVersionBoard(in);
+        }
+
+        @Override
+        public FwVersionBoard[] newArray(int size) {
+            return new FwVersionBoard[size];
+        }
+    };
+
+    protected FwVersionBoard(Parcel in) {
+        super(in);
+        mcuType = in.readString();
+        name = in.readString();
     }
 
     @Override
@@ -56,12 +60,6 @@ public class FwVersionBoard extends FwVersion implements Parcelable{
         super.writeToParcel(parcel,i);
         parcel.writeString(mcuType);
         parcel.writeString(name);
-    }
-
-    protected FwVersionBoard(Parcel in) {
-        super(in);
-        mcuType = in.readString();
-        name = in.readString();
     }
 
 }

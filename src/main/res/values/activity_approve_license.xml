@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="approveLicenseActivityName">Approve license</string>
+    <string name="title_activity_approve_license">Approve license</string>
 </resources>

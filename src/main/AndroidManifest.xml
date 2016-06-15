@@ -26,7 +26,7 @@
         </activity>
         <activity
             android:name=".licenseManager.RequestLicenseActivity"
-            android:label="@string/approveLicenseActivityName"
+            android:label="@string/title_activity_approve_license"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

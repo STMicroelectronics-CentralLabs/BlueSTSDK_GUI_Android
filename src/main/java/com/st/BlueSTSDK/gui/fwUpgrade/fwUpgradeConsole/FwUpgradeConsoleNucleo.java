@@ -3,7 +3,6 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Utils.NumberConversion;
@@ -21,6 +20,14 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.zip.Checksum;
 
+/**
+ * Implement the FwUpgradeConsole for a board running the BlueMs firmware.
+ * In this case the protocol is:
+ * mobile:upgrade[Ble|Fw]+length+fileCrc
+ * node:fileCrc
+ * mobile: file data, the file is spited in message of 16bytes
+ * node: when all the byte are write return 1 if the crc is ok, -1 otherwise
+ */
 public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
     static private final String GET_VERSION_BOARD_FW="versionFw\n";
@@ -29,7 +36,15 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
     static private final byte[] UPLOAD_BLE_FW={'u','p','g','r','a','d','e','B','l','e'};
 
     static private final String ACK_MSG="\u0001";
+
+    /**
+     * the Stm32 L4 can write only 8bytes at time, so sending a multiple of 8 simplify the fw code
+     */
     static private final int MAX_MSG_SIZE=16;
+
+    /**
+     * if all the messages are not send in 1s an error is fired
+     */
     static private final int LOST_MSG_TIMEOUT_MS=1000;
 
     /**
@@ -47,6 +62,9 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      */
     private GetVersionProtocol mConsoleGetFwVersion= new GetVersionProtocol();
 
+    /**
+     * class used for wait/parse the fw version response
+     */
     private class GetVersionProtocol implements Debug.DebugOutputListener {
 
         private @FirmwareType int mRequestFwType;
@@ -100,12 +118,19 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
         @Override
         public void onStdInSent(Debug debug, String message, boolean writeResult) { }
-    };
+    }
 
 
+    /**
+     * class that manage the file upload
+     */
     private class UploadFileProtocol implements  Debug.DebugOutputListener{
 
-        private static final int TRUNK_PKG_SIZE = 10;
+        /**
+         * for not stress the ble stack it sends 10 package at times, when the packages are sent
+         * it send a new set a package
+         */
+        private static final int BLOCK_PKG_SIZE = 10;
 
         /**
          * file that we are uploading
@@ -122,41 +147,68 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
          */
         private long mByteSend;
 
+        /**
+         * total number of byte to send
+         */
         private long mByteToSend;
 
+        /**
+         * file crc
+         */
         private long mCrc;
 
+        /**
+         * true if the handshake with the node is finished
+         */
         private boolean mNodeReadyToReceiveFile;
+
+        /**
+         * counter of package that are sent
+         */
         private int mNPackageReceived;
 
         /**
          * size of the last package send
          */
         private byte[] mLastPackageSend = new byte[MAX_MSG_SIZE];
+
         /**
-         * if the timeout is rise, resend the last package
+         * if the timeout is rise, fire an error of type
+         * {@link FwUpgradeConsole.FwUpgradeCallback#ERROR_TRANSMISSION}
          */
         private Runnable onTimeout = new Runnable() {
             @Override
             public void run() {
-                if(mCallback!=null)
-                    mCallback.onLoadFwError(FwUpgradeConsoleNucleo.this,mFile,
-                            FwUpgradeCallback.ERROR_TRANSMISSION);
+                onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
             }
         };
 
+
+        /**
+         * Notify to the used that an error happen
+         * @param errorCode type of error
+         */
         private void onLoadFail(@FwUpgradeCallback.UpgradeErrorType int errorCode){
             if(mCallback!=null)
                 mCallback.onLoadFwError(FwUpgradeConsoleNucleo.this,mFile,errorCode);
             setConsoleListener(null);
         }
 
+        /**
+         * notify to the user that the upload is correctly finished
+         */
         private void onLoadComplete(){
             if(mCallback!=null)
                 mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo.this,mFile);
             setConsoleListener(null);
         }
 
+        /**
+         * open a file, using the right InputStream
+         * @param f file to open, if it is of type img the {@link ImgFileInputStream} class is
+         *          used, otherwise a {@link FileInputStream} is used
+         * @throws FileNotFoundException if is not possible read the file
+         */
         private void openFile(File f) throws FileNotFoundException {
             if(f.getName().toLowerCase().endsWith("img")) {
                 ImgFileInputStream input = new ImgFileInputStream(f);
@@ -165,10 +217,14 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             }else {
                 mFileData = new FileInputStream(f);
                 mByteToSend = f.length();
-            }
+            }//if-else
         }
 
-
+        /**
+         * compute the file crc
+         * @param f file to open
+         * @return file crc or a negative number if an error happen
+         */
         private long computeCrc32(File f){
             Checksum crc = new STM32Crc32();
             byte buffer[] = new byte[4];
@@ -185,10 +241,17 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                 e.printStackTrace();
                 return -1;
             }
-
             return crc.getValue();
         }
 
+        /**
+         * merge the file size and crc for create the command that will start the upload on the
+         * board
+         * @param fwType firmware to update
+         * @param fileSize number of file to send
+         * @param fileCrc file crc
+         * @return command to send to the board
+         */
         private byte[] prepareLoadCommand(@FirmwareType int fwType,long fileSize,long
                 fileCrc){
             byte[] command;
@@ -211,6 +274,11 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             return command;
         }
 
+        /**
+         * start to upload the file
+         * @param fwType firmware that we are uploading
+         * @param file file to upload
+         */
         public void loadFile(@FirmwareType int fwType,Uri file){
             mFile=file;
             File f = new File(file.getPath());
@@ -228,15 +296,23 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             mConsole.write(prepareLoadCommand(fwType,mByteToSend,mCrc));
         }
 
+        /**
+         * @param message message received from the node
+         * @return true if the message contain the crc code that we have send
+         */
         private boolean checkCrc(String message){
             byte rcvCrc[] = message.getBytes(Charset.forName("ISO-8859-1"));
             byte myCrc[] = NumberConversion.LittleEndian.uint32ToBytes(mCrc);
             return Arrays.equals(rcvCrc,myCrc);
         }
 
+        /**
+         * read the data from the file and send it to the node
+         * @return true if the package is correctly sent
+         */
         private boolean sendFwPackage(){
             int lastPackageSize = (int) Math.min(mByteToSend - mByteSend, MAX_MSG_SIZE);
-            int byteRead = 0;
+            int byteRead;
             try {
                 byteRead = mFileData.read(mLastPackageSend, 0, lastPackageSize);
             } catch (IOException e) {
@@ -251,42 +327,48 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                 return false;
         }//sendFwPackage
 
-        private boolean sendPackageTrunk(){
-            for(int i=0;i<TRUNK_PKG_SIZE;i++){
+        /**
+         * send a block of message, the function will stop at the first error
+         * @return true if all the message are send correctly
+         */
+        private boolean sendPackageBlock(){
+            for(int i = 0; i< BLOCK_PKG_SIZE; i++){
                 if(!sendFwPackage())
                     return false;
-            }
+            }//for
             return true;
-        }
+        }//sendPackageBlock
 
-        //each time an ack is received a new package is send
+
         @Override
         public void onStdOutReceived(Debug debug, String message) {
             if(!mNodeReadyToReceiveFile){
                 if(checkCrc(message)) {
                     mNodeReadyToReceiveFile = true;
                     mNPackageReceived=0;
-                    sendPackageTrunk();
+                    sendPackageBlock();
                 }else
                     onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
             }else { //transfer complete
                 mTimeout.removeCallbacks(onTimeout);
                 if(message.equalsIgnoreCase(ACK_MSG))
-                    mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo.this,mFile);
+                    onLoadComplete();
                 else
                     onLoadFail(FwUpgradeCallback.ERROR_CORRUPTED_FILE);
             }
         }//onStdOutReceived
 
-        @Override
-        public void onStdErrReceived(Debug debug, String message) { }
-
+        /**
+         * notify to the user that a block of data is correctly send and send a new one
+         */
         private void notifyNodeReceivedFwMessage(){
             mNPackageReceived++;
-            if(mNPackageReceived%TRUNK_PKG_SIZE==0){
-                mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleNucleo.this,mFile,
-                        mByteToSend-mByteSend);
-                sendPackageTrunk();
+            //if we finish to send all the message
+            if(mNPackageReceived % BLOCK_PKG_SIZE ==0){
+                if(mCallback!=null)
+                    mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleNucleo.this,mFile,
+                            mByteToSend-mByteSend);
+                sendPackageBlock();
             }//if
         }
 
@@ -294,6 +376,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         public void onStdInSent(Debug debug, String message, boolean writeResult) {
             if(writeResult){
                 if(mNodeReadyToReceiveFile){
+                    //reset the timeout
                     mTimeout.removeCallbacks(onTimeout);
                     notifyNodeReceivedFwMessage();
                     mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
@@ -302,7 +385,10 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                 onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
             }
         }
-    };
+
+        @Override
+        public void onStdErrReceived(Debug debug, String message) { }
+    }
 
     /**
      * object used for manage the get board id command

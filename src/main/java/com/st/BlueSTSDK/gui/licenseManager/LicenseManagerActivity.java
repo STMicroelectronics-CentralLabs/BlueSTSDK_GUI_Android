@@ -20,7 +20,6 @@ import android.view.View;
 
 import android.widget.Toast;
 
-import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
 import com.st.BlueSTSDK.gui.R;
@@ -183,10 +182,10 @@ public class LicenseManagerActivity extends ActivityWithNode implements
             @Override
             public void onLicenseCleared(LicenseConsole console, boolean status) {
                 if(status){
-                    Snackbar.make(mLicListView, R.string.clearBoardLicOk ,
+                    Snackbar.make(mLicListView, R.string.licenseManager_clearBoardLicOk,
                             Snackbar.LENGTH_LONG).show();
                 }else{
-                    Snackbar.make(mLicListView, R.string.errorClearBoardLic,
+                    Snackbar.make(mLicListView, R.string.licenseManager_errorClearBoardLic,
                             Snackbar.LENGTH_LONG).show();
                 }//if-else
             }
@@ -412,8 +411,8 @@ public class LicenseManagerActivity extends ActivityWithNode implements
 
     private void showLicenseStatusNotAvailableDialog(){
         new AlertDialog.Builder(this)
-                .setTitle(R.string.LicenseManagerNotAvailable_title)
-                .setMessage(R.string.LicenseManagerNotAvailable_msg)
+                .setTitle(R.string.licenseManager_notAvailableDialogTitle)
+                .setMessage(R.string.licenseManager_notAvailableDialogMsg)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setCancelable(true)
                 .setNeutralButton(android.R.string.ok,

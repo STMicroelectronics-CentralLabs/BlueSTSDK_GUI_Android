@@ -174,7 +174,6 @@ public class FwUpgradeActivity extends ActivityWithNode {
         private ProgressDialog createUpgradeProgressDialog(Context c){
             ProgressDialog dialog = new ProgressDialog(c);
             dialog.setTitle(R.string.fwUpgrade_uploading);
-            //dialog.setMessage("Please wait");
             dialog.setCancelable(false);
             dialog.setProgressNumberFormat(c.getString(R.string.fwUpgrade_upgradeNumberFormat));
             dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -184,7 +183,6 @@ public class FwUpgradeActivity extends ActivityWithNode {
         private ProgressDialog createFormatProgressDialog(Context c){
             ProgressDialog dialog = new ProgressDialog(c);
             dialog.setTitle(R.string.fwUpgrade_formatting);
-            //dialog.setMessage("Board is ");
             dialog.setCancelable(false);
             dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             return dialog;
@@ -270,7 +268,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
             if(requestCode==CHOOSE_BOARD_FILE_REQUESTCODE) {
                 Uri file = data.getData();
                 if(file!=null)
-                    FwUpgradeService.startUpload(this,getNode(),file);
+                    FwUpgradeService.startUploadService(this,getNode(),file);
             }
         }
 
