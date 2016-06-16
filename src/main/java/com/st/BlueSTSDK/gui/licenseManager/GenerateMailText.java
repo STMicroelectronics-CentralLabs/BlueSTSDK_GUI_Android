@@ -165,7 +165,7 @@ public class GenerateMailText {
     /**
      * Create an intent for send the request mail
      * @param c contex
-     * @return
+     * @return intent for send the image
      */
     public Intent prepareSendMailIntent(Context c){
         Intent i = new Intent(Intent.ACTION_SEND);
@@ -179,7 +179,7 @@ public class GenerateMailText {
     /**
      * generate the mail body
      * @param c context
-     * @return reuquest mail body
+     * @return request mail body
      */
     private String getMailContent(Context c){
         String siteCode = getSiteCode(c);

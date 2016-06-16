@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,7 +63,8 @@ public class RequestLicenseActivity extends AppCompatActivity implements
         mLicense = args.getParcelable(LICENSE_INFO);
 
         TextView title = (TextView) findViewById(R.id.licTitle);
-        title.setText(mLicense.longName);
+        if(title!=null)
+            title.setText(mLicense.longName);
 
         if(savedInstanceState==null) { // the first time add the fragment
             Fragment licApprove = ApproveLicenseFragment.newInstance(mLicense.disclaimerFile);
