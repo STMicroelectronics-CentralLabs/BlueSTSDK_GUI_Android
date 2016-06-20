@@ -8,4 +8,6 @@
     <string name="fwUpgrade_formatting">Formatting</string>
     <string name="fwUpgrade_uploading">Uploading</string>
     <string name="fwUpgrade_upgradeNumberFormat">%1$d/%2$d Bytes</string>
+    <string name="fwUpgrade_upgradeCompleteMessage">Upload Completed in: %1$.2f\\nThe board is
+        resetting for apply it</string>
 </resources>

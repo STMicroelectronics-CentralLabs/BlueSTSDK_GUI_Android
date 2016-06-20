@@ -12,10 +12,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.TextView;
-
+import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
-import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersionBoard;
@@ -68,7 +67,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
                     if(fwType==FwUpgradeConsole.BOARD_FW) {
                         displayVersion((FwVersionBoard) version);
                     }
-                    mLoadVersionProgressDialog.dismiss();
+                    releaseDialog(mLoadVersionProgressDialog);
                     mLoadVersionProgressDialog=null;
                 }
             });
@@ -134,8 +133,9 @@ public class FwUpgradeActivity extends ActivityWithNode {
     }
 
     private static void releaseDialog(@Nullable Dialog d){
-        if(d!=null && d.isShowing())
+        if(d!=null && d.isShowing()) {
             d.dismiss();
+        }
     }
 
     @Override
@@ -160,6 +160,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
 
     private ProgressDialog mUploadFileProgressDialog;
     private ProgressDialog mFormattingProgressDialog;
+
 
     private class FwUpgradeServiceActionReceiver extends BroadcastReceiver
     {
@@ -219,10 +220,8 @@ public class FwUpgradeActivity extends ActivityWithNode {
             if(mUploadFileProgressDialog==null){
                 mUploadFileProgressDialog= createUpgradeProgressDialog(mContext);
                 mUploadFileProgressDialog.setMax((int)totalBytes);
-                if(mFormattingProgressDialog!=null){
-                    mFormattingProgressDialog.dismiss();
-                    mFormattingProgressDialog=null;
-                }
+                releaseDialog(mFormattingProgressDialog);
+                mFormattingProgressDialog=null;
                 mUploadFileProgressDialog.show();
             }
             mUploadFileProgressDialog.setProgress((int)uploadBytes);
@@ -231,13 +230,13 @@ public class FwUpgradeActivity extends ActivityWithNode {
         private void uploadFinished(float timeS){
             mUploadFileProgressDialog.dismiss();
             mUploadFileProgressDialog=null;
-            mFinalMessage.setText(String.format("Upload Completed in: %.2f\nReset the board" +
-                    " for apply it",timeS));
+            mFinalMessage.setText(String.format(getString(R.string.fwUpgrade_upgradeCompleteMessage),timeS));
         }
 
         private void uploadError(String msg){
-            mUploadFileProgressDialog.dismiss();
+            releaseDialog(mUploadFileProgressDialog);
             mUploadFileProgressDialog=null;
+
             mFinalMessage.setText(msg);
         }
     }
