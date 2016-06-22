@@ -1,2 +1,7 @@
 configurations.maybeCreate("default")
 artifacts.add("default", file('LicenseGenerator.aar'))
+task testClasses {
+    doLast {
+        println 'Binary lib, skip testing'
+    }
+}
