@@ -69,6 +69,12 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
         private @FirmwareType int mRequestFwType;
 
+        private void notifyVersionRead(FwVersion version){
+            setConsoleListener(null);
+            if (mCallback != null)
+                mCallback.onVersionRead(FwUpgradeConsoleNucleo.this,mRequestFwType,version);
+        }
+
         public void requestVersion(@FirmwareType int fwType){
             mRequestFwType=fwType;
             switch (fwType) {
@@ -79,9 +85,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                     mConsole.write(GET_VERSION_BOARD_FW);
                     break;
                 default:
-                    if(mCallback!=null){
-                        mCallback.onVersionRead(FwUpgradeConsoleNucleo.this,fwType,null);
-                    }
+                    notifyVersionRead(null);
                     break;
             }
         }
@@ -104,12 +108,11 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                     }
                 }catch (IllegalVersionFormatException e){
                     //clear the current buffer and wait for a new answer
-                    mBuffer.delete(0,mBuffer.length());
+                    //mBuffer.delete(0,mBuffer.length());
+                    notifyVersionRead(null);
                     return;
-                }
-                setConsoleListener(null);
-                if (mCallback != null)
-                    mCallback.onVersionRead(FwUpgradeConsoleNucleo.this,mRequestFwType,version);
+                }//try-catch
+                notifyVersionRead(version);
             }
         }
 

@@ -1,5 +1,6 @@
 package com.st.BlueSTSDK.gui.fwUpgrade;
 
+import android.app.DialogFragment;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -12,6 +13,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.TextView;
+
+import com.st.BlueSTSDK.gui.AlertAndFinishDialog;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
@@ -21,7 +24,13 @@ import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersionBoard;
 
 public class FwUpgradeActivity extends ActivityWithNode {
 
+    private static final FwVersionBoard MIN_COMPATIBILITY_VERSION[] = new FwVersionBoard[]{
+            new FwVersionBoard("BLUEMICROSYSTEM2","",2,0,1)
+    };
+
     private static final int CHOOSE_BOARD_FILE_REQUESTCODE=1;
+
+    private static final String FRAGMENT_DIALOG_TAG = "Dialog";
 
     private static final String VERSION = FwUpgradeActivity.class.getName()+"FW_VERSION";
     private static final String FINAL_MESSAGE = FwUpgradeActivity.class.getName()+"FINAL_MESSAGE";
@@ -54,7 +63,8 @@ public class FwUpgradeActivity extends ActivityWithNode {
     }
 
     private ProgressDialog mLoadVersionProgressDialog;
-    
+
+
     private FwUpgradeConsole.FwUpgradeCallback mConsoleListener = new FwUpgradeConsole.SimpleFwUpgradeCallback() {
 
         @Override
@@ -64,18 +74,52 @@ public class FwUpgradeActivity extends ActivityWithNode {
             FwUpgradeActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(fwType==FwUpgradeConsole.BOARD_FW) {
-                        displayVersion((FwVersionBoard) version);
-                    }
                     releaseDialog(mLoadVersionProgressDialog);
                     mLoadVersionProgressDialog=null;
+                    if(version==null){
+                        displayFwUpgradeNotAvailableAndFinish();
+                        return;
+                    }
+                    if(fwType==FwUpgradeConsole.BOARD_FW) {
+                        FwVersionBoard boardVersion =(FwVersionBoard) version;
+                        if(checkFwIncompatibility(boardVersion))
+                            displayVersion(boardVersion);
+                    }
                 }
             });
         }
 
     };
 
-    
+    private void displayFwUpgradeNotAvailableAndFinish() {
+        DialogFragment newFragment = AlertAndFinishDialog.newInstance(
+                getString(R.string.FwUpgrade_dialogTitle),
+                getString(R.string.FwUpgrade_notAvailableMsg), true);
+        newFragment.show(getFragmentManager(), FRAGMENT_DIALOG_TAG);
+
+    }
+
+    private boolean checkFwIncompatibility(FwVersionBoard version){
+        for(FwVersionBoard knowBoard : MIN_COMPATIBILITY_VERSION){
+            if(version.getName().equals(knowBoard.getName())){
+                if(version.compareTo(knowBoard)<0){
+                    displayNeedNewFwAndFinish(knowBoard);
+                    return false;
+                }//if
+            }//if
+        }//for
+        return true;
+    }
+
+    private void displayNeedNewFwAndFinish(FwVersionBoard minVersion) {
+
+        DialogFragment newFragment = AlertAndFinishDialog.newInstance(
+                getString(R.string.FwUpgrade_dialogTitle),
+                getString(R.string.FwUpgrade_needUpdateMsg, minVersion), true);
+        newFragment.show(getFragmentManager(), FRAGMENT_DIALOG_TAG);
+    }
+
+
     private  void initFwVersion(){
         FwUpgradeConsole console = FwUpgradeConsole.getFwUpgradeConsole(mNode);
         if(console !=null) {
@@ -119,7 +163,8 @@ public class FwUpgradeActivity extends ActivityWithNode {
             }
         }else{
             mVersion= savedInstanceState.getParcelable(VERSION);
-            displayVersion(mVersion);
+            if(mVersion!=null)
+                displayVersion(mVersion);
             mFinalMessage.setText(savedInstanceState.getString(FINAL_MESSAGE,""));
         }
 
@@ -128,8 +173,8 @@ public class FwUpgradeActivity extends ActivityWithNode {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(VERSION,mVersion);
-        outState.putString(FINAL_MESSAGE,mFinalMessage.getText().toString());
+        outState.putParcelable(VERSION, mVersion);
+        outState.putString(FINAL_MESSAGE, mFinalMessage.getText().toString());
     }
 
     private static void releaseDialog(@Nullable Dialog d){

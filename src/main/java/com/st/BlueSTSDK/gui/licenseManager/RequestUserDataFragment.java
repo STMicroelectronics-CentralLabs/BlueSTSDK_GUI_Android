@@ -142,15 +142,15 @@ public class RequestUserDataFragment extends Fragment {
      */
     private boolean validateInput(){
         if(!validateUserName()) {
-            Snackbar.make(root, R.string.invalidUserName, Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(root, R.string.LicenseManager_invalidUserName, Snackbar.LENGTH_SHORT).show();
             return false;
         }
         if(!validateEmail()) {
-            Snackbar.make(root, R.string.invalidEmail, Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(root, R.string.LicenseManager_invalidEmail, Snackbar.LENGTH_SHORT).show();
             return false;
         }
         if(!validateCompanyName()) {
-            Snackbar.make(root, R.string.invalidCompanyName, Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(root, R.string.LicenseManager_invalidCompanyName, Snackbar.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -173,12 +173,12 @@ public class RequestUserDataFragment extends Fragment {
         String input = removeDangerousChar(mUserName.getText());
         if(!ONLY_LATIN_CHAR.matcher(input).matches()){
             mUserNameLayout.setErrorEnabled(true);
-            mUserNameLayout.setError(getString(R.string.notLatinChar));
+            mUserNameLayout.setError(getString(R.string.LicenseManager_notLatinChar));
             requestFocus(mUserName);
             return false;
         }else if (input.isEmpty()) {
             mUserNameLayout.setErrorEnabled(true);
-            mUserNameLayout.setError(getString(R.string.invalidUserName));
+            mUserNameLayout.setError(getString(R.string.LicenseManager_invalidUserName));
             requestFocus(mUserName);
             return false;
         } else {
@@ -205,12 +205,12 @@ public class RequestUserDataFragment extends Fragment {
         String input = removeDangerousChar(mEMail.getText());
         if(!ONLY_LATIN_CHAR.matcher(input).matches()){
             mEMailLayout.setErrorEnabled(true);
-            mEMailLayout.setError(getString(R.string.notLatinChar));
+            mEMailLayout.setError(getString(R.string.LicenseManager_notLatinChar));
             requestFocus(mEMail);
             return false;
         }else if (!isValidEmail(input)) {
             mEMailLayout.setErrorEnabled(true);
-            mEMailLayout.setError(getString(R.string.invalidEmail));
+            mEMailLayout.setError(getString(R.string.LicenseManager_invalidEmail));
             requestFocus(mEMail);
             return false;
         } else {
@@ -229,12 +229,12 @@ public class RequestUserDataFragment extends Fragment {
         String input = removeDangerousChar(mCompany.getText());
         if(!ONLY_LATIN_CHAR.matcher(input).matches()){
             mCompanyLayout.setErrorEnabled(true);
-            mCompanyLayout.setError(getString(R.string.notLatinChar));
+            mCompanyLayout.setError(getString(R.string.LicenseManager_notLatinChar));
             requestFocus(mCompany);
             return false;
         }else if (input.isEmpty()) {
             mCompanyLayout.setErrorEnabled(true);
-            mCompanyLayout.setError(getString(R.string.invalidCompanyName));
+            mCompanyLayout.setError(getString(R.string.LicenseManager_invalidCompanyName));
             requestFocus(mCompany);
             return false;
         } else {

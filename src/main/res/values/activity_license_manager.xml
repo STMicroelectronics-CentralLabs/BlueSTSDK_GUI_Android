@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="licenseManager_refresh">Refresh</string>
     <string name="licenseManager_loadDataTitle">Loading…</string>
     <string name="licenseManager_loadUidDesc">Load stm32 data</string>

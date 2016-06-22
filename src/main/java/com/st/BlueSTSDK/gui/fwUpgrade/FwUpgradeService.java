@@ -201,7 +201,7 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
                               @UpgradeErrorType int error) {
         String errorMessage = getErrorMessage(error);
         mBroadcastManager.sendBroadcast(getFwUpgradeErrorIntent(errorMessage));
-        mNotification.setContentTitle(getString(R.string.fwUpgrade_errorNotificationTitile))
+        mNotification.setContentTitle(getString(R.string.fwUpgrade_errorNotificationTitle))
                 .setContentText(errorMessage);
         mNotificationManager.notify(NOTIFICATION_ID, mNotification.build());
     }
@@ -211,7 +211,7 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
         long totalTimeMs = System.currentTimeMillis() - mStartUploadTime;
         float totalTimeS = totalTimeMs / 1000.0f;
         mBroadcastManager.sendBroadcast(getFwUpgradeCompleteIntent(totalTimeS));
-        mNotification.setContentTitle(getString(R.string.fwUpgrade_upgradeCompleteNotificationTitile))
+        mNotification.setContentTitle(getString(R.string.fwUpgrade_upgradeCompleteNotificationTitle))
                 .setContentText(getString(R.string.fwUpgrade_upgradeCompleteNotificationContent));
         mNotificationManager.notify(NOTIFICATION_ID, mNotification.build());
     }

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="fwUpgrade_notificationTitle">Uploading the new firmware</string>
-    <string name="fwUpgrade_error_corrupted_file">Transmited data are corrupted</string>
+    <string name="fwUpgrade_error_corrupted_file">Transmitted data are corrupted</string>
     <string name="fwUpgrade_error_transmission">Impossible send the data</string>
     <string name="fwUpgrade_error_unknown">Unknown Error</string>
     <string name="fwUpgrade_error_invalid_file">Impossible open the file</string>
 
-    <string name="fwUpgrade_errorNotificationTitile">Error</string>
-    <string name="fwUpgrade_upgradeCompleteNotificationTitile">Upload Complete</string>
+    <string name="fwUpgrade_errorNotificationTitle">Error</string>
+    <string name="fwUpgrade_upgradeCompleteNotificationTitle">Upload Complete</string>
     <string name="fwUpgrade_upgradeCompleteNotificationContent">Reset the board for update</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.st.BlueSTSDK.gui.licenseManager;
 
+import android.app.DialogFragment;
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
+import com.st.BlueSTSDK.gui.AlertAndFinishDialog;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.licenseManager.licenseConsole.LicenseConsole;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseInfo;
@@ -38,14 +40,15 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         LicenseStatusRecyclerViewAdapter.LicenseStatusViewCallback,
         LoaderManager.LoaderCallbacks<Cursor>{
 
+    private static final String FRAGMENT_DIALOG_TAG = "Dialog";
     static @Nullable LoadLicenseTask.LoadLicenseTaskCallback sUserLoadLicenseCallback;
 
     private static final String BOARD_UID_KEY= LicenseManagerActivity.class.getCanonicalName
             ()+".BOARD_UID";
     private static final String LICENSE_STATUS_KEY= LicenseManagerActivity.class.getCanonicalName
             ()+".LICENSE_STATUS";
-    private static final String LICENSE_KNOW_KEY= LicenseManagerActivity.class.getCanonicalName
-            ()+".LICENSE_KNOW";
+    private static final String LICENSE_KNOW_KEY = LicenseManagerActivity.class.getCanonicalName
+            () + ".LICENSE_KNOW";
 
     /**
      * id used for load the cursor with the license available
@@ -120,13 +123,13 @@ public class LicenseManagerActivity extends ActivityWithNode implements
             if(savedInstanceState==null)
                 loadLicenseStatus();
         }else{
-
             getNode().addNodeStateListener(mOnConnection);
         }
     }
 
     @Override
     protected void onSaveInstanceState (Bundle outState){
+        super.onSaveInstanceState(outState);
         if(mLicStatus!=null && !mLicStatus.isEmpty())
             outState.putParcelableArrayList(LICENSE_STATUS_KEY,new ArrayList<>(mLicStatus));
         if(mKnowLic!=null && !mKnowLic.isEmpty())
@@ -142,8 +145,9 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         mLicStatus = savedInstanceState.getParcelableArrayList(LICENSE_STATUS_KEY);
         mKnowLic = savedInstanceState.getParcelableArrayList(LICENSE_KNOW_KEY);
         //create the adapter and the console
-        mLicListView.setAdapter(new LicenseStatusRecyclerViewAdapter
-                (mLicStatus, LicenseManagerActivity.this));
+        if(mLicStatus!=null)
+            mLicListView.setAdapter(new LicenseStatusRecyclerViewAdapter
+                    (mLicStatus, LicenseManagerActivity.this));
     }
 
     @Override
@@ -410,20 +414,9 @@ public class LicenseManagerActivity extends ActivityWithNode implements
 
 
     private void showLicenseStatusNotAvailableDialog(){
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.licenseManager_notAvailableDialogTitle)
-                .setMessage(R.string.licenseManager_notAvailableDialogMsg)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setCancelable(true)
-                .setNeutralButton(android.R.string.ok,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            if(mLoadLicenseWait.isShowing())
-                                mLoadLicenseWait.dismiss();
-                            dialog.dismiss();
-                            keepConnectionOpen(true);
-                            finish();
-                    }
-                }).create().show();
+        DialogFragment newFragment = AlertAndFinishDialog.newInstance(
+                getString(R.string.licenseManager_notAvailableDialogTitle),
+                getString(R.string.licenseManager_notAvailableDialogMsg), true);
+        newFragment.show(getFragmentManager(), FRAGMENT_DIALOG_TAG);
     }
 }

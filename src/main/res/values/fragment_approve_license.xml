@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="agreeButton">Agree</string>
-    <string name="disagreeButton">Disagree</string>
+    <string name="LicenseManager_agreeButton">Agree</string>
+    <string name="LicenseManager_disagreeButton">Disagree</string>
 </resources>

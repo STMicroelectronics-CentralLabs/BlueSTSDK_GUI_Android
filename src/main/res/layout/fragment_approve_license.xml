@@ -7,7 +7,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/agreeButton"
+        android:text="@string/LicenseManager_agreeButton"
         android:id="@+id/licAgreeButton"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
@@ -15,7 +15,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/disagreeButton"
+        android:text="@string/LicenseManager_disagreeButton"
         android:id="@+id/licDisagreeButton"
         android:layout_alignParentBottom="true"
         android:layout_toStartOf="@+id/licAgreeButton"

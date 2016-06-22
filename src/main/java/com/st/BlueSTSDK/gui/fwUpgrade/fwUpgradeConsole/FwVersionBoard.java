@@ -27,6 +27,14 @@ public class FwVersionBoard extends FwVersion implements Parcelable{
         patchVersion = Integer.parseInt(matcher.group(5));
     }
 
+    public FwVersionBoard(String boardName,String mcuType, int major,int minor,int path) {
+        name = boardName;
+        this.mcuType=mcuType;
+        majorVersion=major;
+        minorVersion=minor;
+        patchVersion=path;
+    }
+
     public String getMcuType() {
         return mcuType;
     }

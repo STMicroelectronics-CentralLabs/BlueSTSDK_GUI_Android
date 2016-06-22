@@ -3,12 +3,13 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 /**
  * Class that store a program version. The version is stored with 3 numbers, major version,
  * minor version and path version
  */
-public class FwVersion implements Parcelable{
+public class FwVersion implements Parcelable, Comparable<FwVersion>{
 
     protected int majorVersion;
     protected int minorVersion;
@@ -74,5 +75,21 @@ public class FwVersion implements Parcelable{
         parcel.writeInt(majorVersion);
         parcel.writeInt(minorVersion);
         parcel.writeInt(patchVersion);
+    }
+
+    @Override
+    public int compareTo(@NonNull FwVersion version) {
+        int diff = majorVersion-version.majorVersion;
+        if(diff!=0)
+            return diff;
+        diff = minorVersion-version.minorVersion;
+        if(diff!=0)
+            return diff;
+        return patchVersion-version.patchVersion;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof FwVersion && compareTo((FwVersion) obj) == 0;
     }
 }
