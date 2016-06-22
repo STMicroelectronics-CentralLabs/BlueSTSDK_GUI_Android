@@ -181,8 +181,10 @@ public class LicenseConsoleNucleo extends LicenseConsole {
 
         @Override
         public void onStdInSent(Debug debug, String message, boolean writeResult) {
-            if (mFistWrite)
+            if (mFistWrite) {
                 mTimeout.postDelayed(onTimeout, COMMAND_TIMEOUT_MS);
+                mFistWrite=false;
+            }
         }
     };
 
@@ -237,8 +239,10 @@ public class LicenseConsoleNucleo extends LicenseConsole {
 
         @Override
         public void onStdInSent(Debug debug, String message, boolean writeResult) {
-            if (mFistWrite)
+            if (mFistWrite) {
                 mTimeout.postDelayed(onTimeout, COMMAND_TIMEOUT_MS);
+                mFistWrite=false;
+            }
         }
     };
 

@@ -74,15 +74,9 @@ public class NodeContainerFragment extends Fragment implements NodeContainer {
     private Node.NodeStateListener mUserNodeStateListener=null;
 
     /**
-     * true if the user ask to close the connection -> we can avoid to o it when we destroy the
-     * fragment
-     */
-    boolean userAskToDisconnect=false;
-
-    /**
      * true if the user ask to skip the disconnect when the fragment is destroyed
      */
-    boolean userAskToKeepConnection =false;
+    private boolean userAskToKeepConnection =false;
 
     /**
      * node listener that will manage the dialog + pass the data to the user listener if it is set
@@ -222,11 +216,10 @@ public class NodeContainerFragment extends Fragment implements NodeContainer {
             //avoid to start the connection if we are already doing a connection
             if (state != Node.State.Connected && state != Node.State.Connecting) {
                 mConnectionWait.show(); //show the dialog and set the listener for hide it
-                mNode.addNodeStateListener(mNodeStateListener);
                 mNode.connect(getActivity(), mResetNodeCache);
                 mResetNodeCache = false; //reset the chache only the first time that we connect
-                userAskToDisconnect = false;
             }//if
+            mNode.addNodeStateListener(mNodeStateListener);
         }//if !=null
     }
 
@@ -236,12 +229,12 @@ public class NodeContainerFragment extends Fragment implements NodeContainer {
      */
     @Override
     public void onPause(){
-        Log.d(this.toString(), "onPause");
-
         //dismiss the dialog if we are showing it
         if(mConnectionWait!=null && mConnectionWait.isShowing()){
             mConnectionWait.dismiss();
         }//if
+
+        mNode.removeNodeStateListener(mNodeStateListener);
 
         super.onPause();
     }
@@ -255,10 +248,9 @@ public class NodeContainerFragment extends Fragment implements NodeContainer {
      */
     @Override
     public void onDestroy(){
-        Log.d(this.toString(), "onDestroy");
-        if(mNode!=null && mNode.isConnected() && !userAskToDisconnect){
+
+        if(mNode!=null && mNode.isConnected()){
             if(!userAskToKeepConnection) {
-                mNode.removeNodeStateListener(mNodeStateListener);
                 mNode.disconnect();
             }
         }//if

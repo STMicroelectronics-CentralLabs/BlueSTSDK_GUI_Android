@@ -32,7 +32,6 @@ public class LoadLicenseActivity extends ActivityWithNode {
     private static final String BOARD_ID = LoadLicenseActivity.class.getCanonicalName()+"" +
             ".BOARD_ID";
 
-
     /**
      * pattern used for detect the license code: 8 hexadecimal number in the format 0xXXXXXXXX
      */
@@ -141,6 +140,46 @@ public class LoadLicenseActivity extends ActivityWithNode {
     }
 
 
+    private void startLoadLicenseTask(Node node, final String licName, final byte[] licCode){
+        new LoadLicenseTask(this, LicenseConsole.getLicenseConsole(node),
+                //create a wrapper around the user callback
+                new LoadLicenseTask.LoadLicenseTaskCallback() {
+                    @Override
+                    public void onLicenseLoad(Context c, LoadLicenseTask loader) {
+                        new LicenseManagerDbHelper(LoadLicenseActivity.this)
+                                .insert(new LicenseManagerDBContract
+                                        .LicenseEntry(mBoardId, licName, licCode));
+                        if (LicenseManagerActivity.sUserLoadLicenseCallback != null)
+                            LicenseManagerActivity.sUserLoadLicenseCallback.onLicenseLoad(c, loader);
+                    }
+
+                    @Override
+                    public void onInvalidLicense(Context c, LoadLicenseTask loader) {
+                        if (LicenseManagerActivity.sUserLoadLicenseCallback != null)
+                            LicenseManagerActivity.sUserLoadLicenseCallback.onInvalidLicense(c, loader);
+                    }
+
+                    @Override
+                    public void onWrongBoardId(Context c, LoadLicenseTask loader) {
+                        if (LicenseManagerActivity.sUserLoadLicenseCallback != null)
+                            LicenseManagerActivity.sUserLoadLicenseCallback.onWrongBoardId(c, loader);
+                    }
+                }).load(mBoardId, licName, licCode);
+    }
+
+
+    private void startLoadOnNodeConnected(Node node, final String licName, final byte[] licCode){
+        node.addNodeStateListener(new Node.NodeStateListener() {
+            @Override
+            public void onStateChange(Node node, Node.State newState, Node.State prevState) {
+                if(newState== Node.State.Connected){
+                    startLoadLicenseTask(node,licName,licCode);
+                    node.removeNodeStateListener(this);
+                }
+            }
+        });
+    }
+
     /**
      * callback called when the fab is pressed, it parse the user input and start to load the
      * data on the board
@@ -159,30 +198,10 @@ public class LoadLicenseActivity extends ActivityWithNode {
                 return;
             }//else
             final Node node = getNode();
-            new LoadLicenseTask(this, LicenseConsole.getLicenseConsole(node),
-                    //create a wrapper around the user callback
-                    new LoadLicenseTask.LoadLicenseTaskCallback() {
-                        @Override
-                        public void onLicenseLoad(Context c, LoadLicenseTask loader) {
-                            new LicenseManagerDbHelper(LoadLicenseActivity.this)
-                                    .insert(new LicenseManagerDBContract
-                                            .LicenseEntry(mBoardId,licName,licCode));
-                            if(LicenseManagerActivity.sUserLoadLicenseCallback!=null)
-                                LicenseManagerActivity.sUserLoadLicenseCallback.onLicenseLoad(c,loader);
-                        }
-
-                        @Override
-                        public void onInvalidLicense(Context c, LoadLicenseTask loader) {
-                            if(LicenseManagerActivity.sUserLoadLicenseCallback!=null)
-                                LicenseManagerActivity.sUserLoadLicenseCallback.onInvalidLicense(c,loader);
-                        }
-
-                        @Override
-                        public void onWrongBoardId(Context c, LoadLicenseTask loader) {
-                            if(LicenseManagerActivity.sUserLoadLicenseCallback!=null)
-                                LicenseManagerActivity.sUserLoadLicenseCallback.onWrongBoardId(c,loader);
-                        }
-                    }).load(mBoardId,licName,licCode);
+            if(node.getState()== Node.State.Connected) {
+                startLoadLicenseTask(node,licName,licCode);
+            }else
+                startLoadOnNodeConnected(node,licName,licCode);
         }else{
             if(licCode==null)
                 Snackbar.make(v,R.string.licenseManager_licenseCodeNotFound,
