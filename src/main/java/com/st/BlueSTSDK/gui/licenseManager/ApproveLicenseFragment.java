@@ -19,7 +19,8 @@ import java.io.InputStreamReader;
 
 /**
  * Fragment that will show the license agreement and the button for agree it
- * the activity that will use this frament MUST implement the {@link ApproveLicenseFragment.OnFragmentInteractionListener}
+ * the activity that will use this fragment MUST implement the
+ * {@link ApproveLicenseFragment.OnFragmentInteractionListener}
  * interface
  */
 public class ApproveLicenseFragment extends Fragment {
@@ -77,8 +78,8 @@ public class ApproveLicenseFragment extends Fragment {
 
             @Override
             protected CharSequence doInBackground(InputStreamReader... files) {
-                StringBuffer fileContent = new StringBuffer();
-                String line = null;
+                StringBuilder fileContent = new StringBuilder();
+                String line;
                 try {
                     BufferedReader reader = new BufferedReader(files[0]);
                     while ((line = reader.readLine()) != null) {

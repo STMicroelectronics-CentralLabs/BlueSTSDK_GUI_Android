@@ -16,4 +16,7 @@
         please manually upgrade the firmware to version \>=%1$s></string>
     <string name="FwUpgrade_readSDRationale">Read permission is needed for read the firmware file
     </string>
+    <string name="fwUpgrade_licenseLoadFailMsg">Wrong license, reset the board for clear it</string>
+    <string name="fwUpgrade_licenseLoadSuccessMsg">License loaded, reset the board for enable it
+    </string>
 </resources>

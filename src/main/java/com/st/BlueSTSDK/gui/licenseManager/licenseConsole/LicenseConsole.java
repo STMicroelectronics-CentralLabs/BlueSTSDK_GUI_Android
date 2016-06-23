@@ -117,15 +117,11 @@ public abstract class LicenseConsole {
          */
         void onLicenseStatusRead(LicenseConsole console, List<LicenseStatus> licenses);
 
-        /**
-         * Function called when the license is fully load into the node
-         *
-         * @param console object that load the license
-         * @param status  true if the license is valid, false otherwise
-         */
-        void onLicenseLoad(LicenseConsole console, boolean status);
+        void onLicenseLoadSuccess(LicenseConsole console);
+        void onLicenseLoadFail(LicenseConsole console);
 
-        void onLicenseCleared(LicenseConsole console, boolean status);
+        void onLicenseClearedSuccess(LicenseConsole console);
+        void onLicenseClearedFail(LicenseConsole console);
     }//LicenseConsoleCallback
 
 
@@ -137,9 +133,16 @@ public abstract class LicenseConsole {
         public void onLicenseStatusRead(LicenseConsole console, List<LicenseStatus> licenses) {}
 
         @Override
-        public void onLicenseLoad(LicenseConsole console, boolean status) {}
+        public void onLicenseLoadSuccess(LicenseConsole console) { }
 
         @Override
-        public void onLicenseCleared(LicenseConsole console, boolean status) {}
+        public void onLicenseLoadFail(LicenseConsole console) { }
+
+        @Override
+        public void onLicenseClearedSuccess(LicenseConsole console) { }
+
+        @Override
+        public void onLicenseClearedFail(LicenseConsole console) { }
+
     }
 }

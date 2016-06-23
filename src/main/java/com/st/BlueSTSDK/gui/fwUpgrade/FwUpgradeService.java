@@ -16,9 +16,6 @@ import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
 
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
-
 /**
  * Service that will upload the file as a background task, it will notify to the user the progres
  * using a LocalBroadcast message.
@@ -132,6 +129,8 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
                 return getString(R.string.fwUpgrade_error_transmission);
             case FwUpgradeConsole.FwUpgradeCallback.ERROR_UNKNOWN:
                 return getString(R.string.fwUpgrade_error_unknown);
+            case FwUpgradeConsole.FwUpgradeCallback.ERROR_INVALID_FW_FILE:
+                return getString(R.string.fwUpgrade_error_invalid_file);
         }
         return "";
     }

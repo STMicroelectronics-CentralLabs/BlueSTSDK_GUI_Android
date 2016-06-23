@@ -61,8 +61,8 @@ public class LoadLicenseActivity extends ActivityWithNode {
     /**
      * View where the user has to write the license data
      */
+    private View mRootView;
     private TextView mLicText;
-    private TextView mLicName;
 
     private  LicenseInfo mLicenseInfo;
 
@@ -84,9 +84,9 @@ public class LoadLicenseActivity extends ActivityWithNode {
 
         mBoardId = args.getString(BOARD_ID);
         mLicenseInfo = args.getParcelable(LICENSE_INFO);
-
+        mRootView = findViewById(R.id.loadLic_rootView);
         mLicText = (TextView) findViewById(R.id.loadLic_text);
-        mLicName = (TextView) findViewById(R.id.loadLic_licenseName);
+        TextView mLicName = (TextView) findViewById(R.id.loadLic_licenseName);
         mLicName.setText(mLicenseInfo.longName);
     }
 
@@ -141,30 +141,19 @@ public class LoadLicenseActivity extends ActivityWithNode {
 
 
     private void startLoadLicenseTask(Node node, final String licName, final byte[] licCode){
-        new LoadLicenseTask(this, LicenseConsole.getLicenseConsole(node),
-                //create a wrapper around the user callback
-                new LoadLicenseTask.LoadLicenseTaskCallback() {
-                    @Override
-                    public void onLicenseLoad(Context c, LoadLicenseTask loader) {
-                        new LicenseManagerDbHelper(LoadLicenseActivity.this)
-                                .insert(new LicenseManagerDBContract
-                                        .LicenseEntry(mBoardId, licName, licCode));
-                        if (LicenseManagerActivity.sUserLoadLicenseCallback != null)
-                            LicenseManagerActivity.sUserLoadLicenseCallback.onLicenseLoad(c, loader);
-                    }
+        LicenseConsole console = LicenseConsole.getLicenseConsole(node);
+        if(console==null)
+            return;
+        console.setLicenseConsoleListener(new LicenseLoadDefaultCallback(mRootView){
 
-                    @Override
-                    public void onInvalidLicense(Context c, LoadLicenseTask loader) {
-                        if (LicenseManagerActivity.sUserLoadLicenseCallback != null)
-                            LicenseManagerActivity.sUserLoadLicenseCallback.onInvalidLicense(c, loader);
-                    }
-
-                    @Override
-                    public void onWrongBoardId(Context c, LoadLicenseTask loader) {
-                        if (LicenseManagerActivity.sUserLoadLicenseCallback != null)
-                            LicenseManagerActivity.sUserLoadLicenseCallback.onWrongBoardId(c, loader);
-                    }
-                }).load(mBoardId, licName, licCode);
+            @Override
+            public void onLicenseLoadSuccess(LicenseConsole console) {
+                super.onLicenseLoadSuccess(console);
+                new LicenseManagerDbHelper(LoadLicenseActivity.this).insert(
+                        new LicenseManagerDBContract.LicenseEntry(mBoardId, licName,licCode));
+            }
+        });
+        console.writeLicenseCode(licName,licCode);
     }
 
 
@@ -194,7 +183,8 @@ public class LoadLicenseActivity extends ActivityWithNode {
         //if both data are present load the license
         if(licCode!=null && licName!=null){
             if(!licName.equalsIgnoreCase(mLicenseInfo.shortName)){
-                Snackbar.make(mLicName, R.string.licenseManager_invalidLicenseType,Snackbar.LENGTH_LONG).show();
+                Snackbar.make(mRootView, R.string.licenseManager_invalidLicenseType,
+                        Snackbar.LENGTH_LONG).show();
                 return;
             }//else
             final Node node = getNode();
@@ -204,10 +194,10 @@ public class LoadLicenseActivity extends ActivityWithNode {
                 startLoadOnNodeConnected(node,licName,licCode);
         }else{
             if(licCode==null)
-                Snackbar.make(v,R.string.licenseManager_licenseCodeNotFound,
+                Snackbar.make(mRootView,R.string.licenseManager_licenseCodeNotFound,
                         Snackbar.LENGTH_SHORT).show();
             else
-                Snackbar.make(v,R.string.licenseManager_licenseNameNotFound,
+                Snackbar.make(mRootView,R.string.licenseManager_licenseNameNotFound,
                         Snackbar.LENGTH_SHORT).show();
         }
     }//loadLicenseStatus

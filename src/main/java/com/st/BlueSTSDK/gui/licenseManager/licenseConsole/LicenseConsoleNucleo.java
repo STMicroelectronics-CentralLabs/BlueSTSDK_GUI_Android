@@ -3,6 +3,7 @@ package com.st.BlueSTSDK.gui.licenseManager.licenseConsole;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Log;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.gui.licenseManager.LicenseStatus;
@@ -145,7 +146,7 @@ public class LicenseConsoleNucleo extends LicenseConsole {
             @Override
             public void run() {
                 setConsoleListener(null);
-                mCallback.onLicenseLoad(LicenseConsoleNucleo.this, false);
+                mCallback.onLicenseLoadFail(LicenseConsoleNucleo.this);
             }
         };
         /**
@@ -169,8 +170,10 @@ public class LicenseConsoleNucleo extends LicenseConsole {
                 mTimeout.removeCallbacks(onTimeout);
                 setConsoleListener(null);
                 if (mCallback != null)
-                    mCallback.onLicenseLoad(LicenseConsoleNucleo.this,
-                            LICENSE_LOAD_STATUS_PARSE.matcher(mBuffer).find());
+                    if(LICENSE_LOAD_STATUS_PARSE.matcher(mBuffer).find())
+                        mCallback.onLicenseLoadSuccess(LicenseConsoleNucleo.this);
+                    else
+                        mCallback.onLicenseClearedFail(LicenseConsoleNucleo.this);
             }
         }
 
@@ -200,7 +203,7 @@ public class LicenseConsoleNucleo extends LicenseConsole {
             @Override
             public void run() {
                 setConsoleListener(null);
-                mCallback.onLicenseCleared(LicenseConsoleNucleo.this, false);
+                mCallback.onLicenseClearedFail(LicenseConsoleNucleo.this);
             }
         };
         /**
@@ -218,6 +221,7 @@ public class LicenseConsoleNucleo extends LicenseConsole {
         @Override
         public void onStdOutReceived(Debug debug, String message) {
             mBuffer.append(message);
+            Log.d("Lic Nucleo", "onStdOutReceived: "+message);
             if (mBuffer.length()>2 &&
                     mBuffer.substring(mBuffer.length()-2).equals("\r\n")) {
                 mBuffer.delete(mBuffer.length()-2,mBuffer.length());
@@ -225,8 +229,10 @@ public class LicenseConsoleNucleo extends LicenseConsole {
                 mBuffer.append(message, 0, message.length() - 2);
                 setConsoleListener(null);
                 if (mCallback != null)
-                    mCallback.onLicenseCleared(LicenseConsoleNucleo.this,
-                            LICENSE_CLEAR_STATUS_PARSE.matcher(mBuffer).find());
+                    if(LICENSE_CLEAR_STATUS_PARSE.matcher(mBuffer).find())
+                        mCallback.onLicenseClearedSuccess(LicenseConsoleNucleo.this);
+                    else
+                        mCallback.onLicenseClearedFail(LicenseConsoleNucleo.this);
             } else {
                 mBuffer.append(message);
             }

@@ -222,7 +222,7 @@ public class LicenseConsoleWesu extends LicenseConsole {
 
     @Override
     public boolean cleanAllLicense() {
-        mCallback.onLicenseCleared(this,false);
+        mCallback.onLicenseClearedFail(this);
         return true;
     }
 

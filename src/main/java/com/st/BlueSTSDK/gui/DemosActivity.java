@@ -36,7 +36,6 @@ import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.BlueSTSDK.gui.demos.DemoFragment;
 import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeActivity;
 import com.st.BlueSTSDK.gui.licenseManager.LicenseManagerActivity;
-import com.st.BlueSTSDK.gui.licenseManager.LoadLicenseTask;
 import com.st.BlueSTSDK.gui.preferences.LogPreferenceFragment;
 
 import java.util.ArrayList;
@@ -346,18 +345,30 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             if (debug == null) {
                 menu.findItem(R.id.openDebugConsole).setVisible(false);
                 menu.findItem(R.id.showDebugConsole).setVisible(false);
+            }
+
+            if(!enableLicenseManager() || debug==null){
                 menu.findItem(R.id.menu_start_license_manager).setVisible(false);
+            }
+            if(!enableFwUploading() || debug==null){
                 menu.findItem(R.id.menu_start_fw_upgrade).setVisible(false);
             }
         }
 
-        if(enableLicenseManager()==null){
-            menu.findItem(R.id.menu_start_license_manager).setVisible(false);
-        }
+
 
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * @return true if you want enable the license manger, false otherwise
+     */
+    protected abstract boolean enableLicenseManager();
+
+    /**
+     * @return true if you want enable the fw uploading using the debug console, false otherwise
+     */
+    protected abstract boolean enableFwUploading();
 
     /**
      * if we have to leave this activity, we force the disconnection of the node
@@ -508,8 +519,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             keepConnectionOpen(true);
             if(mShowDebugConsole)
                 showConsoleOutput(false);
-            startActivity(LicenseManagerActivity.getStartIntent(this,enableLicenseManager(),
-                    getNode(),true));
+            startActivity(LicenseManagerActivity.getStartIntent(this, getNode(),true));
             return true;
         }
         if(id == R.id.menu_start_fw_upgrade){
@@ -559,17 +569,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     protected void startSettingsActivity(Context c,Node n){
         Intent i = SettingsActivity.getStartIntent(c,n);
         startActivity(i);
-    }
-
-
-    /**
-     * Override this method if you want handle the license loading to the node.
-     * As default behavior this method return null.
-     * @return action to perform when a license is loaded null for disable the license loading
-     */
-    protected @Nullable
-    LoadLicenseTask.LoadLicenseTaskCallback enableLicenseManager(){
-        return null;
     }
 
     /**

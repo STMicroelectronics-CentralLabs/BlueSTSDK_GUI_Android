@@ -4,7 +4,6 @@ import android.app.DialogFragment;
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -12,7 +11,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,7 +39,6 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final String FRAGMENT_DIALOG_TAG = "Dialog";
-    static @Nullable LoadLicenseTask.LoadLicenseTaskCallback sUserLoadLicenseCallback;
 
     private static final String BOARD_UID_KEY= LicenseManagerActivity.class.getCanonicalName
             ()+".BOARD_UID";
@@ -63,10 +60,8 @@ public class LicenseManagerActivity extends ActivityWithNode implements
      *                              activity is destroyed
      * @return intent that start the activity
      */
-    public static Intent getStartIntent(Context c, LoadLicenseTask.LoadLicenseTaskCallback callback,
-    @NonNull Node node, boolean keepTheConnectionOpen){
+    public static Intent getStartIntent(Context c,@NonNull Node node, boolean keepTheConnectionOpen){
         //it is safe store the tings in a static variable since is singleTop so is not recreated
-        LicenseManagerActivity.sUserLoadLicenseCallback=callback;
         return ActivityWithNode.getStartIntent(c,LicenseManagerActivity.class,node,
                 keepTheConnectionOpen);
     }
@@ -75,6 +70,8 @@ public class LicenseManagerActivity extends ActivityWithNode implements
      * List view where show the license status
      */
     private RecyclerView mLicListView;
+
+    private View mRootView;
 
     /**
      * Object for communicate with the board through the debug console
@@ -115,8 +112,10 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_license_manager);
-        mLicListView = (RecyclerView) findViewById(R.id.licListView);
+        mLicListView = (RecyclerView) findViewById(R.id.licManager_listView);
         //if the fist time, load data from the node
+
+        mRootView = findViewById(R.id.licManager_rootView);
 
         if(getNode().isConnected()){
             mConsole = LicenseConsole.getLicenseConsole(mNode);
@@ -183,15 +182,19 @@ public class LicenseManagerActivity extends ActivityWithNode implements
      */
     private void clearBoardLicense(){
         mConsole.setLicenseConsoleListener(new LicenseConsole.LicenseConsoleCallbackEmpty(){
+
             @Override
-            public void onLicenseCleared(LicenseConsole console, boolean status) {
-                if(status){
-                    Snackbar.make(mLicListView, R.string.licenseManager_clearBoardLicOk,
-                            Snackbar.LENGTH_LONG).show();
-                }else{
-                    Snackbar.make(mLicListView, R.string.licenseManager_errorClearBoardLic,
-                            Snackbar.LENGTH_LONG).show();
-                }//if-else
+            public void onLicenseClearedFail(LicenseConsole console) {
+                super.onLicenseClearedFail(console);
+                Snackbar.make(mRootView, R.string.licenseManager_errorClearBoardLic,
+                        Snackbar.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onLicenseClearedSuccess(LicenseConsole console) {
+                super.onLicenseClearedFail(console);
+                Snackbar.make(mRootView, R.string.licenseManager_clearBoardLicOk,
+                        Snackbar.LENGTH_LONG).show();
             }
         });
         mConsole.cleanAllLicense();
@@ -266,8 +269,6 @@ public class LicenseManagerActivity extends ActivityWithNode implements
                     });
                 }//onLicenseStatusRead
 
-                @Override
-                public void onLicenseLoad(LicenseConsole console, boolean status) { }
             };//LicenseConsole.LicenseConsoleCallback
 
     /**
@@ -332,6 +333,24 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         return null;
     }
 
+
+    private void loadKnowLicense(LicenseEntry lic){
+        mConsole.setLicenseConsoleListener(new LicenseLoadDefaultCallback(mRootView){
+            @Override
+            public void onLicenseLoadSuccess(LicenseConsole console) {
+                super.onLicenseLoadSuccess(console);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadLicenseStatus();
+                    }
+                });
+
+            }
+        });
+        mConsole.writeLicenseCode(lic.getLicenseType(),lic.getLicenseCode());
+    }
+
     @Override
     public void onLicenseUploadClick(LicenseStatus lic) {
         LicenseEntry knowLic = isKnowLicense(lic.info);
@@ -339,7 +358,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
             keepConnectionOpen(true);
             startActivity(LoadLicenseActivity.getStartIntent(this, getNode(), mBoardUid, lic.info));
         }else{
-            new LoadLicenseTask(this,mConsole,sUserLoadLicenseCallback).load(knowLic);
+            loadKnowLicense(knowLic);
         }
     }
 
