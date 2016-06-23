@@ -14,7 +14,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 
 import android.support.v13.app.FragmentPagerAdapter;
-import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -41,7 +40,7 @@ import com.st.BlueSTSDK.gui.licenseManager.LoadLicenseTask;
 import com.st.BlueSTSDK.gui.preferences.LogPreferenceFragment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -302,17 +301,21 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         super.onResume();
 
         //if the node is connected -> this frame is recreated
-        if (mNodeContainer.getNode().isConnected())
+        Node node =mNodeContainer.getNode();
+        if (node!=null && node.isConnected())
             showConsoleOutput(mShowDebugConsole);
     }
 
     @Override
     protected void onPause() {
         if (mShowDebugConsole) {
-            Debug debug = mNodeContainer.getNode().getDebug();
-            //remove the listener
-            if (debug != null)
-                debug.setDebugOutputListener(null);
+            Node node = mNodeContainer.getNode();
+            if(node!=null) {
+                Debug debug = node.getDebug();
+                //remove the listener
+                if (debug != null)
+                    debug.setDebugOutputListener(null);
+            }
         }//if
         super.onPause();
     }
@@ -337,12 +340,15 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         }//if-else
 
         //hide debug stuff if not available
-        Debug debug = mNodeContainer.getNode().getDebug();
-        if(debug==null){
-            menu.findItem(R.id.openDebugConsole).setVisible(false);
-            menu.findItem(R.id.showDebugConsole).setVisible(false);
-            menu.findItem(R.id.menu_start_license_manager).setVisible(false);
-            menu.findItem(R.id.menu_start_fw_upgrade).setVisible(false);
+        Node node = mNodeContainer.getNode();
+        if(node!=null) {
+            Debug debug = node.getDebug();
+            if (debug == null) {
+                menu.findItem(R.id.openDebugConsole).setVisible(false);
+                menu.findItem(R.id.showDebugConsole).setVisible(false);
+                menu.findItem(R.id.menu_start_license_manager).setVisible(false);
+                menu.findItem(R.id.menu_start_fw_upgrade).setVisible(false);
+            }
         }
 
         if(enableLicenseManager()==null){
@@ -403,7 +409,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     }//getFeatureLogger
 
     protected List<Node> getNodesToLog(){
-        return Arrays.asList(mNodeContainer.getNode());
+        return Collections.singletonList(mNodeContainer.getNode());
     }
 
     protected String getLogDirectory() {
@@ -449,8 +455,11 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      * @param enable true if we have to show/enable false for hide/disable
      */
     private void showConsoleOutput(boolean enable) {
-        Debug debug = mNodeContainer.getNode().getDebug();
+        Node node = mNodeContainer.getNode();
+        if(node==null)
+            return;
 
+        Debug debug = node.getDebug();
         if (enable) {
             if (debug == null) {
                 Toast.makeText(this, R.string.debugNotAvailable, Toast.LENGTH_SHORT).show();

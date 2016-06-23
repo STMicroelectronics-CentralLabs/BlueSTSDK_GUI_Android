@@ -7,6 +7,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -149,7 +150,7 @@ public class NodeContainerFragment extends Fragment implements NodeContainer {
      * return the node handle by this fragment
      * @return return the node handle by this fragment
      */
-    public Node getNode(){return mNode;}
+    public @Nullable Node getNode(){return mNode;}
 
     /**
      * add a user defined state listener for the node handle by this class.

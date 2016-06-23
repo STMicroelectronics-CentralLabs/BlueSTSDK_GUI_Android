@@ -1,15 +1,21 @@
 package com.st.BlueSTSDK.gui.fwUpgrade;
 
+import android.Manifest;
 import android.app.DialogFragment;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.TextView;
@@ -34,12 +40,14 @@ public class FwUpgradeActivity extends ActivityWithNode {
 
     private static final String VERSION = FwUpgradeActivity.class.getName()+"FW_VERSION";
     private static final String FINAL_MESSAGE = FwUpgradeActivity.class.getName()+"FINAL_MESSAGE";
+    private static final int RESULT_READ_ACCESS = 2;
 
     public static Intent getStartIntent(Context c, Node node, boolean keepTheConnectionOpen) {
         return ActivityWithNode.getStartIntent(c,FwUpgradeActivity.class,node,
                 keepTheConnectionOpen);
     }
 
+    private View mRootView;
     private TextView mVersionBoardText;
     private TextView mBoardTypeText;
     private TextView mFwBoardName;
@@ -139,20 +147,22 @@ public class FwUpgradeActivity extends ActivityWithNode {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fw_upgrade);
-
+        mRootView = findViewById(R.id.activityFwRootView);
         mVersionBoardText = (TextView) findViewById(R.id.fwVersionValue);
         mBoardTypeText = (TextView) findViewById(R.id.boardTypeValue);
         mFwBoardName =(TextView) findViewById(R.id.fwName);
         mFinalMessage = (TextView) findViewById(R.id.upgradeFinishMessage);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.startUpgradeButton);
-        if( fab!=null) {
-            fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton uploadButton = (FloatingActionButton) findViewById(R.id.startUpgradeButton);
+        if( uploadButton !=null) {
+            uploadButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                if(checkReadSDPermission())
                     startFwUpgrade();
                 }
             });
+
         }
 
         if(savedInstanceState==null) {
@@ -167,7 +177,6 @@ public class FwUpgradeActivity extends ActivityWithNode {
                 displayVersion(mVersion);
             mFinalMessage.setText(savedInstanceState.getString(FINAL_MESSAGE,""));
         }
-
     }
 
     @Override
@@ -317,5 +326,57 @@ public class FwUpgradeActivity extends ActivityWithNode {
         }
 
     }
+
+    /**
+     * check it we have the permission to write data on the sd
+     * @return true if we have it, false if we ask for it
+     */
+    private boolean checkReadSDPermission(){
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                Snackbar.make(mRootView, R.string.FwUpgrade_readSDRationale,
+                        Snackbar.LENGTH_INDEFINITE)
+                        .setAction(android.R.string.ok, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                ActivityCompat.requestPermissions(FwUpgradeActivity.this,
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                        RESULT_READ_ACCESS);
+                            }//onClick
+                        }).show();
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        RESULT_READ_ACCESS);
+            }//if-else
+            return false;
+        }else
+            return  true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case RESULT_READ_ACCESS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startFwUpgrade();
+                } else {
+                    Snackbar.make(mRootView, "Impossible read Firmware files",
+                            Snackbar.LENGTH_SHORT).show();
+
+                }//if-else
+                break;
+            }//REQUEST_LOCATION_ACCESS
+        }//switch
+    }//onRequestPermissionsResult
 
 }

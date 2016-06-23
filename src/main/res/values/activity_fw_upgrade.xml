@@ -14,4 +14,6 @@
     <string name="FwUpgrade_notAvailableMsg">Firmware upgrade not available</string>
     <string name="FwUpgrade_needUpdateMsg">Firmware upgrade not available,
         please manually upgrade the firmware to version \>=%1$s></string>
+    <string name="FwUpgrade_readSDRationale">Read permission is needed for read the firmware file
+    </string>
 </resources>
