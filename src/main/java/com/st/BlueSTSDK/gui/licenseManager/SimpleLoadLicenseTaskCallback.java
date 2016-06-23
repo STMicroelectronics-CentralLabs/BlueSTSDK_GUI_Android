@@ -14,6 +14,7 @@ import com.st.BlueSTSDK.gui.R;
  * Class that implement the {@link LoadLicenseTask.LoadLicenseTaskCallback} interface.
  * it just use show a toast message with the load result.
  */
+//move otside lib
 public class SimpleLoadLicenseTaskCallback implements LoadLicenseTask.LoadLicenseTaskCallback {
 
     /**

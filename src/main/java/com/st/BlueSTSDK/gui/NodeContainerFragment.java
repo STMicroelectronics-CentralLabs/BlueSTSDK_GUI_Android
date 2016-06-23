@@ -218,7 +218,7 @@ public class NodeContainerFragment extends Fragment implements NodeContainer {
             if (state != Node.State.Connected && state != Node.State.Connecting) {
                 mConnectionWait.show(); //show the dialog and set the listener for hide it
                 mNode.connect(getActivity(), mResetNodeCache);
-                mResetNodeCache = false; //reset the chache only the first time that we connect
+                mResetNodeCache = false; //reset the cache only the first time that we connect
             }//if
             mNode.addNodeStateListener(mNodeStateListener);
         }//if !=null

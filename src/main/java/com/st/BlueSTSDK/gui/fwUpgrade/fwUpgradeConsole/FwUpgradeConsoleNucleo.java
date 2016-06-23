@@ -6,13 +6,12 @@ import android.os.Looper;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Utils.NumberConversion;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;
-import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.ImgFileInputStream;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.STM32Crc32;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -138,7 +137,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         /**
          * file that we are uploading
          */
-        private Uri mFile;
+        private FwFileDescriptor mFile;
 
         /**
          * buffer where we are reading the file
@@ -206,40 +205,17 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             setConsoleListener(null);
         }
 
-        /**
-         * open a file, using the right InputStream
-         * @param f file to open, if it is of type img the {@link ImgFileInputStream} class is
-         *          used, otherwise a {@link FileInputStream} is used
-         * @throws FileNotFoundException if is not possible read the file
-         */
-        private void openFile(File f) throws FileNotFoundException {
-            if(f.getName().toLowerCase().endsWith("img")) {
-                ImgFileInputStream input = new ImgFileInputStream(f);
-                mFileData =input;
-                mByteToSend = input.length();
-            }else {
-                mFileData = new FileInputStream(f);
-                mByteToSend = f.length();
-            }//if-else
-        }
-
-        /**
-         * compute the file crc
-         * @param f file to open
-         * @return file crc or a negative number if an error happen
-         */
-        private long computeCrc32(File f){
+        private long computeCrc32(FwFileDescriptor file) throws FileNotFoundException {
             Checksum crc = new STM32Crc32();
             byte buffer[] = new byte[4];
+            BufferedInputStream inputStream = new BufferedInputStream(file.openFile());
+            //the file must be multiple of 32bit,
+            long fileSize = file.getLength() - file.getLength()%4;
             try {
-                openFile(f);
-                //the file must be multiple of 32bit,
-                long fileSize = mByteToSend - mByteToSend%4;
-                BufferedInputStream inputStream = new BufferedInputStream(mFileData);
                 for(long i=0;i<fileSize;i+=4){
                     if(inputStream.read(buffer)==buffer.length)
                         crc.update(buffer,0,buffer.length);
-                }
+                }//for i
             } catch (IOException e) {
                 e.printStackTrace();
                 return -1;
@@ -282,20 +258,19 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
          * @param fwType firmware that we are uploading
          * @param file file to upload
          */
-        public void loadFile(@FirmwareType int fwType,Uri file){
+        public void loadFile(@FirmwareType int fwType,FwFileDescriptor file){
             mFile=file;
-            File f = new File(file.getPath());
-            mCrc = computeCrc32(f);
+            mNodeReadyToReceiveFile =false;
+            mByteToSend = file.getLength();
+
             try {
-                openFile(f);
+                mCrc = computeCrc32(file);
+                mFileData = file.openFile();
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
                 onLoadFail(FwUpgradeCallback.ERROR_INVALID_FW_FILE);
                 return;
             }
-            //send the start command
 
-            mNodeReadyToReceiveFile =false;
             mConsole.write(prepareLoadCommand(fwType,mByteToSend,mCrc));
         }
 
@@ -453,7 +428,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
     }
 
     @Override
-    public boolean loadFw(@FirmwareType int fwType,final Uri fwFile) {
+    public boolean loadFw(@FirmwareType int fwType,final FwFileDescriptor fwFile) {
         if (isWaitingAnswer())
             return false;
 

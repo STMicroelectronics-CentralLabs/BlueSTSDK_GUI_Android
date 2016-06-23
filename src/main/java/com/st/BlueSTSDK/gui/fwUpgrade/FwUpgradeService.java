@@ -14,6 +14,10 @@ import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersion;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
+
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 
 /**
  * Service that will upload the file as a background task, it will notify to the user the progres
@@ -124,8 +128,6 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
         switch (errorCode) {
             case FwUpgradeConsole.FwUpgradeCallback.ERROR_CORRUPTED_FILE:
                 return getString(R.string.fwUpgrade_error_corrupted_file);
-            case FwUpgradeConsole.FwUpgradeCallback.ERROR_INVALID_FW_FILE:
-                return getString(R.string.fwUpgrade_error_invalid_file);
             case FwUpgradeConsole.FwUpgradeCallback.ERROR_TRANSMISSION:
                 return getString(R.string.fwUpgrade_error_transmission);
             case FwUpgradeConsole.FwUpgradeCallback.ERROR_UNKNOWN:
@@ -197,7 +199,7 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
     }
 
     @Override
-    public void onLoadFwError(FwUpgradeConsole console, Uri fwFile,
+    public void onLoadFwError(FwUpgradeConsole console, FwFileDescriptor fwFile,
                               @UpgradeErrorType int error) {
         String errorMessage = getErrorMessage(error);
         mBroadcastManager.sendBroadcast(getFwUpgradeErrorIntent(errorMessage));
@@ -207,7 +209,7 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
     }
 
     @Override
-    public void onLoadFwComplete(FwUpgradeConsole console, Uri fwFile) {
+    public void onLoadFwComplete(FwUpgradeConsole console, FwFileDescriptor fwFile) {
         long totalTimeMs = System.currentTimeMillis() - mStartUploadTime;
         float totalTimeS = totalTimeMs / 1000.0f;
         mBroadcastManager.sendBroadcast(getFwUpgradeCompleteIntent(totalTimeS));
@@ -217,7 +219,7 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
     }
 
     @Override
-    public void onLoadFwProgressUpdate(FwUpgradeConsole console, Uri fwFile, final long remainingBytes) {
+    public void onLoadFwProgressUpdate(FwUpgradeConsole console, FwFileDescriptor fwFile, final long remainingBytes) {
         if (mStartUploadTime < 0) { //if is the first time
             mStartUploadTime = System.currentTimeMillis();
             mFileLength = remainingBytes;
@@ -267,7 +269,8 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
             console.setLicenseConsoleListener(this);
             mBroadcastManager.sendBroadcast(getFwUpgradeStartIntent());
             mNotificationManager.notify(NOTIFICATION_ID, mNotification.build());
-            console.loadFw(FwUpgradeConsole.BOARD_FW, file);
+            console.loadFw(FwUpgradeConsole.BOARD_FW, new FwFileDescriptor(getContentResolver(),
+                    file));
         }//if console
     }
 

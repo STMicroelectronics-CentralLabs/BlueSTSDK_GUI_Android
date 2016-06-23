@@ -27,16 +27,10 @@ public class ImgFileInputStream extends InputStream {
 
     private long mFileSize;
 
-    /**
-     *
-     * @param f file where read the data
-     * @throws FileNotFoundException if is impossible to open the file
-     */
-    public ImgFileInputStream(File f) throws FileNotFoundException {
-        long length = f.length();
-        long nLine = length/10;
-        mFileSize=(length-2*nLine)/2;
-        mScanner=new Scanner(f);
+    public  ImgFileInputStream(InputStream input, long streamByteLength){
+        long nLine = streamByteLength/10;
+        mFileSize=(streamByteLength-2*nLine)/2;
+        mScanner=new Scanner(input);
     }
 
     /**

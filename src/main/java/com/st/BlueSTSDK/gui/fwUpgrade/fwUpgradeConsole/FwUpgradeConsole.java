@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -91,7 +92,7 @@ public abstract class FwUpgradeConsole {
      * @param fwFile file path
      * @return true if the command is correctly start
      */
-    abstract public boolean loadFw(@FirmwareType int type, Uri fwFile);
+    abstract public boolean loadFw(@FirmwareType int type, FwFileDescriptor fwFile);
 
     /**
      * change the object where notify the commands answer
@@ -148,7 +149,7 @@ public abstract class FwUpgradeConsole {
          * @param console object where loadFw was called
          * @param fwFile file upload to the node
          */
-        void onLoadFwComplete(FwUpgradeConsole console, Uri fwFile);
+        void onLoadFwComplete(FwUpgradeConsole console, FwFileDescriptor fwFile);
 
         /**
          * called when the loadFw finish with an error
@@ -156,7 +157,7 @@ public abstract class FwUpgradeConsole {
          * @param fwFile file upload fail
          * @param error error happen during the upload
          */
-        void onLoadFwError(FwUpgradeConsole console, Uri fwFile,
+        void onLoadFwError(FwUpgradeConsole console, FwFileDescriptor fwFile,
                            @UpgradeErrorType int error);
 
         /**
@@ -165,7 +166,7 @@ public abstract class FwUpgradeConsole {
          * @param fwFile file that we are uploading
          * @param loadBytes bytes loaded to the board
          */
-        void onLoadFwProgressUpdate(FwUpgradeConsole console, Uri fwFile, long loadBytes);
+        void onLoadFwProgressUpdate(FwUpgradeConsole console, FwFileDescriptor fwFile, long loadBytes);
     }
 
     /**
@@ -178,14 +179,14 @@ public abstract class FwUpgradeConsole {
                                   FwVersion version) {  }
 
         @Override
-        public void onLoadFwComplete(FwUpgradeConsole console, Uri fwFile) {  }
+        public void onLoadFwComplete(FwUpgradeConsole console, FwFileDescriptor fwFile) {  }
 
         @Override
-        public void onLoadFwError(FwUpgradeConsole console, Uri fwFile,
+        public void onLoadFwError(FwUpgradeConsole console, FwFileDescriptor fwFile,
                                   @UpgradeErrorType int error) {       }
 
         @Override
-        public void onLoadFwProgressUpdate(FwUpgradeConsole console, Uri fwFile, long loadBytes) { }
+        public void onLoadFwProgressUpdate(FwUpgradeConsole console, FwFileDescriptor fwFile, long loadBytes) { }
     }
 
 }
