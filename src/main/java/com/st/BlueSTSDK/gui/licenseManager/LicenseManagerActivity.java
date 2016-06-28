@@ -1,5 +1,6 @@
 package com.st.BlueSTSDK.gui.licenseManager;
 
+import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
@@ -71,8 +72,6 @@ public class LicenseManagerActivity extends ActivityWithNode implements
      */
     private RecyclerView mLicListView;
 
-    private View mRootView;
-
     /**
      * Object for communicate with the board through the debug console
      */
@@ -115,14 +114,16 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         mLicListView = (RecyclerView) findViewById(R.id.licManager_listView);
         //if the fist time, load data from the node
 
-        mRootView = findViewById(R.id.licManager_rootView);
+        Node node = getNode();
+        if(node==null)
+            return;
 
-        if(getNode().isConnected()){
+        if(node.isConnected()){
             mConsole = LicenseConsole.getLicenseConsole(mNode);
             if(savedInstanceState==null)
                 loadLicenseStatus();
         }else{
-            getNode().addNodeStateListener(mOnConnection);
+            node.addNodeStateListener(mOnConnection);
         }
     }
 
@@ -147,6 +148,8 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         if(mLicStatus!=null)
             mLicListView.setAdapter(new LicenseStatusRecyclerViewAdapter
                     (mLicStatus, LicenseManagerActivity.this));
+        else
+            loadLicenseStatus();
     }
 
     @Override
@@ -164,7 +167,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
             loadLicenseStatus();
             return true;
         } else if (i == R.id.menu_license_clearDb) {
-            new LicenseManagerDbHelper(this).deleteLicenses(mBoardUid);
+            LicenseManagerDbHelper.getInstance(this).deleteLicenses(mBoardUid);
             Snackbar.make(mLicListView, R.string.licenseManager_clearDbMessage,
                     Snackbar.LENGTH_SHORT).show();
             return true;
@@ -181,28 +184,15 @@ public class LicenseManagerActivity extends ActivityWithNode implements
      * send the command for remove the board license and close this activity
      */
     private void clearBoardLicense(){
-        mConsole.setLicenseConsoleListener(new LicenseConsole.LicenseConsoleCallbackEmpty(){
-
-            @Override
-            public void onLicenseClearedFail(LicenseConsole console) {
-                super.onLicenseClearedFail(console);
-                Snackbar.make(mRootView, R.string.licenseManager_errorClearBoardLic,
-                        Snackbar.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onLicenseClearedSuccess(LicenseConsole console) {
-                super.onLicenseClearedFail(console);
-                Snackbar.make(mRootView, R.string.licenseManager_clearBoardLicOk,
-                        Snackbar.LENGTH_LONG).show();
-            }
-        });
+        mConsole.setLicenseConsoleListener(new LicenseLoadDefaultCallback(getFragmentManager()));
         mConsole.cleanAllLicense();
     }//clearBoardLicense
 
     @Override
     public void onPause(){
-        getNode().removeNodeStateListener(mOnConnection);
+        Node node = getNode();
+        if(node!=null)
+            node.removeNodeStateListener(mOnConnection);
         super.onPause();
     }
 
@@ -210,6 +200,18 @@ public class LicenseManagerActivity extends ActivityWithNode implements
      * progress dialog used for notify what we are requesting to the board
      */
     private ProgressDialog mLoadLicenseWait;
+
+    private static void releaseDialog(@Nullable Dialog d){
+        if(d!=null && d.isShowing()) {
+            d.dismiss();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        releaseDialog(mLoadLicenseWait);
+    }
 
     /**
      * Console listener that receive the board id and ask for the license status
@@ -254,13 +256,13 @@ public class LicenseManagerActivity extends ActivityWithNode implements
                     }//if
 
                     //start load the previous license for that node
-                    getLoaderManager().initLoader(LOAD_KNOW_LICENSE, null,
+                    getLoaderManager().restartLoader(LOAD_KNOW_LICENSE, null,
                             LicenseManagerActivity.this).forceLoad();
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            mLoadLicenseWait.dismiss();
+                            releaseDialog(mLoadLicenseWait);
                             mLoadLicenseWait=null; // delete the object
 
                             mLicListView.setAdapter(new LicenseStatusRecyclerViewAdapter
@@ -335,7 +337,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
 
 
     private void loadKnowLicense(LicenseEntry lic){
-        mConsole.setLicenseConsoleListener(new LicenseLoadDefaultCallback(mRootView){
+        mConsole.setLicenseConsoleListener(new LicenseLoadDefaultCallback(getFragmentManager()){
             @Override
             public void onLicenseLoadSuccess(LicenseConsole console) {
                 super.onLicenseLoadSuccess(console);
@@ -354,9 +356,12 @@ public class LicenseManagerActivity extends ActivityWithNode implements
     @Override
     public void onLicenseUploadClick(LicenseStatus lic) {
         LicenseEntry knowLic = isKnowLicense(lic.info);
+        Node node = getNode();
+        if(node==null)
+            return;
         if(knowLic==null) {
             keepConnectionOpen(true);
-            startActivity(LoadLicenseActivity.getStartIntent(this, getNode(), mBoardUid, lic.info));
+            startActivity(LoadLicenseActivity.getStartIntent(this, node, mBoardUid, lic.info));
         }else{
             loadKnowLicense(knowLic);
         }

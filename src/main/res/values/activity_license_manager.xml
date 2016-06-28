@@ -24,5 +24,8 @@
     <string name="licenseManager_clearBoardLicOk">License removed, board is resetting</string>
     <string name="licenseManager_notAvailableDialogTitle">License Manager</string>
     <string name="licenseManager_notAvailableDialogMsg">License manager not available</string>
-
+    <string name="licenseManager_licenseLoadFailMsg">Wrong license, reset the board for clear it</string>
+    <string name="licenseManager_licenseLoadSuccessMsg">License loaded, reconnect the board for
+        enable it
+    </string>
 </resources>

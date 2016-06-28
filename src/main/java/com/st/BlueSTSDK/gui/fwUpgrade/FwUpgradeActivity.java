@@ -206,7 +206,6 @@ public class FwUpgradeActivity extends ActivityWithNode {
     private Intent getFileSelectIntent(){
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
         intent.setType("*/*");
         return intent;
         //Intent i = Intent.createChooser(intent, "Open firmwere file");
@@ -276,13 +275,13 @@ public class FwUpgradeActivity extends ActivityWithNode {
                 mUploadFileProgressDialog.setMax((int)totalBytes);
                 releaseDialog(mFormattingProgressDialog);
                 mFormattingProgressDialog=null;
-                mUploadFileProgressDialog.show();
             }
+            mUploadFileProgressDialog.show();
             mUploadFileProgressDialog.setProgress((int)uploadBytes);
         }
 
         private void uploadFinished(float timeS){
-            mUploadFileProgressDialog.dismiss();
+            releaseDialog(mUploadFileProgressDialog);
             mUploadFileProgressDialog=null;
             mFinalMessage.setText(String.format(getString(R.string.fwUpgrade_upgradeCompleteMessage),timeS));
         }
@@ -306,8 +305,6 @@ public class FwUpgradeActivity extends ActivityWithNode {
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 FwUpgradeService.getServiceActionFilter());
     }
-
-
 
     private void startFwUpgrade(){
         keepConnectionOpen(true);

@@ -37,7 +37,21 @@ public class LicenseManagerDbHelper extends SQLiteOpenHelper {
             "DROP TABLE IF EXISTS " + LicenseEntry.TABLE_NAME;
 
 
-    public LicenseManagerDbHelper(Context context) {
+    private static LicenseManagerDbHelper mInstance = null;
+
+    public static LicenseManagerDbHelper getInstance(Context ctx) {
+
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (mInstance == null) {
+            mInstance = new LicenseManagerDbHelper(ctx.getApplicationContext());
+        }
+        return mInstance;
+    }
+
+
+    private LicenseManagerDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -68,13 +82,15 @@ public class LicenseManagerDbHelper extends SQLiteOpenHelper {
         // Insert the new row, returning the primary key value of the new row
         entry.setId(db.insert(LicenseEntry.TABLE_NAME,null, values));
 
+        db.close();
+
     }//insert
 
 
     /**
      * Return a cursor loader for query the database and returing all the license associated with a
      * specific board id
-     * @param c query to use for open the db
+     * @param c context to use for open the db
      * @param boardId board to search
      * @return loader that will select all the license that can be apply to the specific board id
      */
@@ -85,7 +101,7 @@ public class LicenseManagerDbHelper extends SQLiteOpenHelper {
             @Override
             public Cursor loadInBackground() {
 
-                SQLiteDatabase db = new LicenseManagerDbHelper(c).getReadableDatabase();
+                SQLiteDatabase db = getInstance(c).getReadableDatabase();
                 String[] projection = {
                         LicenseEntry._ID,
                         LicenseEntry.COLUMN_NAME_BOARD_ID,
@@ -124,7 +140,7 @@ public class LicenseManagerDbHelper extends SQLiteOpenHelper {
 
             @Override
             public Cursor loadInBackground() {
-                SQLiteDatabase db = new LicenseManagerDbHelper(c).getReadableDatabase();
+                SQLiteDatabase db =getInstance(c).getReadableDatabase();
 
                 String[] projection = {
                         LicenseEntry._ID,

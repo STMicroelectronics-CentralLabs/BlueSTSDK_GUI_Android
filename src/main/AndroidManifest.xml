@@ -52,6 +52,7 @@
                     android:pathPattern=".*\\.osxlicense"/>
             </intent-filter>
         </activity>
+
         <activity
             android:name=".fwUpgrade.FwUpgradeActivity"
             android:label="@string/title_activity_fw_upgrade">

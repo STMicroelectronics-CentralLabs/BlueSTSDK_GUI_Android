@@ -1,9 +1,7 @@
 package com.st.BlueSTSDK.gui.licenseManager.licenseConsole;
 
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
-import android.util.Log;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.gui.licenseManager.LicenseStatus;
@@ -35,7 +33,7 @@ public class LicenseConsoleNucleo extends LicenseConsole {
     /**
      * number of ms after that we can consider the command answer finished
      */
-    private static final int COMMAND_TIMEOUT_MS = 500;
+    private static final int COMMAND_TIMEOUT_MS = 1000;
 
     /**
      * patter used for split/capture the license name and its status, each line has the format:
@@ -71,6 +69,7 @@ public class LicenseConsoleNucleo extends LicenseConsole {
         @Override
         public void onStdOutReceived(Debug debug, String message) {
             mBuffer.append(message);
+
             if (mBuffer.length()>2 &&
                     mBuffer.substring(mBuffer.length()-2).equals("\r\n")) {
                 mBuffer.delete(mBuffer.length()-2,mBuffer.length());
@@ -117,6 +116,7 @@ public class LicenseConsoleNucleo extends LicenseConsole {
 
         @Override
         public void onStdOutReceived(Debug debug, String message) {
+
             mTimeout.removeCallbacks(mOnDataFinish); //remove the timeout
             mBuffer.append(message);
             //add a new timeout
@@ -173,7 +173,7 @@ public class LicenseConsoleNucleo extends LicenseConsole {
                     if(LICENSE_LOAD_STATUS_PARSE.matcher(mBuffer).find())
                         mCallback.onLicenseLoadSuccess(LicenseConsoleNucleo.this);
                     else
-                        mCallback.onLicenseClearedFail(LicenseConsoleNucleo.this);
+                        mCallback.onLicenseLoadFail(LicenseConsoleNucleo.this);
             }
         }
 
@@ -221,7 +221,6 @@ public class LicenseConsoleNucleo extends LicenseConsole {
         @Override
         public void onStdOutReceived(Debug debug, String message) {
             mBuffer.append(message);
-            Log.d("Lic Nucleo", "onStdOutReceived: "+message);
             if (mBuffer.length()>2 &&
                     mBuffer.substring(mBuffer.length()-2).equals("\r\n")) {
                 mBuffer.delete(mBuffer.length()-2,mBuffer.length());

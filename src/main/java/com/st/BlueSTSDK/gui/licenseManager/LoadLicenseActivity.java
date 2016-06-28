@@ -144,13 +144,13 @@ public class LoadLicenseActivity extends ActivityWithNode {
         LicenseConsole console = LicenseConsole.getLicenseConsole(node);
         if(console==null)
             return;
-        console.setLicenseConsoleListener(new LicenseLoadDefaultCallback(mRootView){
+        console.setLicenseConsoleListener(new LicenseLoadDefaultCallback(getFragmentManager()){
 
             @Override
             public void onLicenseLoadSuccess(LicenseConsole console) {
                 super.onLicenseLoadSuccess(console);
-                new LicenseManagerDbHelper(LoadLicenseActivity.this).insert(
-                        new LicenseManagerDBContract.LicenseEntry(mBoardId, licName,licCode));
+                LicenseManagerDbHelper.getInstance(LoadLicenseActivity.this)
+                       .insert(new LicenseManagerDBContract.LicenseEntry(mBoardId, licName,licCode));
             }
         });
         console.writeLicenseCode(licName,licCode);
@@ -188,10 +188,12 @@ public class LoadLicenseActivity extends ActivityWithNode {
                 return;
             }//else
             final Node node = getNode();
-            if(node.getState()== Node.State.Connected) {
-                startLoadLicenseTask(node,licName,licCode);
-            }else
-                startLoadOnNodeConnected(node,licName,licCode);
+            if(node!=null) {
+                if (node.getState() == Node.State.Connected) {
+                    startLoadLicenseTask(node, licName, licCode);
+                } else
+                    startLoadOnNodeConnected(node, licName, licCode);
+            }
         }else{
             if(licCode==null)
                 Snackbar.make(mRootView,R.string.licenseManager_licenseCodeNotFound,
