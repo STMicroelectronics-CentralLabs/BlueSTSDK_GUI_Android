@@ -3,29 +3,25 @@
 
     <string name="licenseManager_refresh">Refresh</string>
     <string name="licenseManager_loadDataTitle">Loading…</string>
-    <string name="licenseManager_loadUidDesc">Load stm32 data</string>
-    <string name="licenseManager_loadDataDesc">Load license data</string>
-    <string name="licenseManager_availableLicense">Available license are:</string>
+    <string name="licenseManager_loadUidDesc">Loading stm32 data</string>
+    <string name="licenseManager_loadDataDesc">Loading license data</string>
+    <string name="licenseManager_availableLicense">Available licenses are:</string>
     <string name="licenseManager_loadLicButton">Load license</string>
-    <string name="licenseManager_debugNotAvailable">Debug console needed</string>
-    <string name="licenseManager_licenseLoadComplete">License load</string>
-    <string name="licenseManager_licenseLoadFail">License fail</string>
+    <string name="licenseManager_debugNotAvailable">Firmware not compatible</string>
     <string name="licenseManager_wrongBoardFail">Wrong board for the license</string>
-    <string name="licenseManager_snakeLicenseKnow">Some licenses already know</string>
-    <string name="licenseManager_snakeLicenseKnow_action">Load licenses</string>
     <string name="licenseManager_statusActivityName">License Status</string>
     <string name="licenseManager_loadActivityName">Load License</string>
     <string name="licenseManager_requestLicenseButton">Request</string>
-    <string name="licenseManager_clearDb">Clear app license db</string>
-    <string name="licenseManager_clearDbMessage">License db erase</string>
+    <string name="licenseManager_clearDb">Clear app license DB</string>
+    <string name="licenseManager_clearDbMessage">License database erased</string>
     <string name="licenseManager_uploadButton">Upload</string>
-    <string name="licenseManager_clear_board_license">Clear board license</string>
-    <string name="licenseManager_errorClearBoardLic">Error cleaning the board license</string>
-    <string name="licenseManager_clearBoardLicOk">License removed, board is resetting</string>
+    <string name="licenseManager_clear_board_license">Clear board licenses</string>
+    <string name="licenseManager_errorClearBoardLic">Error cleaning the board licenses</string>
+    <string name="licenseManager_clearBoardLicOk">Licenses removed, board is resetting</string>
     <string name="licenseManager_notAvailableDialogTitle">License Manager</string>
     <string name="licenseManager_notAvailableDialogMsg">License manager not available</string>
-    <string name="licenseManager_licenseLoadFailMsg">Wrong license, reset the board for clear it</string>
-    <string name="licenseManager_licenseLoadSuccessMsg">License loaded, reconnect the board for
+    <string name="licenseManager_licenseLoadFailMsg">Wrong license, please reset the board</string>
+    <string name="licenseManager_licenseLoadSuccessMsg">License loaded, reconnect to the board to
         enable it
     </string>
 </resources>
