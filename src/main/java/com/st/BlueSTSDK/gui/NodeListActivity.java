@@ -14,11 +14,11 @@ import android.view.View;
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.NodeScanActivity;
-import com.st.BlueSTSDK.gui.util.BorderItemDecoration;
 
 public abstract class NodeListActivity extends NodeScanActivity implements NodeRecyclerViewAdapter
 .OnNodeSelectedListener, NodeRecyclerViewAdapter.FilterNode, View.OnClickListener{
     private final static String TAG = NodeListActivity.class.getCanonicalName();
+
 
     private Manager.ManagerListener mUpdateDiscoverGui = new Manager.ManagerListener() {
 
@@ -70,11 +70,15 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
      * true if the user request to clear the device handler cache after the connection
      */
     private boolean mClearDeviceCache = false;
+
     /**
      * SwipeLayout used for refresh the list when the user pull down the fragment
      */
     private SwipeRefreshLayout mSwipeLayout;
 
+    /**
+     * button used for start/stop the discovery
+     */
     private FloatingActionButton mStartStopButton;
 
     /**
@@ -150,14 +154,12 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
 
     }
 
-
     /**
      * disconnect all the node and connect our adapter with the node manager for update the list
      * with new discover nodes and start the node discovery
      */
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
         //add the listener that will hide the progress indicator when the first device is discovered
         mManager.addListener(mUpdateDiscoverGui);
         //disconnect all the already discovered device
@@ -166,19 +168,22 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         mManager.addListener(mAdapter);
         resetNodeList();
         startNodeDiscovery();
+        super.onStart();
     }//onStart
 
     /**
      * stop the discovery and remove all the lister that we attach to the manager
      */
     @Override
-    public void onPause() {
-        if (mManager.isDiscovering())
-            stopNodeDiscovery();
+    public void onStop() {
+
         //remove the listener add by this class
         mManager.removeListener(mUpdateDiscoverGui);
         mManager.removeListener(mAdapter);
-        super.onPause();
+
+        if (mManager.isDiscovering())
+            stopNodeDiscovery();
+        super.onStop();
     }
 
     /**

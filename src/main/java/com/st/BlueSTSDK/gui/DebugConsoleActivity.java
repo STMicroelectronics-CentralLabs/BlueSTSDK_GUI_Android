@@ -28,61 +28,70 @@ package com.st.BlueSTSDK.gui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.st.BlueSTSDK.Debug;
-import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+
 /**
  * Activity that show a console with the stdout and stderr message from the board and permit to
  * send string to the stdin
  */
-public class DebugConsoleActivity extends AppCompatActivity {
+public class DebugConsoleActivity extends ActivityWithNode {
 
-    private final static String NODE_FRAGMENT = DebugConsoleActivity.class.getCanonicalName() + "" +
-            ".NODE_FRAGMENT";
+    private final static String PREFERENCE_AUTO_SCROLL_KEY = "prefDebugActivityAutoScroll";
 
-    private final static String NODE_TAG = DebugConsoleActivity.class.getCanonicalName() + "" +
-            ".NODE_TAG";
-    /**
-     * enable the console when the node connect
-     */
-    private Node.NodeStateListener mNodeStateChangeListener = new Node.NodeStateListener() {
-        @Override
-        public void onStateChange(Node node, Node.State newState, Node.State prevState) {
-            if (newState == Node.State.Connected) {
-                setUpConsoleService(node.getDebug());
-            } else if (newState == Node.State.Dead) {
-                DebugConsoleActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(DebugConsoleActivity.this, R.string.DebugNotAvailable,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }//if-else
-        }//onStateChange
-    };//NodeStateListener
+    private enum ConsoleType{
+        OUTPUT,
+        INPUT,
+        ERROR;
+
+        public @ColorRes int getColorID(){
+            switch (this){
+                case ERROR:
+                    return  R.color.ErrorMsg;
+                case OUTPUT:
+                    return R.color.OutMsg;
+                case INPUT:
+                    return R.color.InMsg;
+                default:
+                    return R.color.InMsg;
+            }
+        }
+
+        public String getPrefix(){
+            String prefix =">";
+            if (this != INPUT)
+                prefix = "<";
+            return  prefix;
+        }
+    }
+    ConsoleType mTargetConsole = null;
+    private static Date mLastMessageReceived = new Date();
+    private static final long PAUSE_DETECTION_TIME_MS = 100; //ms
+
+    private static Date mLastMessageSending = new Date();
+    private static final long SENDING_TIME_OUT_MS = 1000; //ms
 
     /**
      * text view where we will dump the console out
@@ -99,63 +108,47 @@ public class DebugConsoleActivity extends AppCompatActivity {
      */
     private EditText mUserInput;
 
-    /** node that will send the information */
-    private Node mNode;
 
-    /** fragment used for keep the connection open */
-    private NodeContainerFragment mNodeContainer;
-
-    /**
-     * object that will send/receive commands from the node
-     */
+    /** object that will send/receive commands from the node */
     private Debug mDebugService;
 
-    /**
-     * message that we are sending
-     */
     private String mToSent=null;
+    private int mNextPartToSent = -1;
 
-    /**
-     * index of the last byte send, negative if we didn't send anything
-     */
-    private int mNextPartToSentIndex = -1;
+    private boolean mAutoScroll = true;
 
-    /**
-     * last time that the user send a message
-     */
-    private Date mLastMessageSending = new Date();
-    /**
-     * threshold to use for send an user message also if we are still sending a previous message
-     */
-    private final long SENDING_TIME_OUT_MS = 1000; //ms
-
-    /**
-     * create an intent for start the activity that will log the information from the node
+    /** create an intent for start the activity that will log the information from the node
      *
-     * @param c    context used for create the intent
+     * @param c context used for create the intent
      * @param node note that will be used by the activity
      * @return intent for start this activity
      */
-    public static Intent getStartIntent(Context c, @NonNull Node node) {
-        Intent i = new Intent(c, DebugConsoleActivity.class);
-        i.putExtra(NODE_TAG, node.getTag());
-        i.putExtras(NodeContainerFragment.prepareArguments(node));
-        return i;
+    public static Intent getStartIntent(Context c,@NonNull Node node){
+        return getStartIntent(c,DebugConsoleActivity.class,node,true);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.activity_debug_console, menu);
+
+        menu.findItem(R.id.action_device_auto_scroll).setTitle(mAutoScroll ? R.string.deviceAutoScroll : R.string.deviceAutoScrollOff);
+        menu.findItem(R.id.action_device_auto_scroll).setIcon(mAutoScroll ? R.drawable.ic_auto_scroll_down_24dp :R.drawable.ic_auto_scroll_off_24dp);
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //load the gui
         setContentView(R.layout.activity_debug_console);
-        mConsoleView = (ScrollView) findViewById(R.id.consoleView);
-        mConsole = (TextView) findViewById(R.id.deviceConsole);
+        mConsoleView = (ScrollView)  findViewById(R.id.consoleView);
+        mConsole =(TextView) findViewById(R.id.deviceConsole);
         mUserInput = (EditText) findViewById(R.id.inputText);
 
         /**
-         * when the user click on the button "send" we send the message and delete the text the
-         * textview
+         * when the user click on send we remove the text that it send
          */
         mUserInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -166,40 +159,19 @@ public class DebugConsoleActivity extends AppCompatActivity {
                     String toSend = v.getText().toString();
                     v.setText(""); //reset the string
                     if (!toSend.isEmpty())
-                        if (!sendMessage(toSend + '\n')) {
-                            resetMessageToSend();
-                            DebugConsoleActivity.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(DebugConsoleActivity.this,
-                                            R.string.AnotherMsgIsSending,
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }//if
+                        if (!sendMessage(toSend + "\n")) {
+                            mToSent = null;
+                            mNextPartToSent = -1;
+                            //Notify.message(DebugConsoleActivity.this, "Error on write message");
+                        }
+
                     handled = true;
-                }//if action
+                }
                 return handled;
             }//onEditorAction
-        });//setOnEditorActionListener
+        });
 
-        // recover the node
-        String nodeTag = getIntent().getStringExtra(NODE_TAG);
-        mNode = Manager.getSharedInstance().getNodeWithTag(nodeTag);
-
-        //create/recover the NodeContainerFragment
-        if (savedInstanceState == null) {
-            Intent i = getIntent();
-            mNodeContainer = new NodeContainerFragment();
-            mNodeContainer.setArguments(i.getExtras());
-            getFragmentManager().beginTransaction()
-                    .add(mNodeContainer, NODE_FRAGMENT).commit();
-        } else {
-            mNodeContainer = (NodeContainerFragment) getFragmentManager()
-                    .findFragmentByTag(NODE_FRAGMENT);
-        }//if-else
-
-    }//onCreate
+    }
 
     /**
      * write a message to the stdIn of the debug console prepare the string to sent and check
@@ -209,56 +181,60 @@ public class DebugConsoleActivity extends AppCompatActivity {
      * @return false if there is a message current sending else true
      */
     private boolean sendMessage(String message) {
+        boolean bRet=false;
         Date  now = new Date();
         //not message already sending or time out
         if ((mToSent == null) || (now.getTime() - mLastMessageSending.getTime() > SENDING_TIME_OUT_MS)) {
+            bRet = true;
             resetMessageToSend();
             if (message != null && !message.isEmpty()) {
                 mToSent = message;
-                mNextPartToSentIndex=0;
-                writeNextMessage();
-                return true;
-            }//if
-        }//if
-        return false;
-    }//sendMessage
+                mNextPartToSent = 0;
+                bRet = writeNextMessage();
+            }
+        }
+        return bRet;
+    }
 
-    /**
-     * clear the current message that we were sending
-     */
+
     private void resetMessageToSend(){
         mToSent = null;
-        mNextPartToSentIndex = -1;
-    }//resetMessageToSend
+        mNextPartToSent = -1;
+    }
+
+    private String previousPartSent() {
+        String strRet = "";
+        int prevPart = mNextPartToSent -1;
+        int startIndex = prevPart * Debug.MAX_STRING_SIZE_TO_SENT;
+
+        if (prevPart >= 0 && mToSent != null && startIndex < mToSent.length() ) {
+            int endIndex = Math.min(mToSent.length(), (prevPart + 1) * Debug.MAX_STRING_SIZE_TO_SENT);
+            strRet = mToSent.substring(startIndex, endIndex);
+        }
+        return strRet;
+    }
 
     /**
      * write the next part of the current message to the input characteristic
-     * @return true if there is another message to send
      */
-    //it is synchronized because it is called by a callback and we need to complete all the method
-    //before run it again otherwise we can send the same message 2 times or
-    private synchronized boolean writeNextMessage() {
+    private boolean writeNextMessage() {
 
-        if (mToSent == null )
+        int startIndex = mNextPartToSent * Debug.MAX_STRING_SIZE_TO_SENT;
+
+        if (mToSent != null && (startIndex < mToSent.length())) {
+            int endIndex = Math.min(mToSent.length(), (mNextPartToSent + 1) * Debug.MAX_STRING_SIZE_TO_SENT);
+            mNextPartToSent++;
+
+            String partToSent = mToSent.substring(startIndex, endIndex);
+            return (mDebugService.write(partToSent) == partToSent.length());
+        }
+        else
             return false;
-
-        int byteSend = mDebugService.write(mToSent.substring(mNextPartToSentIndex));
-        mNextPartToSentIndex += byteSend;
-
-        if(byteSend<0)
-            return false;
-
-        if(mNextPartToSentIndex>=mToSent.length()) {
-            resetMessageToSend(); // we sending complete we don't need it
-            return false;
-        }//if
-        return  true;
-    }//writeNextMessage
+    }
 
     /**
      * when the node connected check the presence of the debug service and enable the gui if it
      * present otherwise it will show an error message
-     *
      * @param debugService debug service return from the node, null if not present
      */
     private void setUpConsoleService(Debug debugService){
@@ -269,148 +245,94 @@ public class DebugConsoleActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     mUserInput.setEnabled(true);
-                }
-            });
-        } else {
-            DebugConsoleActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(DebugConsoleActivity.this, R.string.DebugNotAvailable,
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-        }//if-else
-    }//setUpConsoleService
 
-    /**
-     * if the node is connected enable the gui otherwise attach a listener for do it when the node
-     * connects
-     */
+                }
+            });
+        }else{
+            //Notify.message(DebugConsoleActivity.this, R.string.DebugNotAvailable);
+        }
+        invalidateOptionsMenu();
+    }
+
+
     @Override
-    protected void onResume() {
+    public void onResume(){
         super.onResume();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mAutoScroll = preferences.getBoolean(PREFERENCE_AUTO_SCROLL_KEY, true);
+    }
 
-        if (mNode.isConnected()) {
-            setUpConsoleService(mNode.getDebug());
-        } else
-            mNode.addNodeStateListener(mNodeStateChangeListener);
-    }//onResume
-
-
-    /**
-     * remove the listener that we add to the node and debug object
-     */
     @Override
-    protected void onPause() {
-        mNode.removeNodeStateListener(mNodeStateChangeListener);
+    public void onStart() {
+        super.onStart();
+        Node node = getNode();
+        if(node.isConnected()) {
+            setUpConsoleService(node.getDebug());
+        }
+    }
 
-        if (mDebugService != null)
+    @Override
+    public void onDestroy(){
+        if(mDebugService!=null)
             mDebugService.setDebugOutputListener(null);
 
-        super.onPause();
-    }//onPause
+        super.onDestroy();
+    }
 
     /**
-     * if we have to leave this activity, we force to keep the connection open, since we go back
-     * in the {@link DemosActivity}
+     * if we have to leave this activity, we force the disconnection of the node
      */
     @Override
-    public void onBackPressed() {
-        mNodeContainer.keepConnectionOpen(true);
+    public void onBackPressed(){
+        keepConnectionOpen(true);
         super.onBackPressed();
-    }//onBackPressed
+    }
 
-    /**
+     /**
      * call when the user press the back button on the menu bar, we are leaving this activity so
-     * we keep the connection open since we are going int the {@link DemosActivity}
-     *
-     * @param item menu item clicked
+     * we disconnect the node
+     * @param item  menu item clicked
      * @return true if the item is handle by this function
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button, we go back in the same task
-            //for avoid to recreate the DemoActivity
-            case android.R.id.home:
-                mNodeContainer.keepConnectionOpen(true);
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-        }//switch
+        int itemId =item.getItemId();
+
+        if (itemId == R.id.action_device_auto_scroll ){
+            setAutoScrollPolicy(!mAutoScroll);
+            return true;
+        }
+        if (itemId == R.id.action_device_clear_debug){
+            mConsole.setText(""); //clear
+            return true;
+        }
+        //else
 
         return super.onOptionsItemSelected(item);
-    }//onOptionsItemSelected
+    }
 
-
-    /**
-     * enum with the information about the type of console available
-     */
-    private enum ConsoleType{
-        /** Node output console */
-        OUTPUT,
-        /** Node input console */
-        INPUT,
-        /** Node error console */
-        ERROR;
-
-        /**
-         * get the color to use for the specific console
-         * @return color to use for the text to write in the specific console
-         */
-        public @ColorRes int getColorID(){
-            switch (this){
-                case ERROR:
-                    return  R.color.ErrorMsg;
-                case OUTPUT:
-                    return  R.color.OutMsg;
-                case INPUT:
-                    return  R.color.InMsg;
-                default:
-                    return R.color.InMsg;
-            }//switch
-        }//getClassID
-
-        /**
-         * get the char to use as prefix fo the specific console
-         * @return prefix to use before write a string in the console
-         */
-        public char getPrefix(){
-            if (this != INPUT)
-                return  '<';
-            return  '>';
-        }//getPrefix
-
-    }//ConsoleType
+    private void setAutoScrollPolicy(boolean enableAutoScroll){
+        mAutoScroll = enableAutoScroll;
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        preferences.edit()
+            .putBoolean(PREFERENCE_AUTO_SCROLL_KEY, mAutoScroll)
+            .apply();
+        invalidateOptionsMenu();
+    }
 
     /**
-     * listener for debug message, it will update the textview with received message
+     * class that receive the debug message and post it on the activity main thread a runnable
+     * for update the textview that contains the massage.
      * <p>
-     * The different message will be show with different color
-     * </p>
-     * <p>
-     * We avoid to print the date if 2 message from the same stream arrive in a short time frame
+     *     The different message will be show with different color
      * </p>
      */
     private class UpdateConsole implements Debug.DebugOutputListener{
-        //final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
         final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyMMdd HH:mm:ss.SSS",
                 Locale.getDefault());
 
-        /** console that we are using for print the message */
-        private ConsoleType mTargetConsole = null;
-
-        /**time of the last received message */
-        private Date mLastMessageReceived = new Date();
-        private  final long PAUSE_DETECTION_TIME_MS = 100; //ms
-
-        /**
-         * create the prefix with the current time, it is create only if the last message was
-         * received more than PAUSE_DETECTION_TIME_MS ms ago
-         * @param append if true force to create the prefix string
-         * @return prefix string with the current time
-         */
-        private String appendDateTime(Boolean append) {
+        private String appendDateTime(boolean append){
             String str = "";
             Date  now = new Date();
             if (append || (now.getTime() - mLastMessageReceived.getTime() > PAUSE_DETECTION_TIME_MS)) {
@@ -419,15 +341,9 @@ public class DebugConsoleActivity extends AppCompatActivity {
             mLastMessageReceived = now;
 
             return str;
-        }//appendDateTime
+        }
 
-        /**
-         * append the message to the console
-         * @param message message to add
-         * @param std console to use for add the string
-         */
-        private void appendMessage(String message, ConsoleType std)
-        {
+        private void appendMessage(String message, ConsoleType std) {
             boolean forceAppendPrefix = (mTargetConsole != std);
             mTargetConsole = std;
 
@@ -436,39 +352,43 @@ public class DebugConsoleActivity extends AppCompatActivity {
             displayText.append(appendDateTime(forceAppendPrefix));
             displayText.append(message);
 
-            displayText.setSpan(
-                    new ForegroundColorSpan(getResources().getColor(mTargetConsole.getColorID())),
-                    0, displayText.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
+            displayText.setSpan(new ForegroundColorSpan(getResources().getColor(mTargetConsole.getColorID())), 0, displayText.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             DebugConsoleActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     mConsole.append(displayText);
-                    mConsoleView.fullScroll(View.FOCUS_DOWN);
-                }//run
-            });
-        }//appendMessage
+                    if (mAutoScroll)
+                        mConsoleView.fullScroll(View.FOCUS_DOWN);
+                    mUserInput.requestFocus();
 
+
+                }
+            });
+
+        }
         @Override
         public void onStdOutReceived(Debug debug, final String message) {
             appendMessage(message, ConsoleType.OUTPUT);
-        }//onStdOutReceived
+            if (message.equals(previousPartSent()))
+                if(!writeNextMessage()) {
+                    resetMessageToSend();
+                }
+        }
 
         @Override
         public void onStdErrReceived(Debug debug, String message) {
             appendMessage(message, ConsoleType.ERROR);
-        }//onStdErrReceived
+        }
 
         @Override
         public void onStdInSent(Debug debug, String message, boolean writeResult) {
-            if (!writeResult )
-                appendMessage(getResources().getString(R.string.ErrorSendMsg), ConsoleType.INPUT);
             appendMessage(message, ConsoleType.INPUT);
 
-            //we finish to send a string -> send next message if present
-            writeNextMessage();
-        }//onStdInSent
-    }//UpdateConsole
+            if ( !writeResult ) {
+                resetMessageToSend();
+            }
+        }
+    }
 
 }
-

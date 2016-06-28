@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_device_auto_scroll"
+          android:title="@string/deviceAutoScroll"
+          android:icon="@drawable/ic_auto_scroll_down_24dp"
+          android:orderInCategory="5"
+          app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/action_device_clear_debug"
+          android:title="@string/deviceClearDebug"
+          android:orderInCategory="11"
+          app:showAsAction="never"/>
+
+</menu>
