@@ -1,4 +1,4 @@
-package com.st.BlueSTSDK.gui.licenseManager.licenseConsole.nucleo;
+package com.st.BlueSTSDK.gui.util;
 
 import android.app.Dialog;
 import android.app.DialogFragment;

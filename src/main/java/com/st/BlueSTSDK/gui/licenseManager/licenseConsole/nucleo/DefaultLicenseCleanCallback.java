@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.licenseManager.licenseConsole.LicenseConsole;
+import com.st.BlueSTSDK.gui.util.SimpleFragmentDialog;
 
 public class DefaultLicenseCleanCallback implements LicenseConsole.CleanLicenseCallback {
 

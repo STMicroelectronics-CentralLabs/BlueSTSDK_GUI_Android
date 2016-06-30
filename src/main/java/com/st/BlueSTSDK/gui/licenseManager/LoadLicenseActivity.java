@@ -1,5 +1,6 @@
 package com.st.BlueSTSDK.gui.licenseManager;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -66,7 +67,6 @@ public class LoadLicenseActivity extends ActivityWithNode {
     private TextView mLicText;
 
     private  LicenseInfo mLicenseInfo;
-
     /**
      * id of the board where load the data
      */
@@ -148,6 +148,7 @@ public class LoadLicenseActivity extends ActivityWithNode {
 
         console.writeLicenseCode(licName,licCode,
                 new AddDbEntryOnSuccess(console.getDefaultWriteLicenseCallback(this)));
+
     }
 
     private void startLoadOnNodeConnected(Node node, final String licName, final byte[] licCode){
@@ -201,19 +202,37 @@ public class LoadLicenseActivity extends ActivityWithNode {
 
         private LicenseConsole.WriteLicenseCallback mDefault;
 
+        private ProgressDialog mLoadLicenseProgress=null;
+
+        private void dismissDialog(){
+            if(mLoadLicenseProgress!=null){
+                mLoadLicenseProgress.dismiss();
+                mLoadLicenseProgress=null;
+            }
+        }
+
         AddDbEntryOnSuccess(LicenseConsole.WriteLicenseCallback userCallback){
             mDefault=userCallback;
+            mLoadLicenseProgress = new ProgressDialog(LoadLicenseActivity.this,
+                    ProgressDialog.STYLE_SPINNER);
+            mLoadLicenseProgress.setTitle(R.string.licenseManager_loadDataTitle);
+            mLoadLicenseProgress.setMessage(getString(R.string.LicenseManager_uploadLicMsg));
+            mLoadLicenseProgress.show();
+
         }
 
         @Override
         public void onLicenseLoadSuccess(LicenseConsole console, String licName, byte[] licCode) {
             LicenseManagerDbHelper.getInstance(LoadLicenseActivity.this)
                     .insert(new LicenseManagerDBContract.LicenseEntry(mBoardId, licName,licCode));
+            dismissDialog();
             mDefault.onLicenseLoadSuccess(console,licName,licCode);
+
         }
 
         @Override
         public void onLicenseLoadFail(LicenseConsole console, String licName, byte[] licCode) {
+            dismissDialog();
             mDefault.onLicenseLoadFail(console,licName,licCode);
         }
     }

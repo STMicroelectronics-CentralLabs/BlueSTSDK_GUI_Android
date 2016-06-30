@@ -1,4 +1,4 @@
-package com.st.BlueSTSDK.gui;
+package com.st.BlueSTSDK.gui.util;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -6,6 +6,8 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+
+import com.st.BlueSTSDK.gui.ActivityWithNode;
 
 public class AlertAndFinishDialog extends DialogFragment {
 

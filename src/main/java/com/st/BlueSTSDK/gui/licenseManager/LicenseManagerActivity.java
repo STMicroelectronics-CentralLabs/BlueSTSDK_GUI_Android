@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
-import com.st.BlueSTSDK.gui.AlertAndFinishDialog;
+import com.st.BlueSTSDK.gui.util.AlertAndFinishDialog;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.licenseManager.licenseConsole.LicenseConsole;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseInfo;
@@ -232,7 +232,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         @Override
         public void onLicenseStatusRead(LicenseConsole console, List<LicenseStatus> licenses) {
             mLicStatus = licenses;
-            if(licenses.isEmpty()){
+            if(licenses.isEmpty() || mBoardUid==null){
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -323,24 +323,39 @@ public class LicenseManagerActivity extends ActivityWithNode implements
     private class ReloadLicenseStatus implements LicenseConsole.WriteLicenseCallback{
 
         private LicenseConsole.WriteLicenseCallback mDefault;
+        private ProgressDialog mLoadLicProgress;
 
         public ReloadLicenseStatus(LicenseConsole.WriteLicenseCallback defaultImp){
             mDefault=defaultImp;
+            mLoadLicProgress = new ProgressDialog(LicenseManagerActivity.this,
+                    ProgressDialog.STYLE_SPINNER);
+            mLoadLicProgress.setTitle(R.string.licenseManager_loadDataTitle);
+            mLoadLicProgress.setMessage(getString(R.string.LicenseManager_uploadLicMsg));
+            mLoadLicProgress.show();
         }
 
         @Override
         public void onLicenseLoadSuccess(LicenseConsole console, String licName, byte[] licCode) {
-            mDefault.onLicenseLoadSuccess(console,licName,licCode);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     loadLicenseStatus();
+                    releaseDialog(mLoadLicProgress);
+                    mLoadLicProgress=null;
                 }
             });
+            mDefault.onLicenseLoadSuccess(console,licName,licCode);
         }
 
         @Override
         public void onLicenseLoadFail(LicenseConsole console, String licName, byte[] licCode) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    releaseDialog(mLoadLicProgress);
+                    mLoadLicProgress=null;
+                }
+            });
             mDefault.onLicenseLoadFail(console, licName, licCode);
         }
     }

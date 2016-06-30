@@ -20,7 +20,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.TextView;
 
-import com.st.BlueSTSDK.gui.AlertAndFinishDialog;
+import com.st.BlueSTSDK.gui.util.AlertAndFinishDialog;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
@@ -127,6 +127,12 @@ public class FwUpgradeActivity extends ActivityWithNode {
         newFragment.show(getFragmentManager(), FRAGMENT_DIALOG_TAG);
     }
 
+    private void displayNotSupportedAndFinish(){
+        DialogFragment newFragment = AlertAndFinishDialog.newInstance(
+                getString(R.string.FwUpgrade_dialogTitle),
+                getString(R.string.fwUpgrade_notSupportedMsg), true);
+        newFragment.show(getFragmentManager(), FRAGMENT_DIALOG_TAG);
+    }
 
     private  void initFwVersion(){
         FwUpgradeConsole console = FwUpgradeConsole.getFwUpgradeConsole(mNode);
@@ -139,6 +145,8 @@ public class FwUpgradeActivity extends ActivityWithNode {
             console.setLicenseConsoleListener(mConsoleListener);
             console.readVersion(FwUpgradeConsole.BOARD_FW);
             mLoadVersionProgressDialog.show();
+        }else{
+            displayNotSupportedAndFinish();
         }
 
     }

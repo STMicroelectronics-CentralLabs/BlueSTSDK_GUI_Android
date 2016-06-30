@@ -16,5 +16,6 @@
         please manually upgrade the firmware to version \>=%1$s></string>
     <string name="FwUpgrade_readSDRationale">Read permission is needed to read the firmware file
     </string>
+    <string name="fwUpgrade_notSupportedMsg">Firmware upgrade not supported</string>
 
 </resources>

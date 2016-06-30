@@ -4,4 +4,5 @@
     <string name="licenseManager_licenseNameNotFound">License name not found</string>
     <string name="licenseManager_pasteLicenseCode">Paste license code (from received email,  dashes delimited section)</string>
     <string name="licenseManager_invalidLicenseType">Invalid license type</string>
+    <string name="LicenseManager_uploadLicMsg">Uploading license...</string>
 </resources>
