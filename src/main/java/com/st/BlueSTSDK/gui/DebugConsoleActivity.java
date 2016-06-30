@@ -266,7 +266,7 @@ public class DebugConsoleActivity extends ActivityWithNode {
     public void onStart() {
         super.onStart();
         Node node = getNode();
-        if(node.isConnected()) {
+        if(node!=null && node.isConnected()) {
             setUpConsoleService(node.getDebug());
         }
     }
@@ -370,10 +370,6 @@ public class DebugConsoleActivity extends ActivityWithNode {
         @Override
         public void onStdOutReceived(Debug debug, final String message) {
             appendMessage(message, ConsoleType.OUTPUT);
-            if (message.equals(previousPartSent()))
-                if(!writeNextMessage()) {
-                    resetMessageToSend();
-                }
         }
 
         @Override
@@ -387,8 +383,11 @@ public class DebugConsoleActivity extends ActivityWithNode {
 
             if ( !writeResult ) {
                 resetMessageToSend();
+            } else
+                if (!writeNextMessage()) {
+                    resetMessageToSend();
+                }
             }
         }
-    }
 
 }
