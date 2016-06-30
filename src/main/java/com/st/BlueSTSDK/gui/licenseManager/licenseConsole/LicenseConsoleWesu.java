@@ -104,41 +104,15 @@ public class LicenseConsoleWesu extends LicenseConsole {
      */
     private Debug.DebugOutputListener mConsoleLoadLicenseListener;
 
-    /**
-     * build a debug console without a callback
-     * @param console console to use for send the command
-     */
-    LicenseConsoleWesu(Debug console){
-        this(console,null);
-    }
 
     /**
      *
      * @param console console where send the command
-     * @param callback object where notify the command answer
      */
-    LicenseConsoleWesu(Debug console, LicenseConsoleCallback callback) {
-        super(console,callback);
+    LicenseConsoleWesu(Debug console) {
+        super(console);
         mTimeout = new Handler(Looper.getMainLooper());
         mBuffer = new StringBuilder();
-        mConsoleGetIdListener = new TimeOutConsoleListener(new Runnable() {
-            @Override
-            public void run() {
-                setConsoleListener(null);
-                if (mBuffer.length() != 0)
-                    mCallback.onBoardIdRead(LicenseConsoleWesu.this,
-                            extractBoardUid(mBuffer.toString()));
-            }
-        });
-        mConsoleGetStatusListener = new TimeOutConsoleListener(new Runnable() {
-            @Override
-            public void run() {
-                setConsoleListener(null);
-                if (mBuffer.length() != 0)
-                    mCallback.onLicenseStatusRead(LicenseConsoleWesu.this,
-                            extractLicenseStatus(mBuffer.toString()));
-            }
-        });
     }
 
     private static String extractBoardUid(String data){
@@ -183,10 +157,14 @@ public class LicenseConsoleWesu extends LicenseConsole {
         return mCurrentListener != null;
     }
 
+    private ReadBoardIdCallback mReadBoardIdCallback=null;
+
     @Override
-    public boolean readBoardId() {
+    public boolean readBoardId(ReadBoardIdCallback callback) {
         if (isWaitingAnswer())
             return false;
+
+        mReadBoardIdCallback=callback;
 
         mBuffer.setLength(0); //reset the buffer
         setConsoleListener(mConsoleGetIdListener);
@@ -194,10 +172,14 @@ public class LicenseConsoleWesu extends LicenseConsole {
         return true;
     }
 
+    private ReadLicenseStatusCallback mReadLicenseStatusCallback=null;
+
     @Override
-    public boolean readLicenseStatus() {
+    public boolean readLicenseStatus(ReadLicenseStatusCallback callback) {
         if (isWaitingAnswer())
             return false;
+
+        mReadLicenseStatusCallback=callback;
 
         mBuffer.setLength(0); //reset the buffer
         setConsoleListener(mConsoleGetStatusListener);
@@ -205,10 +187,14 @@ public class LicenseConsoleWesu extends LicenseConsole {
         return true;
     }
 
+    private WriteLicenseCallback mWriteLicenseCallback=null;
+
     @Override
-    public boolean writeLicenseCode(String licName, byte[] licCode) {
+    public boolean writeLicenseCode(String licName, byte[] licCode,WriteLicenseCallback callback) {
         if (isWaitingAnswer())
             return false;
+
+        mWriteLicenseCallback = callback;
 
         setConsoleListener(mConsoleLoadLicenseListener);
         mBuffer.setLength(0); //reset the buffer
@@ -220,9 +206,18 @@ public class LicenseConsoleWesu extends LicenseConsole {
         return true;
     }
 
+
+    CleanLicenseCallback mCleanLicenseCallback=null;
+
     @Override
-    public boolean cleanAllLicense() {
-        mCallback.onLicenseClearedFail(this);
+    public boolean cleanAllLicense(CleanLicenseCallback callback) {
+
+        if(isWaitingAnswer())
+            return false;
+
+        mCleanLicenseCallback=callback;
+
+        mCleanLicenseCallback.onLicenseClearedFail(this);
         return true;
     }
 

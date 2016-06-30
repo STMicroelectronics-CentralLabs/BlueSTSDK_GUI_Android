@@ -19,6 +19,7 @@ import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseManagerDbHelper;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -144,18 +145,10 @@ public class LoadLicenseActivity extends ActivityWithNode {
         LicenseConsole console = LicenseConsole.getLicenseConsole(node);
         if(console==null)
             return;
-        console.setLicenseConsoleListener(new LicenseLoadDefaultCallback(getFragmentManager()){
 
-            @Override
-            public void onLicenseLoadSuccess(LicenseConsole console) {
-                super.onLicenseLoadSuccess(console);
-                LicenseManagerDbHelper.getInstance(LoadLicenseActivity.this)
-                       .insert(new LicenseManagerDBContract.LicenseEntry(mBoardId, licName,licCode));
-            }
-        });
-        console.writeLicenseCode(licName,licCode);
+        console.writeLicenseCode(licName,licCode,
+                new AddDbEntryOnSuccess(console.getDefaultWriteLicenseCallback(this)));
     }
-
 
     private void startLoadOnNodeConnected(Node node, final String licName, final byte[] licCode){
         node.addNodeStateListener(new Node.NodeStateListener() {
@@ -203,5 +196,26 @@ public class LoadLicenseActivity extends ActivityWithNode {
                         Snackbar.LENGTH_SHORT).show();
         }
     }//loadLicenseStatus
+
+    private class AddDbEntryOnSuccess implements LicenseConsole.WriteLicenseCallback{
+
+        private LicenseConsole.WriteLicenseCallback mDefault;
+
+        AddDbEntryOnSuccess(LicenseConsole.WriteLicenseCallback userCallback){
+            mDefault=userCallback;
+        }
+
+        @Override
+        public void onLicenseLoadSuccess(LicenseConsole console, String licName, byte[] licCode) {
+            LicenseManagerDbHelper.getInstance(LoadLicenseActivity.this)
+                    .insert(new LicenseManagerDBContract.LicenseEntry(mBoardId, licName,licCode));
+            mDefault.onLicenseLoadSuccess(console,licName,licCode);
+        }
+
+        @Override
+        public void onLicenseLoadFail(LicenseConsole console, String licName, byte[] licCode) {
+            mDefault.onLicenseLoadFail(console,licName,licCode);
+        }
+    }
 
 }

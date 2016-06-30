@@ -1,10 +1,12 @@
 package com.st.BlueSTSDK.gui.licenseManager.licenseConsole;
 
+import android.app.Activity;
 import android.support.annotation.Nullable;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.licenseManager.LicenseStatus;
+import com.st.BlueSTSDK.gui.licenseManager.licenseConsole.nucleo.LicenseConsoleNucleo;
 
 import java.util.List;
 
@@ -35,18 +37,11 @@ public abstract class LicenseConsole {
     protected Debug mConsole;
 
     /**
-     * object where notify the command response
-     */
-    protected LicenseConsoleCallback mCallback;
-
-    /**
      *
      * @param console console where send the command
-     * @param callback object where notify the command answer
      */
-    protected LicenseConsole(Debug console, LicenseConsoleCallback callback) {
+    protected LicenseConsole(Debug console) {
         mConsole = console;
-        mCallback = callback;
     }
 
     /**
@@ -57,50 +52,14 @@ public abstract class LicenseConsole {
     public abstract boolean isWaitingAnswer();
 
     /**
-     * change the object where notify the commands answer
-     * @param callback object where notify the commands answer
-     */
-    public void setLicenseConsoleListener(LicenseConsoleCallback callback) {
-        mCallback = callback;
-    }
-
-    /**
      * request to read the board id
      * the board id is notify using the method
-     * {@link LicenseConsoleCallback#onBoardIdRead(LicenseConsole, String)}
+     * {@link ReadBoardIdCallback#onBoardIdRead(LicenseConsole, String)}
      * @return true if the command is correctly send
      */
-    public abstract boolean readBoardId();
+    public abstract boolean readBoardId(ReadBoardIdCallback callback);
 
-    /**
-     * request to the node the license status.
-     * the response is notify using the method
-     * {@link LicenseConsoleCallback#onLicenseStatusRead(LicenseConsole , List)}
-     * @return true if the request is correctly send, false otherwise.
-     */
-    public abstract boolean readLicenseStatus();
-
-    /**
-     * upload the license to the node, the success fill be notify using the method
-     * {@link LicenseConsoleCallback#onLicenseLoad(LicenseConsole , boolean)}
-     * @param licName license name
-     * @param licCode license code
-     * @return true if the message is correctly send, false otherwise
-     */
-    public abstract boolean writeLicenseCode(String licName, byte[] licCode);
-
-    /**
-     * remove all the license into the node, when the process end the method
-     * {@link LicenseConsoleCallback#onLicenseCleared(LicenseConsole, boolean)}
-     * @return true if the message is correctly send, false otherwise
-     */
-    public abstract boolean cleanAllLicense();
-
-    /**
-     * callback interface used to notify to the caller that we receive an answer from the node
-     */
-    public interface LicenseConsoleCallback {
-
+    public interface ReadBoardIdCallback {
         /**
          * function called when we receive the board id.
          *
@@ -108,7 +67,26 @@ public abstract class LicenseConsole {
          * @param uid     board id
          */
         void onBoardIdRead(LicenseConsole console, String uid);
+    }
 
+    public ReadBoardIdCallback getDefaultReadBoardId(Activity a){
+        return new ReadBoardIdCallback() {
+            @Override
+            public void onBoardIdRead(LicenseConsole console, String uid) {
+
+            }
+        };
+    }
+
+    /**
+     * request to the node the license status.
+     * the response is notify using the method
+     * {@link ReadLicenseStatusCallback#onLicenseStatusRead(LicenseConsole , List)}
+     * @return true if the request is correctly send, false otherwise.
+     */
+    public abstract boolean readLicenseStatus(ReadLicenseStatusCallback callback);
+
+    public  interface ReadLicenseStatusCallback {
         /**
          * function called when we receive the license status from the board
          *
@@ -116,16 +94,72 @@ public abstract class LicenseConsole {
          * @param licenses list of license available on the node
          */
         void onLicenseStatusRead(LicenseConsole console, List<LicenseStatus> licenses);
+    }
 
-        void onLicenseLoadSuccess(LicenseConsole console);
-        void onLicenseLoadFail(LicenseConsole console);
+    public ReadLicenseStatusCallback getDefaultReadLicenseStatusCallback(Activity a){
+        return new ReadLicenseStatusCallback() {
+            @Override
+            public void onLicenseStatusRead(LicenseConsole console, List<LicenseStatus> licenses) {
+            }
+        };
+    }
 
+    /**
+     * upload the license to the node, the success fill be notify using the method
+     * {@link WriteLicenseCallback#onLicenseLoadSuccess(LicenseConsole, String, byte[])} or
+     * {@link WriteLicenseCallback#onLicenseLoadFail(LicenseConsole, String, byte[])}
+     * @param licName license name
+     * @param licCode license code
+     * @return true if the message is correctly send, false otherwise
+     */
+    public abstract boolean writeLicenseCode(String licName, byte[] licCode, WriteLicenseCallback
+            callback);
+
+    public interface WriteLicenseCallback{
+        void onLicenseLoadSuccess(LicenseConsole console,String licName,byte[] licCode);
+        void onLicenseLoadFail(LicenseConsole console,String licName,byte[] licCode);
+    }
+
+    public WriteLicenseCallback getDefaultWriteLicenseCallback(Activity a){
+        return new WriteLicenseCallback() {
+            @Override
+            public void onLicenseLoadSuccess(LicenseConsole console, String licName, byte[] licCode) {
+            }
+
+            @Override
+            public void onLicenseLoadFail(LicenseConsole console, String licName, byte[] licCode) {
+            }
+        };
+    }
+
+    /**
+     * remove all the license into the node, when the process end the method
+     * {@link CleanLicenseCallback#onLicenseClearedSuccess(LicenseConsole)} or
+     * {@link CleanLicenseCallback#onLicenseClearedFail(LicenseConsole)}
+     * @return true if the message is correctly send, false otherwise
+     */
+    public abstract boolean cleanAllLicense(CleanLicenseCallback callback);
+
+    public  interface CleanLicenseCallback{
         void onLicenseClearedSuccess(LicenseConsole console);
         void onLicenseClearedFail(LicenseConsole console);
-    }//LicenseConsoleCallback
+    }
+
+    public  CleanLicenseCallback getDefaultCleanLicense(Activity a){
+        return new CleanLicenseCallback() {
+            @Override
+            public void onLicenseClearedSuccess(LicenseConsole console) {
+            }
+
+            @Override
+            public void onLicenseClearedFail(LicenseConsole console) {
+            }
+        };
+    }
 
 
-    public static class LicenseConsoleCallbackEmpty implements LicenseConsoleCallback{
+    public static class LicenseConsoleCallbackEmpty implements ReadBoardIdCallback,
+            ReadLicenseStatusCallback,WriteLicenseCallback,CleanLicenseCallback{
         @Override
         public void onBoardIdRead(LicenseConsole console, String uid) {}
 
@@ -133,10 +167,10 @@ public abstract class LicenseConsole {
         public void onLicenseStatusRead(LicenseConsole console, List<LicenseStatus> licenses) {}
 
         @Override
-        public void onLicenseLoadSuccess(LicenseConsole console) { }
+        public void onLicenseLoadSuccess(LicenseConsole console,String licName,byte[] licCode) { }
 
         @Override
-        public void onLicenseLoadFail(LicenseConsole console) { }
+        public void onLicenseLoadFail(LicenseConsole console,String licName,byte[] licCode) { }
 
         @Override
         public void onLicenseClearedSuccess(LicenseConsole console) { }

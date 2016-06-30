@@ -1,10 +1,12 @@
-package com.st.BlueSTSDK.gui.licenseManager.licenseConsole;
+package com.st.BlueSTSDK.gui.licenseManager.licenseConsole.nucleo;
 
+import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.gui.licenseManager.LicenseStatus;
+import com.st.BlueSTSDK.gui.licenseManager.licenseConsole.LicenseConsole;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseDefines;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseInfo;
 
@@ -74,8 +76,8 @@ public class LicenseConsoleNucleo extends LicenseConsole {
                     mBuffer.substring(mBuffer.length()-2).equals("\r\n")) {
                 mBuffer.delete(mBuffer.length()-2,mBuffer.length());
                 setConsoleListener(null);
-                if (mCallback != null)
-                    mCallback.onBoardIdRead(LicenseConsoleNucleo.this, mBuffer.toString());
+                if (mReadBoardIdCallback != null)
+                    mReadBoardIdCallback.onBoardIdRead(LicenseConsoleNucleo.this, mBuffer.toString());
             }
         }
 
@@ -107,8 +109,8 @@ public class LicenseConsoleNucleo extends LicenseConsole {
             @Override
             public void run() {
                 setConsoleListener(null);
-                if (mBuffer.length() != 0)
-                    mCallback.onLicenseStatusRead(LicenseConsoleNucleo.this,
+                if (mBuffer.length() != 0 && mReadLicenseStatusCallback!=null)
+                    mReadLicenseStatusCallback.onLicenseStatusRead(LicenseConsoleNucleo.this,
                             parseLicStatusResponse(mBuffer.toString()));
             }
         };
@@ -134,10 +136,16 @@ public class LicenseConsoleNucleo extends LicenseConsole {
         }
     };
 
-    /**
-     * object used to manage the load license command
-     */
-    private Debug.DebugOutputListener mConsoleLoadLicenseListener = new Debug.DebugOutputListener() {
+
+    private class ConsoleLoadLicenseLister implements Debug.DebugOutputListener {
+
+        private String mLicName;
+        private byte[] mLicCode;
+
+        ConsoleLoadLicenseLister(String name,byte[] licCode){
+            mLicName=name;
+            mLicCode=licCode;
+        }
 
         /**
          * remove the listener and notify the failure
@@ -146,7 +154,8 @@ public class LicenseConsoleNucleo extends LicenseConsole {
             @Override
             public void run() {
                 setConsoleListener(null);
-                mCallback.onLicenseLoadFail(LicenseConsoleNucleo.this);
+                if(mWriteLicenseCallback!=null)
+                    mWriteLicenseCallback.onLicenseLoadFail(LicenseConsoleNucleo.this,mLicName,mLicCode);
             }
         };
         /**
@@ -169,11 +178,11 @@ public class LicenseConsoleNucleo extends LicenseConsole {
                 mBuffer.delete(mBuffer.length()-2,mBuffer.length());
                 mTimeout.removeCallbacks(onTimeout);
                 setConsoleListener(null);
-                if (mCallback != null)
+                if (mWriteLicenseCallback != null)
                     if(LICENSE_LOAD_STATUS_PARSE.matcher(mBuffer).find())
-                        mCallback.onLicenseLoadSuccess(LicenseConsoleNucleo.this);
+                        mWriteLicenseCallback.onLicenseLoadSuccess(LicenseConsoleNucleo.this,mLicName,mLicCode);
                     else
-                        mCallback.onLicenseLoadFail(LicenseConsoleNucleo.this);
+                        mWriteLicenseCallback.onLicenseLoadFail(LicenseConsoleNucleo.this,mLicName,mLicCode);
             }
         }
 
@@ -203,7 +212,8 @@ public class LicenseConsoleNucleo extends LicenseConsole {
             @Override
             public void run() {
                 setConsoleListener(null);
-                mCallback.onLicenseClearedFail(LicenseConsoleNucleo.this);
+                if(mCleanLicenseCallback!=null)
+                    mCleanLicenseCallback.onLicenseClearedFail(LicenseConsoleNucleo.this);
             }
         };
         /**
@@ -227,11 +237,11 @@ public class LicenseConsoleNucleo extends LicenseConsole {
                 mTimeout.removeCallbacks(onTimeout);
                 mBuffer.append(message, 0, message.length() - 2);
                 setConsoleListener(null);
-                if (mCallback != null)
+                if (mCleanLicenseCallback != null)
                     if(LICENSE_CLEAR_STATUS_PARSE.matcher(mBuffer).find())
-                        mCallback.onLicenseClearedSuccess(LicenseConsoleNucleo.this);
+                        mCleanLicenseCallback.onLicenseClearedSuccess(LicenseConsoleNucleo.this);
                     else
-                        mCallback.onLicenseClearedFail(LicenseConsoleNucleo.this);
+                        mCleanLicenseCallback.onLicenseClearedFail(LicenseConsoleNucleo.this);
             } else {
                 mBuffer.append(message);
             }
@@ -252,23 +262,13 @@ public class LicenseConsoleNucleo extends LicenseConsole {
     };
 
     /**
-     * build a debug console without a callback
-     * @param console console to use for send the command
-     */
-    LicenseConsoleNucleo(Debug console){
-        this(console,null);
-    }
-
-    /**
      *
      * @param console console where send the command
-     * @param callback object where notify the command answer
      */
-    LicenseConsoleNucleo(Debug console, LicenseConsoleCallback callback) {
-        super(console,callback);
+    public LicenseConsoleNucleo(Debug console) {
+        super(console);
         mTimeout = new Handler(Looper.getMainLooper());
         mBuffer = new StringBuilder();
-
     }
 
     /**
@@ -309,10 +309,14 @@ public class LicenseConsoleNucleo extends LicenseConsole {
         return mCurrentListener != null;
     }
 
+    private ReadBoardIdCallback mReadBoardIdCallback=null;
+
     @Override
-    public boolean readBoardId() {
+    public boolean readBoardId(ReadBoardIdCallback callback) {
         if (isWaitingAnswer())
             return false;
+
+        mReadBoardIdCallback=callback;
 
         mBuffer.setLength(0); //reset the buffer
         setConsoleListener(mConsoleGetIdListener);
@@ -320,10 +324,14 @@ public class LicenseConsoleNucleo extends LicenseConsole {
         return true;
     }
 
+    private ReadLicenseStatusCallback mReadLicenseStatusCallback=null;
+
     @Override
-    public boolean readLicenseStatus() {
+    public boolean readLicenseStatus(ReadLicenseStatusCallback callback) {
         if (isWaitingAnswer())
             return false;
+
+        mReadLicenseStatusCallback=callback;
 
         mBuffer.setLength(0); //reset the buffer
         setConsoleListener(mConsoleGetStatusListener);
@@ -331,26 +339,44 @@ public class LicenseConsoleNucleo extends LicenseConsole {
         return true;
     }
 
+    private WriteLicenseCallback mWriteLicenseCallback=null;
+
     @Override
-    public boolean writeLicenseCode(String licName, byte[] licCode) {
+    public boolean writeLicenseCode(String licName, byte[] licCode, WriteLicenseCallback callback) {
         if (isWaitingAnswer())
             return false;
 
+        mWriteLicenseCallback=callback;
+
         mBuffer.setLength(0); //reset the buffer
-        setConsoleListener(mConsoleLoadLicenseListener);
+        setConsoleListener(new ConsoleLoadLicenseLister(licName,licCode));
         mConsole.write(licName);
         mConsole.write(licCode);
         return true;
     }
 
+    private CleanLicenseCallback mCleanLicenseCallback;
+
     @Override
-    public boolean cleanAllLicense() {
+    public boolean cleanAllLicense(CleanLicenseCallback callback) {
         if(isWaitingAnswer())
             return false;
+
+        mCleanLicenseCallback=callback;
 
         mBuffer.setLength(0);
         setConsoleListener(mConsoleCleanLicenseListener);
         mConsole.write(CLEAR_BOARD_LIC_COMMAND);
         return true;
+    }
+
+    @Override
+    public CleanLicenseCallback getDefaultCleanLicense(Activity a) {
+        return new DefaultLicenseCleanCallback(a.getFragmentManager());
+    }
+
+    @Override
+    public WriteLicenseCallback getDefaultWriteLicenseCallback(Activity a) {
+        return new DefaultWriteLicenseCallback(a.getFragmentManager());
     }
 }

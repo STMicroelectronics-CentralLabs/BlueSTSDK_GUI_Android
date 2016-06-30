@@ -4,7 +4,7 @@
     <string name="licenseManager_refresh">Refresh</string>
     <string name="licenseManager_loadDataTitle">Loading…</string>
     <string name="licenseManager_loadUidDesc">Loading stm32 data</string>
-    <string name="licenseManager_loadDataDesc">Loading license data</string>
+    <string name="licenseManager_loadLicStatusDesc">Loading license data</string>
     <string name="licenseManager_availableLicense">Available licenses are:</string>
     <string name="licenseManager_loadLicButton">Load license</string>
     <string name="licenseManager_debugNotAvailable">Firmware not compatible</string>

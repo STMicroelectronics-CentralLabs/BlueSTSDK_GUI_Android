@@ -184,8 +184,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
      * send the command for remove the board license and close this activity
      */
     private void clearBoardLicense(){
-        mConsole.setLicenseConsoleListener(new LicenseLoadDefaultCallback(getFragmentManager()));
-        mConsole.cleanAllLicense();
+        mConsole.cleanAllLicense(mConsole.getDefaultCleanLicense(this));
     }//clearBoardLicense
 
     @Override
@@ -213,65 +212,52 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         releaseDialog(mLoadLicenseWait);
     }
 
-    /**
-     * Console listener that receive the board id and ask for the license status
-     */
-    private LicenseConsole.LicenseConsoleCallback mLoadLicCallback =
-            new LicenseConsole.LicenseConsoleCallbackEmpty() {
+    private class StoreUidAndReadLicenseStatus implements LicenseConsole.ReadBoardIdCallback{
 
-                /**
-                 * when receive the board uid, store it and ask for the license status
-                 * @param console object that request the board id
-                 * @param uid board id
-                 */
+        @Override
+        public void onBoardIdRead(LicenseConsole console, String uid) {
+            mBoardUid=uid;
+            runOnUiThread(new Runnable() {
                 @Override
-                public void onBoardIdRead(LicenseConsole console, String uid) {
-                    mBoardUid=uid;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mLoadLicenseWait.setMessage(getString(R.string.licenseManager_loadUidDesc));
-                        }
-                    });
-                    console.readLicenseStatus();
-                }//onBoardIdRead
+                public void run() {
+                    mLoadLicenseWait.setMessage(getString(R.string.licenseManager_loadLicStatusDesc));
+                }
+            });
+            console.readLicenseStatus(new UpdateLicenseStatusAdapter());
+        }
+    }
 
-                /**
-                 * store the license status and create the adapter for show them to the user
-                 * @param console object that request the board status
-                 * @param licenses list of license available on the node
-                 */
+    private class UpdateLicenseStatusAdapter implements LicenseConsole.ReadLicenseStatusCallback{
+
+        @Override
+        public void onLicenseStatusRead(LicenseConsole console, List<LicenseStatus> licenses) {
+            mLicStatus = licenses;
+            if(licenses.isEmpty()){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showLicenseStatusNotAvailableDialog();
+                    }
+                });
+                return;
+            }//if
+
+            //start load the previous license for that node
+            getLoaderManager().restartLoader(LOAD_KNOW_LICENSE, null,
+                    LicenseManagerActivity.this).forceLoad();
+
+            runOnUiThread(new Runnable() {
                 @Override
-                public void onLicenseStatusRead(LicenseConsole console, List<LicenseStatus>
-                        licenses) {
-                    mLicStatus = licenses;
-                    if(licenses.isEmpty()){
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showLicenseStatusNotAvailableDialog();
-                            }
-                        });
-                        return;
-                    }//if
+                public void run() {
+                    releaseDialog(mLoadLicenseWait);
+                    mLoadLicenseWait=null; // delete the object
 
-                    //start load the previous license for that node
-                    getLoaderManager().restartLoader(LOAD_KNOW_LICENSE, null,
-                            LicenseManagerActivity.this).forceLoad();
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            releaseDialog(mLoadLicenseWait);
-                            mLoadLicenseWait=null; // delete the object
-
-                            mLicListView.setAdapter(new LicenseStatusRecyclerViewAdapter
-                                    (mLicStatus, LicenseManagerActivity.this));
-                        }//run
-                    });
-                }//onLicenseStatusRead
-
-            };//LicenseConsole.LicenseConsoleCallback
+                    mLicListView.setAdapter(new LicenseStatusRecyclerViewAdapter
+                            (mLicStatus, LicenseManagerActivity.this));
+                }//run
+            });
+        }
+    }
 
     /**
      * show a message if the debug console is not available for this board, all the license
@@ -296,17 +282,16 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         if (mConsole == null){
             debugConsoleNotAvailable();
         }else{
-            mConsole.setLicenseConsoleListener(mLoadLicCallback);
             //the console is already doing something
             if (!mConsole.isWaitingAnswer()) {
 
                 //create the progress bar
                 mLoadLicenseWait = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
                 mLoadLicenseWait.setTitle(R.string.licenseManager_loadDataTitle);
-                mLoadLicenseWait.setMessage(getString(R.string.licenseManager_loadDataDesc));
+                mLoadLicenseWait.setMessage(getString(R.string.licenseManager_loadUidDesc));
 
                 //start reading
-                mConsole.readBoardId();
+                mConsole.readBoardId(new StoreUidAndReadLicenseStatus());
 
                 //display the progress bar
                 mLoadLicenseWait.show();
@@ -335,22 +320,34 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         return null;
     }
 
+    private class ReloadLicenseStatus implements LicenseConsole.WriteLicenseCallback{
+
+        private LicenseConsole.WriteLicenseCallback mDefault;
+
+        public ReloadLicenseStatus(LicenseConsole.WriteLicenseCallback defaultImp){
+            mDefault=defaultImp;
+        }
+
+        @Override
+        public void onLicenseLoadSuccess(LicenseConsole console, String licName, byte[] licCode) {
+            mDefault.onLicenseLoadSuccess(console,licName,licCode);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    loadLicenseStatus();
+                }
+            });
+        }
+
+        @Override
+        public void onLicenseLoadFail(LicenseConsole console, String licName, byte[] licCode) {
+            mDefault.onLicenseLoadFail(console, licName, licCode);
+        }
+    }
 
     private void loadKnowLicense(LicenseEntry lic){
-        mConsole.setLicenseConsoleListener(new LicenseLoadDefaultCallback(getFragmentManager()){
-            @Override
-            public void onLicenseLoadSuccess(LicenseConsole console) {
-                super.onLicenseLoadSuccess(console);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadLicenseStatus();
-                    }
-                });
-
-            }
-        });
-        mConsole.writeLicenseCode(lic.getLicenseType(),lic.getLicenseCode());
+        mConsole.writeLicenseCode(lic.getLicenseType(),lic.getLicenseCode(),
+                new ReloadLicenseStatus(mConsole.getDefaultWriteLicenseCallback(this)));
     }
 
     @Override
