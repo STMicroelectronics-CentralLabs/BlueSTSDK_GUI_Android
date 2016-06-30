@@ -1,5 +1,6 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
+import android.bluetooth.BluetoothAdapter;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -28,6 +29,18 @@ import java.util.zip.Checksum;
  * node: when all the byte are write return 1 if the crc is ok, -1 otherwise
  */
 public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
+
+    /**
+     * for not stress the ble stack it sends 10 package at times, when the packages are sent
+     * it send a new set a package
+     */
+    private static final int BLOCK_PKG_SIZE = 10;
+    //every time there is a fail we decease the number of block to send
+    private static int sNFail=0;
+
+    private static int getBlockPkgSize(){
+        return Math.max(1,10/(1<<(sNFail)));
+    }
 
     static private final String GET_VERSION_BOARD_FW="versionFw\n";
     static private final String GET_VERSION_BLE_FW="versionBle\n";
@@ -129,12 +142,6 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
     private class UploadFileProtocol implements  Debug.DebugOutputListener{
 
         /**
-         * for not stress the ble stack it sends 10 package at times, when the packages are sent
-         * it send a new set a package
-         */
-        private static final int BLOCK_PKG_SIZE = 10;
-
-        /**
          * file that we are uploading
          */
         private FwFileDescriptor mFile;
@@ -174,6 +181,8 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
          */
         private byte[] mLastPackageSend = new byte[MAX_MSG_SIZE];
 
+        private int mNBlockPackage= getBlockPkgSize();
+
         /**
          * if the timeout is rise, fire an error of type
          * {@link FwUpgradeConsole.FwUpgradeCallback#ERROR_TRANSMISSION}
@@ -182,6 +191,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             @Override
             public void run() {
                 onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
+                sNFail++;
             }
         };
 
@@ -259,6 +269,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
          * @param file file to upload
          */
         public void loadFile(@FirmwareType int fwType,FwFileDescriptor file){
+
             mFile=file;
             mNodeReadyToReceiveFile =false;
             mByteToSend = file.getLength();
@@ -310,7 +321,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
          * @return true if all the message are send correctly
          */
         private boolean sendPackageBlock(){
-            for(int i = 0; i< BLOCK_PKG_SIZE; i++){
+            for(int i = 0; i< mNBlockPackage; i++){
                 if(!sendFwPackage())
                     return false;
             }//for
@@ -342,7 +353,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         private void notifyNodeReceivedFwMessage(){
             mNPackageReceived++;
             //if we finish to send all the message
-            if(mNPackageReceived % BLOCK_PKG_SIZE ==0){
+            if(mNPackageReceived % mNBlockPackage ==0){
                 if(mCallback!=null)
                     mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleNucleo.this,mFile,
                             mByteToSend-mByteSend);

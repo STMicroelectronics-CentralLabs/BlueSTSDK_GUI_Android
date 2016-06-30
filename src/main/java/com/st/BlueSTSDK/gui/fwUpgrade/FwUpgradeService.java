@@ -239,8 +239,8 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
             final String action = intent.getAction();
             if (UPLOAD_FW.equals(action)) {
                 final Uri file = intent.getParcelableExtra(FW_FILE_URI);
-                final Node nodeTag = getNode(intent.getStringExtra(NODE_TAG));
-                handleActionUpload(file, nodeTag);
+                final Node node = getNode(intent.getStringExtra(NODE_TAG));
+                handleActionUpload(file, node);
             }
         }
     }
