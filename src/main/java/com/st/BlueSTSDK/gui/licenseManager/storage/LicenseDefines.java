@@ -43,6 +43,11 @@ public class LicenseDefines {
         sLicenseInfo.add(new LicenseInfo("SL","osxAcusticSL","OSX_ACOUSTIC_SL_V100",
                 "AcousticSL v1.0.0 - Acoustic source-localization",
                 LicenseType.OpenAudio,R.raw.generic_disclaimer,R.string.licenseDesc_SL));
+
+        //Audio BlueVoice
+        sLicenseInfo.add(new LicenseInfo("BV","osxAudioBV","OSX_BLUEVOICE_V110",
+                "BlueVoice v1.1.0 - Voice over BTLE",
+                LicenseType.OpenAudio,R.raw.generic_disclaimer,R.string.licenseDesc_BV));
     }
 
     /**

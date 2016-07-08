@@ -6,4 +6,5 @@
     <string name="licenseDesc_GR">Gesture recognition</string>
     <string name="licenseDesc_PM">Pedometer</string>
     <string name="licenseDesc_SL">Acoustic source localization</string>
+    <string name="licenseDesc_BV">Voice over BTLE</string>
 </resources>
