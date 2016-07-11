@@ -81,6 +81,17 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
         private @FirmwareType int mRequestFwType;
 
+        /**
+         * if the timeout is rise, fire an error of type
+         * {@link FwUpgradeConsole.FwUpgradeCallback#ERROR_TRANSMISSION}
+         */
+        private Runnable onTimeout = new Runnable() {
+            @Override
+            public void run() {
+                notifyVersionRead(null);
+            }
+        };
+
         private void notifyVersionRead(FwVersion version){
             setConsoleListener(null);
             if (mCallback != null)
@@ -104,6 +115,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
         @Override
         public void onStdOutReceived(Debug debug, String message) {
+            mTimeout.removeCallbacks(onTimeout);
             mBuffer.append(message);
             if (mBuffer.length()>2 &&
                     mBuffer.substring(mBuffer.length()-2).equals("\r\n")) {
@@ -125,6 +137,8 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                     return;
                 }//try-catch
                 notifyVersionRead(version);
+            }else{
+                mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
             }
         }
 
@@ -132,7 +146,9 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         public void onStdErrReceived(Debug debug, String message) { }
 
         @Override
-        public void onStdInSent(Debug debug, String message, boolean writeResult) { }
+        public void onStdInSent(Debug debug, String message, boolean writeResult) {
+            mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
+        }
     }
 
 
