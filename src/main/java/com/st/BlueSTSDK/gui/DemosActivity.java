@@ -261,7 +261,30 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             return;
         }//if
         //else
-        //we have to initialize here the adapter since now the nodeContainer is build
+
+        if(!node.isConnected()){
+            node.addNodeStateListener(new Node.NodeStateListener() {
+                @Override
+                public void onStateChange(final Node node, Node.State newState, Node.State
+                        prevState) {
+                    if(newState==Node.State.Connected) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                buildDemoAdapter(node);
+                            }
+                        });
+                        node.removeNodeStateListener(this);
+                    }
+                }
+            });
+            node.addNodeStateListener(mUpdateMenuOnConnection);
+        }else{
+            buildDemoAdapter(node);
+        }
+    }
+
+    private void buildDemoAdapter(Node node){
         final DemosTabAdapter adapter=new DemosTabAdapter(node,getAllDemos(), getFragmentManager());
         mPager.setAdapter(adapter);
         int nDemo = adapter.getCount();
@@ -280,10 +303,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             mDrawerToggle.setDrawerIndicatorEnabled(false);
             mDrawerToggle.syncState();
-        }
-
-        if(!node.isConnected()){
-            node.addNodeStateListener(mUpdateMenuOnConnection);
+            findViewById(R.id.helpDemoLayout).setVisibility(View.GONE);
         }
     }
 
