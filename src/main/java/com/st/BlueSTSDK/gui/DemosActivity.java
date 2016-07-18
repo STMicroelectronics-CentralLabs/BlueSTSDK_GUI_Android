@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 
 import android.support.v13.app.FragmentPagerAdapter;
@@ -102,6 +101,15 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      * widget that will contain all the demo fragment
      */
     private ViewPager mPager;
+
+    private ViewPager.OnPageChangeListener mUpdateActivityTitle = new ViewPager.SimpleOnPageChangeListener() {
+
+        @Override
+        public void onPageSelected(int position) {
+            setTitle(mPager.getAdapter().getPageTitle(position));
+        }
+
+    };
 
     //layout with the demo and demo menu
     private DrawerLayout mDrawerLayout;
@@ -223,7 +231,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             view.setVisibility(View.VISIBLE);
         }//if
 
-
         //Log.d(TAG, "onCreate Activity" + mNodeContainer);
 
     }//onCreate
@@ -285,8 +292,10 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     }
 
     private void buildDemoAdapter(Node node){
+        mPager.addOnPageChangeListener(mUpdateActivityTitle);
         final DemosTabAdapter adapter=new DemosTabAdapter(node,getAllDemos(), getFragmentManager());
         mPager.setAdapter(adapter);
+        mUpdateActivityTitle.onPageSelected(0);
         int nDemo = adapter.getCount();
         Menu navigationMenu = mNavigationTab.getMenu();
         //remove the old items
@@ -318,7 +327,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     @Override
     protected void onResume() {
         super.onResume();
-
         //if the node is connected -> this frame is recreated
         Node node =mNodeContainer.getNode();
         if (node!=null && node.isConnected())
@@ -327,6 +335,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
     @Override
     protected void onPause() {
+        mPager.removeOnPageChangeListener(mUpdateActivityTitle);
         if (mShowDebugConsole) {
             Node node = mNodeContainer.getNode();
             if(node!=null) {
