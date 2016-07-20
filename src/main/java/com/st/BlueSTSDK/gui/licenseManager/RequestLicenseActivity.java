@@ -107,7 +107,9 @@ public class RequestLicenseActivity extends AppCompatActivity implements
             startActivity(Intent.createChooser(i, "Send mail..."));
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
-        }//try-catch
+        } catch (IllegalArgumentException ex){
+            Toast.makeText(this, "Error: "+ex.getMessage(), Toast.LENGTH_SHORT).show();
+        }
         finish();
     }
 }
