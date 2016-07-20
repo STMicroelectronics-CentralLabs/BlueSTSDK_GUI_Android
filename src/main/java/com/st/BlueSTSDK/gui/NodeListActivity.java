@@ -200,6 +200,16 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         return true;
      }
 
+
+    /** change the menu item name */
+    private void changeDeviceCacheStatus(MenuItem item){
+        mClearDeviceCache=!mClearDeviceCache;
+        if(mClearDeviceCache)
+            item.setTitle(R.string.ClearDeviceCacheMenuEnabled);
+        else
+            item.setTitle(R.string.ClearDeviceCacheMenu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -210,8 +220,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
             return true;
         }//else
         if (id == R.id.menu_clear_device_cache) {
-            item.setTitle(R.string.ClearDeviceCacheMenuEnabled);
-            mClearDeviceCache = true;
+            changeDeviceCacheStatus(item);
             return true;
         }
         /*
