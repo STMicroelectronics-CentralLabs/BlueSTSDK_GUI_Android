@@ -226,13 +226,29 @@ public class GenerateMailText {
     }
 
     /**
+     * add 0 as string prefix until the input hasn't the right length
+     * @param str string the extend
+     * @param finalLength sting final length
+     * @return str with a 0's prefix until the required length is reach
+     */
+    private static String addLeadingZeros(String str,int finalLength){
+        int nZeros = finalLength-str.length();
+        if(nZeros>0) {
+            for (int i = 0; i < nZeros; i++)
+                str = '0' + str;
+        }//if
+        return str;
+    }//addLeadingZeros
+
+    /**
      * generate an unique 128bit hex string, depending on the system where the code is running
-     * @param c
+     * @param c context where require the id
      * @return unique string
      */
     private static String getSiteCode(Context c){
         String temp =Settings.Secure.getString(c.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
+        temp = addLeadingZeros(temp,16);
         return (temp+temp).toUpperCase();
     }
 
