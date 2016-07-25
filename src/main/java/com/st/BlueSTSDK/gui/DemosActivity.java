@@ -121,6 +121,8 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      */
     private ScrollView mConsoleView;
 
+    private View mHelpView;
+
     /**
      * true if we are showing the debug console
      */
@@ -212,15 +214,15 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.addDrawerListener(mDrawerToggle);
 
+        mHelpView = findViewById(R.id.helpDemoLayout);
         if (needShowHelpView()) {
-            View view = findViewById(R.id.helpDemoLayout);
-            view.setOnClickListener(new View.OnClickListener() {
+            mHelpView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     view.setVisibility(View.GONE);
                 }//onClick
             });
-            view.setVisibility(View.VISIBLE);
+            mHelpView.setVisibility(View.VISIBLE);
         }//if
 
 
@@ -280,6 +282,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             mDrawerToggle.setDrawerIndicatorEnabled(false);
             mDrawerToggle.syncState();
+            mHelpView.setVisibility(View.GONE);
         }
 
         if(!node.isConnected()){
