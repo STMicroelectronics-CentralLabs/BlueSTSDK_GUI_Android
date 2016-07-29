@@ -24,4 +24,14 @@
     <string name="pref_logClear">Clear Log</string>
     <string name="pref_logClearDone">Log files removed</string>
     <string name="pref_logClear_summary">Remove previous logs</string>
+
+    <string name="action_settings">Settings</string>
+    @@ -19,6 +20,8 @@
+    <string name="title_activity_splash_screen">Splash_screenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="pref_logExportSession">Export Logs</string>
+    <string name="pref_logExportSession_summary">Select and Export Logs</string>
+
+
 </resources>

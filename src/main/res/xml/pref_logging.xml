@@ -28,4 +28,7 @@
                 android:data="http://www.example.com" />
     </Preference>
 
+    <Preference android:title="@string/pref_logExportSession" android:summary="@string/pref_logExportSession_summary" android:key="prefLog_exportSessionLog"></Preference>
+
+
 </PreferenceScreen>
