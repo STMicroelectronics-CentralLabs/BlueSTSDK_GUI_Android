@@ -3,12 +3,12 @@
     <string name="title_activity_fw_upgrade">Firmware upgrade</string>
     <string name="fwUpgrade_loading">Loading…</string>
     <string name="fwUpgrade_version">Version: </string>
-    <string name="fwUpgrade_board_type">Board Type: </string>
+    <string name="fwUpgrade_board_type">Mcu Type: </string>
     <string name="fwUpgrade_loadFwVersion">Loading firmware version</string>
     <string name="fwUpgrade_formatting">Formatting</string>
     <string name="fwUpgrade_uploading">Uploading</string>
     <string name="fwUpgrade_upgradeNumberFormat">%1$d/%2$d Bytes</string>
-    <string name="fwUpgrade_upgradeCompleteMessage">Upload Completed in: %1$.2fs\nThe board is
+    <string name="fwUpgrade_upgradeCompleteMessage">Flash Completed in: %1$.2fs\nThe board is
         resetting</string>
     <string name="FwUpgrade_dialogTitle">Fw upgrade</string>
     <string name="FwUpgrade_notAvailableMsg">Firmware upgrade not available</string>

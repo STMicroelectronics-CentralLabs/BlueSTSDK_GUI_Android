@@ -45,9 +45,14 @@ public class LicenseDefines {
                 LicenseType.OpenAudio,R.raw.generic_disclaimer,R.string.licenseDesc_SL));
 
         //Audio BlueVoice
-        sLicenseInfo.add(new LicenseInfo("BV","osxAudioBV","OSX_BLUEVOICE_V110",
+        /*sLicenseInfo.add(new LicenseInfo("BV","osxAudioBV","OSX_BLUEVOICE_V110",
                 "BlueVoice v1.1.0 - Voice over BTLE",
                 LicenseType.OpenAudio,R.raw.generic_disclaimer,R.string.licenseDesc_BV));
+        */
+        sLicenseInfo.add(new LicenseInfo("BV","osxAudioBV","OSX_BLUEVOICE_V200",
+                "BlueVoice v2.0.0 - Voice over BTLE",
+                LicenseType.OpenAudio,R.raw.generic_disclaimer,R.string.licenseDesc_BV));
+
     }
 
     /**

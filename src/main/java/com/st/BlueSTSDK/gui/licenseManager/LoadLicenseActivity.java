@@ -42,7 +42,7 @@ public class LoadLicenseActivity extends ActivityWithNode {
     /**
      * pattern used for extract the license name
      */
-    private static final Pattern EXTRACT_lIB_NAME = Pattern.compile("osx_.(..)_license\\[3\\]\\[4\\]");
+    private static final Pattern EXTRACT_lIB_NAME = Pattern.compile("osx_.*(..)_license\\[3\\]\\[4\\]");
 
     /**
      * Create an intent for start this activity
