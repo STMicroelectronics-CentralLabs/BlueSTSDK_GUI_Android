@@ -30,7 +30,7 @@ public abstract class AskWhatFeatureLogActivity extends LogFeatureActivity {
             availableFeatures.toArray(featureToLogList);
             //build and show the MultiChoice dialog
             new AlertDialog.Builder(this)
-                .setIcon(com.st.BlueSTSDK.R.drawable.ic_select_log_features_24dp)
+                .setIcon(R.drawable.ic_select_log_features_24dp)
                 .setCancelable(false)
                 .setMultiChoiceItems(featureToLogList, getEnabledFeature(featureToLogList),
                     new DialogInterface.OnMultiChoiceClickListener() {
