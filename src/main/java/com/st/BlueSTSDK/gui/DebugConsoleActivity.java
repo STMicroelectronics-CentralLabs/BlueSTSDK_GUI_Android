@@ -33,6 +33,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -61,6 +62,9 @@ public class DebugConsoleActivity extends ActivityWithNode {
 
     private final static String PREFERENCE_AUTO_SCROLL_KEY = "prefDebugActivityAutoScroll";
 
+    private final static String WESU_HELP_MESSAGE="?\n";
+    private final static String NUCLEO_HELP_MESSAGE="??";
+
     private enum ConsoleType{
         OUTPUT,
         INPUT,
@@ -69,13 +73,13 @@ public class DebugConsoleActivity extends ActivityWithNode {
         public @ColorRes int getColorID(){
             switch (this){
                 case ERROR:
-                    return  R.color.ErrorMsg;
+                    return  R.color.debugConsole_errorMsg;
                 case OUTPUT:
-                    return R.color.OutMsg;
+                    return R.color.debugConsole_outMsg;
                 case INPUT:
-                    return R.color.InMsg;
+                    return R.color.debugConsole_inMsg;
                 default:
-                    return R.color.InMsg;
+                    return R.color.debugConsole_inMsg;
             }
         }
 
@@ -132,7 +136,7 @@ public class DebugConsoleActivity extends ActivityWithNode {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.activity_debug_console, menu);
 
-        menu.findItem(R.id.action_device_auto_scroll).setTitle(mAutoScroll ? R.string.deviceAutoScroll : R.string.deviceAutoScrollOff);
+        menu.findItem(R.id.action_device_auto_scroll).setTitle(mAutoScroll ? R.string.debugConsole_deviceAutoScroll : R.string.debugConsole_deviceAutoScrollOff);
         menu.findItem(R.id.action_device_auto_scroll).setIcon(mAutoScroll ? R.drawable.ic_auto_scroll_down_24dp :R.drawable.ic_auto_scroll_off_24dp);
 
         return super.onCreateOptionsMenu(menu);
@@ -307,9 +311,44 @@ public class DebugConsoleActivity extends ActivityWithNode {
             mConsole.setText(""); //clear
             return true;
         }
+        if(itemId == R.id.action_send_help){
+            sendHelpMessage();
+            return true;
+        }
         //else
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     *help a message for request the list of command available
+     */
+    private void sendHelpMessage() {
+        String msg = getHelpMessage(getNode());
+        if(msg==null)
+            return;
+        //else
+        sendMessage(msg);
+    }
+
+    /**
+     * return the command that return the help information
+     * @param node node where the help message will be sent
+     * @return null if the command is not available/known otherwise the command for display the
+     * help information
+     */
+    protected @Nullable String getHelpMessage(Node node) {
+        switch (node.getType()){
+            case STEVAL_WESU1:
+                return WESU_HELP_MESSAGE;
+            case SENSOR_TILE:
+            case BLUE_COIN:
+            case NUCLEO:
+                return NUCLEO_HELP_MESSAGE;
+            case GENERIC:
+            default:
+                return null;
+        }
     }
 
     private void setAutoScrollPolicy(boolean enableAutoScroll){
@@ -389,5 +428,7 @@ public class DebugConsoleActivity extends ActivityWithNode {
                 }
             }
         }
+
+
 
 }

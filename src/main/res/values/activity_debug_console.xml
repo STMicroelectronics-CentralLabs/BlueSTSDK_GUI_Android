@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_activity_debug_console">Debug Console</string>
-    <color name="ErrorMsg">#FFFF0000</color>
-    <color name="OutMsg">#FF00FF00</color>
-    <color name="InMsg">#FF0000FF</color>
-    <string name="DebugNotAvailable">Debug service not available on this node</string>
-    <string name="ErrorSendMsg">Error Sending:</string>
-    <string name="AnotherMsgIsSending">We are sending another message</string>
+    <color name="debugConsole_errorMsg">#FFFF0000</color>
+    <color name="debugConsole_outMsg">#FF000000</color>
+    <color name="debugConsole_inMsg">#FF0000FF</color>
+    <string name="debugConsole_debugNotAvailable">Debug service not available on this node</string>
+    <string name="debugConsole_errorSendMsg">Error Sending:</string>
+    <string name="debugConsole_anotherMsgIsSending">We are sending another message</string>
 
-    <string name="deviceAutoScroll">\u2713 Auto Scroll</string>
-    <string name="deviceAutoScrollOff">Auto Scroll</string>
-    <string name="deviceClearDebug">Clear</string>
+    <string name="debugConsole_deviceAutoScroll">\u2713 Auto Scroll</string>
+    <string name="debugConsole_deviceAutoScrollOff">Auto Scroll</string>
+    <string name="debugConsole_deviceClearDebug">Clear</string>
+    <string name="debugConsole_sendHelp">Help</string>
 
 </resources>
