@@ -163,10 +163,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int i = item.getItemId();
-        if (i == R.id.menu_license_refresh) {
-            loadLicenseStatus();
-            return true;
-        } else if (i == R.id.menu_license_clearDb) {
+        if (i == R.id.menu_license_clearDb) {
             LicenseManagerDbHelper.getInstance(this).deleteLicenses(mBoardUid);
             Snackbar.make(mLicListView, R.string.licenseManager_clearDbMessage,
                     Snackbar.LENGTH_SHORT).show();
