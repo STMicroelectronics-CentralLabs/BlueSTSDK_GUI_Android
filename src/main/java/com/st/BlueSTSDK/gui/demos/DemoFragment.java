@@ -107,12 +107,23 @@ public abstract class DemoFragment extends Fragment {
      */
     private Node.NodeStateListener mNodeStatusListener = new Node.NodeStateListener() {
         @Override
-        public void onStateChange(Node node, Node.State newState, Node.State prevState) {
+        public void onStateChange(final Node node, Node.State newState, Node.State prevState) {
             if (newState == Node.State.Connected) {
-                enableNeededNotification(node);
+                DemoFragment.this.updateGui(new Runnable() {
+                    @Override
+                    public void run() {
+                        enableNeededNotification(node);
+                    }
+                });
             }else if (newState ==  Node.State.Lost || newState == Node.State.Dead ||
                     newState == Node.State.Unreachable){
-                disableNeedNotification(node);
+                DemoFragment.this.updateGui(new Runnable() {
+                    @Override
+                    public void run() {
+                        disableNeedNotification(node);
+                    }
+                });
+
             }
         }//onStateChange
     };
