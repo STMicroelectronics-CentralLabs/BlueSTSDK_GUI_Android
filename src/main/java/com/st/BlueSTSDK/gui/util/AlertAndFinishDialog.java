@@ -30,8 +30,10 @@ public class AlertAndFinishDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        String title = getArguments().getString(TITLE);
-        String msg = getArguments().getString(MESSAGE);
+        Bundle args = getArguments();
+        String title = args.getString(TITLE);
+        String msg = args.getString(MESSAGE);
+        final boolean keepConnectionOpen = args.getBoolean(KEEP_CONNECTION_OPEN,false);
 
         final ActivityWithNode actvity = (ActivityWithNode)getActivity();
 
@@ -44,7 +46,7 @@ public class AlertAndFinishDialog extends DialogFragment {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.dismiss();
-                                actvity.keepConnectionOpen(true);
+                                actvity.keepConnectionOpen(keepConnectionOpen,false);
                                 actvity.finish();
                             }
                         }).create();

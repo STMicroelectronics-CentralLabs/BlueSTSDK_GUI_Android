@@ -24,6 +24,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Utils.LogFeatureActivity;
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Feature;
@@ -36,6 +37,7 @@ import com.st.BlueSTSDK.gui.demos.DemoFragment;
 import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeActivity;
 import com.st.BlueSTSDK.gui.licenseManager.LicenseManagerActivity;
 import com.st.BlueSTSDK.gui.preferences.LogPreferenceFragment;
+import com.st.BlueSTSDK.gui.util.ConnectProgressDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,8 +53,11 @@ import java.util.List;
 public abstract class DemosActivity extends LogFeatureActivity implements NodeContainer,
         NavigationView.OnNavigationItemSelectedListener {
 
-    private final static String NODE_FRAGMENT = DemosActivity.class.getCanonicalName() + "" +
-            ".NODE_FRAGMENT";
+    private final static String NODE_TAG_ARG = DemosActivity.class.getCanonicalName() + "" +
+            ".NODE_TAG";
+    private final static String RESET_CACHE_ARG = DemosActivity.class.getCanonicalName() + "" +
+            ".RESET_CACHE";
+
 
     private final static String DEBUG_CONSOLE = DemosActivity.class.getCanonicalName() + "" +
             ".DEBUG_CONSOLE";
@@ -75,7 +80,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      */
     protected static Intent getStartIntent(Context c, @NonNull Node node) {
         Intent i = new Intent(c, DemosActivity.class);
-        setIntentParamiters(i,node,false);
+        setIntentParameters(i,node,false);
         return i;
     }//getStartIntent
 
@@ -89,12 +94,13 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      */
     public static Intent getStartIntent(Context c, @NonNull Node node, boolean resetCache) {
         Intent i = new Intent(c, DemosActivity.class);
-        setIntentParamiters(i,node,resetCache);
+        setIntentParameters(i,node,resetCache);
         return i;
     }//getStartIntent
 
-    protected static void setIntentParamiters(Intent i, @NonNull Node node, boolean resetCache){
-        i.putExtras(NodeContainerFragment.prepareArguments(node, resetCache));
+    protected static void setIntentParameters(Intent i, @NonNull Node node, boolean resetCache){
+        i.putExtra(NODE_TAG_ARG,node.getTag());
+        i.putExtra(RESET_CACHE_ARG,resetCache);
     }
 
     /*
@@ -131,12 +137,17 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
     private View mHelpView;
 
+    private ConnectProgressDialog mConnectionProgressDialog;
+
+    private boolean mKeepConnectionOpen;
+    private boolean mShowKeepConnectionOpenNotification = false;
+    private Node mNode;
+    private boolean mResetChaceOnConnection;
+
     /**
      * true if we are showing the debug console
      */
     private boolean mShowDebugConsole = false;
-
-    private NodeContainerFragment mNodeContainer;
 
     private Node.NodeStateListener mUpdateMenuOnConnection = new Node.NodeStateListener() {
         @Override
@@ -173,6 +184,8 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mConnectionProgressDialog = new ConnectProgressDialog(this,"");
+
         //set default settings for the logging
         PreferenceManager.setDefaultValues(this, R.xml.pref_logging, false);
 
@@ -186,31 +199,11 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
         if (savedInstanceState == null) {
             Intent i = getIntent();
-            mNodeContainer = new NodeContainerFragment();
-            mNodeContainer.setArguments(i.getExtras());
-            //we set if only when we create the fragment, when the fragment is already created
-            // the on resume will do the work
-            mNodeContainer.setNodeStateListener(new Node.NodeStateListener() {
-                @Override
-                public void onStateChange(Node node, Node.State newState, Node.State prevState) {
-                    if (newState == Node.State.Connected) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //when we connect we know if the debug service is available
-                                showConsoleOutput(mShowDebugConsole);
-                            } //run
-                        });//runOnUiThread
-                    }//if
-                }//onStateChange
-            });//setNodeListener
-
-            getFragmentManager().beginTransaction()
-                    .add(mNodeContainer, NODE_FRAGMENT).commit();
+            mNode = Manager.getSharedInstance().getNodeWithTag(i.getStringExtra(NODE_TAG_ARG));
+            mResetChaceOnConnection = i.getBooleanExtra(RESET_CACHE_ARG,false);
             mShowDebugConsole = i.getBooleanExtra(DEBUG_CONSOLE, false);
         } else {
-            mNodeContainer = (NodeContainerFragment) getFragmentManager()
-                    .findFragmentByTag(NODE_FRAGMENT);
+            mNode = Manager.getSharedInstance().getNodeWithTag(savedInstanceState.getString(NODE_TAG_ARG));
             mShowDebugConsole = savedInstanceState.getBoolean(DEBUG_CONSOLE);
         }//if-else
 
@@ -228,7 +221,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
                 @Override
                 public void onClick(View view) {
                     view.setVisibility(View.GONE);
-                }//onClick
+                }
             });
             mHelpView.setVisibility(View.VISIBLE);
         }//if
@@ -255,6 +248,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putBoolean(DEBUG_CONSOLE, mShowDebugConsole);
         savedInstanceState.putInt(CURRENT_DEMO, mPager.getCurrentItem());
+        savedInstanceState.putString(NODE_TAG_ARG,mNode.getTag());
     }
 
 
@@ -264,33 +258,9 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         //initialize the adapter and the menu only if it is the first time
         if(mPager.getAdapter()!=null)
             return;
-        Node node = mNodeContainer.getNode();
-        if(node==null){
-            onBackPressed(); // go to the previous activity
-            return;
-        }//if
-        //else
+        if(mNode==null){
 
-        if(!node.isConnected()){
-            node.addNodeStateListener(new Node.NodeStateListener() {
-                @Override
-                public void onStateChange(final Node node, Node.State newState, Node.State
-                        prevState) {
-                    if(newState==Node.State.Connected) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                buildDemoAdapter(node);
-                            }
-                        });
-                        node.removeNodeStateListener(this);
-                    }
-                }
-            });
-            node.addNodeStateListener(mUpdateMenuOnConnection);
-        }else{
-            buildDemoAdapter(node);
-        }
+        }//if
     }
 
     private void buildDemoAdapter(Node node){
@@ -334,18 +304,45 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     protected void onResume() {
         super.onResume();
         //if the node is connected -> this frame is recreated
-        Node node =mNodeContainer.getNode();
-        if (node!=null && node.isConnected())
+        if (mNode==null){
+            onBackPressed(); // go to the previous activity
+            return;
+        }
+        keepConnectionOpen(true,true);
+        NodeConnectionService.removeDisconnectNotification(this);
+        mConnectionProgressDialog = new ConnectProgressDialog(this,mNode.getName());
+        mNode.addNodeStateListener(mConnectionProgressDialog);
+        if(!mNode.isConnected()){
+            mNode.addNodeStateListener(new Node.NodeStateListener() {
+                @Override
+                public void onStateChange(final Node node, Node.State newState, Node.State
+                        prevState) {
+                    if(newState==Node.State.Connected) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                invalidateOptionsMenu();
+                                buildDemoAdapter(node);
+                                showConsoleOutput(mShowDebugConsole);
+                            }
+                        });
+                        node.removeNodeStateListener(this);
+                    }//if
+                }
+            });
+            NodeConnectionService.connect(this,mNode,mResetChaceOnConnection);
+        }else{
+            buildDemoAdapter(mNode);
             showConsoleOutput(mShowDebugConsole);
+        }//if-else
     }
 
     @Override
     protected void onPause() {
         mPager.removeOnPageChangeListener(mUpdateActivityTitle);
         if (mShowDebugConsole) {
-            Node node = mNodeContainer.getNode();
-            if(node!=null) {
-                Debug debug = node.getDebug();
+            if(mNode!=null) {
+                Debug debug = mNode.getDebug();
                 //remove the listener
                 if (debug != null)
                     debug.setDebugOutputListener(null);
@@ -356,9 +353,15 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
     @Override
     protected void onStop(){
-        Node n = mNodeContainer.getNode();
-        if(n!=null)
-            n.removeNodeStateListener(mUpdateMenuOnConnection);
+        if(mNode!=null){
+            mNode.removeNodeStateListener(mUpdateMenuOnConnection);
+            mNode.removeNodeStateListener(mConnectionProgressDialog);
+            if(!mKeepConnectionOpen){
+                NodeConnectionService.disconnect(this,mNode);
+            }else if(mShowKeepConnectionOpenNotification){
+                NodeConnectionService.displayDisconnectNotification(this,mNode);
+            }
+        }
         super.onStop();
     }
 
@@ -374,9 +377,8 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         }//if-else
 
         //hide debug stuff if not available
-        Node node = mNodeContainer.getNode();
-        if(node!=null) {
-            Debug debug = node.getDebug();
+        if(mNode!=null) {
+            Debug debug = mNode.getDebug();
             if (debug == null) {
                 menu.findItem(R.id.openDebugConsole).setVisible(false);
                 menu.findItem(R.id.showDebugConsole).setVisible(false);
@@ -410,7 +412,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      */
     @Override
     public void onBackPressed() {
-        mNodeContainer.keepConnectionOpen(false);
+        keepConnectionOpen(false,false);
         super.onBackPressed();
     }
 
@@ -420,15 +422,13 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      * @return the node that we will use for this demos
      */
     public Node getNode() {
-        return mNodeContainer.getNode();
+        return mNode;
     }
 
-    /**
-     * Keep the node connection open also when the activity is destroied
-     * @param keepOpen true for keep the node connection
-     */
-    public void keepConnectionOpen(boolean keepOpen){
-        mNodeContainer.keepConnectionOpen(keepOpen);
+    @Override
+    public void keepConnectionOpen(boolean keepOpen, boolean showNotification){
+        mKeepConnectionOpen = keepOpen;
+        mShowKeepConnectionOpenNotification= keepOpen && showNotification;
     }
 
     /**
@@ -455,7 +455,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     }//getFeatureLogger
 
     protected List<Node> getNodesToLog(){
-        return Collections.singletonList(mNodeContainer.getNode());
+        return Collections.singletonList(mNode);
     }
 
     protected String getLogDirectory() {
@@ -501,11 +501,10 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      * @param enable true if we have to show/enable false for hide/disable
      */
     private void showConsoleOutput(boolean enable) {
-        Node node = mNodeContainer.getNode();
-        if(node==null)
+        if(mNode==null)
             return;
 
-        Debug debug = node.getDebug();
+        Debug debug = mNode.getDebug();
         if (enable) {
             if (debug == null) {
                 Toast.makeText(this, R.string.debugNotAvailable, Toast.LENGTH_SHORT).show();
@@ -533,14 +532,12 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         }
 
         if (id == R.id.settings) {
-            mNodeContainer.keepConnectionOpen(true);
-            startSettingsActivity(this, mNodeContainer.getNode());
+            startSettingsActivity(this, mNode);
             return true;
         }
 
         if(id == R.id.openDebugConsole){
-            mNodeContainer.keepConnectionOpen(true);
-            startDebugConsoleActivity(this, mNodeContainer.getNode());
+            startDebugConsoleActivity(this, mNode);
             return true;
         }
 
@@ -551,22 +548,20 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             return true;
         }
         if(id == R.id.menu_start_license_manager){
-            keepConnectionOpen(true);
             if(mShowDebugConsole)
                 showConsoleOutput(false);
-            startActivity(LicenseManagerActivity.getStartIntent(this, getNode(),true));
+            startLicenseManagerActivity(this,mNode);
             return true;
         }
         if(id == R.id.menu_start_fw_upgrade){
-            keepConnectionOpen(true);
             if(mShowDebugConsole)
                 showConsoleOutput(false);
-            startActivity(FwUpgradeActivity.getStartIntent(this,getNode(),true));
+            startFwUpgradeActivity(this,mNode);
             return true;
         }
 
-        if (id == android.R.id.home)
-            mNodeContainer.keepConnectionOpen(false);
+        if(id==android.R.id.home)
+            keepConnectionOpen(false,false);
 
         return super.onOptionsItemSelected(item);
     }
@@ -592,6 +587,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      * @param n node where send the message
      */
     protected void startDebugConsoleActivity(Context c,Node n){
+        keepConnectionOpen(true,false);
         Intent i = DebugConsoleActivity.getStartIntent(c,n);
         startActivity(i);
     }
@@ -602,7 +598,20 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      * @param n node that will be configurated
      */
     protected void startSettingsActivity(Context c,Node n){
+        keepConnectionOpen(true,false);
         Intent i = SettingsActivity.getStartIntent(c,n);
+        startActivity(i);
+    }
+
+    protected void startLicenseManagerActivity(Context context, Node node) {
+        keepConnectionOpen(true,false);
+        Intent i = LicenseManagerActivity.getStartIntent(context, node,true);
+        startActivity(i);
+    }
+
+    protected void startFwUpgradeActivity(Context context, Node node) {
+        keepConnectionOpen(true,false);
+        Intent i = FwUpgradeActivity.getStartIntent(context,node,true);
         startActivity(i);
     }
 

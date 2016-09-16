@@ -302,6 +302,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
      */
     @Override
     public void onLicenseRequestClick(LicenseStatus lic) {
+        keepConnectionOpen(true,false);
         startActivity(RequestLicenseActivity.getStartIntent(this,lic.info,mBoardUid));
     }
 
@@ -369,7 +370,7 @@ public class LicenseManagerActivity extends ActivityWithNode implements
         if(node==null)
             return;
         if(knowLic==null) {
-            keepConnectionOpen(true);
+            keepConnectionOpen(true,false);
             startActivity(LoadLicenseActivity.getStartIntent(this, node, mBoardUid, lic.info));
         }else{
             loadKnowLicense(knowLic);

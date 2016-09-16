@@ -240,7 +240,7 @@ public class NodeContainerFragment extends Fragment implements NodeContainer {
         super.onPause();
     }
 
-    public void keepConnectionOpen(boolean doIt){
+    public void keepConnectionOpen(boolean doIt, boolean showNotification){
         userAskToKeepConnection =doIt;
     }
 

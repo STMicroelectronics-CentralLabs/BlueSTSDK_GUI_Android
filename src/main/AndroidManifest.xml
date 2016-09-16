@@ -62,6 +62,10 @@
             android:name=".fwUpgrade.FwUpgradeService"
             android:exported="false">
         </service>
+            <service
+                android:name=".NodeConnectionService"
+                android:exported="false"
+                android:enabled="true" />
     </application>
 
 </manifest>

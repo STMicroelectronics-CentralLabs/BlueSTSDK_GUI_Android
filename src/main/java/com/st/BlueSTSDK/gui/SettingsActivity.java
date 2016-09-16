@@ -142,7 +142,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements
     @Override
     public void onBackPressed(){
         if(mNodeContainer!=null)
-            mNodeContainer.keepConnectionOpen(true);
+            mNodeContainer.keepConnectionOpen(true,false);
         super.onBackPressed();
     }
 

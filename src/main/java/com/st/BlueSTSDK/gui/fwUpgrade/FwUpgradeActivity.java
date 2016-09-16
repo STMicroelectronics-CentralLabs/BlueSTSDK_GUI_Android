@@ -315,7 +315,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
     }
 
     private void startFwUpgrade(){
-        keepConnectionOpen(true);
+        keepConnectionOpen(true,false);
         startActivityForResult(getFileSelectIntent(), CHOOSE_BOARD_FILE_REQUESTCODE);
     }
 

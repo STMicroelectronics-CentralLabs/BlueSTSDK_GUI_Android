@@ -32,6 +32,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Spannable;
@@ -283,14 +284,6 @@ public class DebugConsoleActivity extends ActivityWithNode {
         super.onDestroy();
     }
 
-    /**
-     * if we have to leave this activity, we force the disconnection of the node
-     */
-    @Override
-    public void onBackPressed(){
-        keepConnectionOpen(true);
-        super.onBackPressed();
-    }
 
      /**
      * call when the user press the back button on the menu bar, we are leaving this activity so

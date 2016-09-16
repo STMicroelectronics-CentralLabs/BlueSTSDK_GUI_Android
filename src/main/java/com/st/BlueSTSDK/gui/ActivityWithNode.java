@@ -3,6 +3,7 @@ package com.st.BlueSTSDK.gui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
@@ -11,11 +12,9 @@ import android.view.MenuItem;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.gui.util.ConnectProgressDialog;
 
 public class ActivityWithNode extends AppCompatActivity implements NodeContainer {
-
-    private final static String NODE_FRAGMENT = ActivityWithNode.class.getCanonicalName()
-            +".NODE_FRAGMENT";
 
     private final static String NODE_TAG = DebugConsoleActivity.class.getCanonicalName()
             + ".NODE_TAG";
@@ -23,11 +22,10 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
     private final static String KEEP_CONNECTION_OPEN = ActivityWithNode.class.getCanonicalName() +
             ".KEEP_CONNECTION_OPEN";
 
-
     private boolean mKeepConnectionOpen;
+    private boolean mShowKeepConnectionOpenNotification;
 
-    /** fragment used for keep the connection open */
-    private NodeContainerFragment mNodeContainer;
+    private ConnectProgressDialog mConnectionProgressDialog;
 
     protected Node mNode;
 
@@ -41,7 +39,6 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
     protected static Intent getStartIntent(Context c, @NonNull Class activity, @NonNull Node
             node,boolean keepConnectionOpen) {
         Intent i = new Intent(c, activity);
-        i.putExtras(NodeContainerFragment.prepareArguments(node));
         i.putExtra(NODE_TAG, node.getTag());
         i.putExtra(KEEP_CONNECTION_OPEN, keepConnectionOpen);
         return i;
@@ -57,17 +54,6 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
         String nodeTag = i.getStringExtra(NODE_TAG);
         mNode = Manager.getSharedInstance().getNodeWithTag(nodeTag);
         mKeepConnectionOpen = i.getBooleanExtra(KEEP_CONNECTION_OPEN,false);
-
-        //create/recover the NodeContainerFragment
-        mNodeContainer = (NodeContainerFragment) getFragmentManager()
-                .findFragmentByTag(NODE_FRAGMENT);
-        if (mNodeContainer == null) {
-            mNodeContainer = new NodeContainerFragment();
-            mNodeContainer.setArguments(i.getExtras());
-            getFragmentManager().beginTransaction()
-                    .add(mNodeContainer, NODE_FRAGMENT).commit();
-        }
-
     }//onCreate
 
     /**
@@ -76,9 +62,38 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
      */
     @Override
     public void onBackPressed() {
-        mNodeContainer.keepConnectionOpen(mKeepConnectionOpen);
+        keepConnectionOpen(true,false);
         super.onBackPressed();
     }//onBackPressed
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //if the node is connected -> this frame is recreated
+        if (mNode==null){
+            onBackPressed(); // go to the previous activity
+            return;
+        }
+        keepConnectionOpen(true,true);
+        mConnectionProgressDialog = new ConnectProgressDialog(this,mNode.getName());
+        mNode.addNodeStateListener(mConnectionProgressDialog);
+        NodeConnectionService.removeDisconnectNotification(this);
+        if(!mNode.isConnected()){
+            NodeConnectionService.connect(this,mNode);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mNode.removeNodeStateListener(mConnectionProgressDialog);
+        if(!mKeepConnectionOpen){
+            NodeConnectionService.disconnect(this,mNode);
+        }else if(mShowKeepConnectionOpenNotification){
+            NodeConnectionService.displayDisconnectNotification(this,mNode);
+        }
+    }
 
     /**
      * call when the user press the back button on the menu bar, we are leaving this activity so
@@ -94,7 +109,7 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
             // Respond to the action bar's Up/Home button, we go back in the same task
             //for avoid to recreate the DemoActivity
             case android.R.id.home:
-                mNodeContainer.keepConnectionOpen(mKeepConnectionOpen);
+                keepConnectionOpen(true,false);
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
         }//switch
@@ -108,8 +123,9 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
     }
 
     @Override
-    public void keepConnectionOpen(boolean keepOpen){
-        mNodeContainer.keepConnectionOpen(keepOpen);
+    public void keepConnectionOpen(boolean keepOpen,boolean showNotificaiton){
+        mKeepConnectionOpen=keepOpen;
+        mShowKeepConnectionOpenNotification =keepOpen && showNotificaiton;
     }
 
 }
