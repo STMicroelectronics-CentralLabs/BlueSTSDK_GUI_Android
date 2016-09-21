@@ -136,7 +136,8 @@ public class NodeConnectionService extends Service {
 
 
     private void removeConnectionNotification() {
-        mNotificationManager.cancel(NOTIFICAITON_ID);
+        if(mNotificationManager!=null)
+            mNotificationManager.cancel(NOTIFICAITON_ID);
     }
 
     @Override
@@ -147,7 +148,7 @@ public class NodeConnectionService extends Service {
                 n.disconnect();
             }
         }
-        mNotificationManager.cancel(NOTIFICAITON_ID);
+        removeConnectionNotification();
     }
 
     private NotificationCompat.Action buildDisconnectAction(Node n){
