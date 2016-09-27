@@ -162,13 +162,15 @@ public class NodeConnectionService extends Service {
 
     private @DrawableRes int getResourceLogo(){
         String packageName = getPackageName();
+        @DrawableRes int logo=android.R.drawable.ic_dialog_alert;
         try {
             final ApplicationInfo applicationInfo=getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
-            return  applicationInfo.logo;
+            if(applicationInfo.logo!=0)
+                logo = applicationInfo.logo;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-            return android.R.drawable.ic_delete;
         }
+        return logo;
     }
 
     private void showConnectionNotificaiton(Intent intent) {
