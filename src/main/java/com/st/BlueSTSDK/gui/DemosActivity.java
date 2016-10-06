@@ -252,17 +252,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     }
 
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        //initialize the adapter and the menu only if it is the first time
-        if(mPager.getAdapter()!=null)
-            return;
-        if(mNode==null){
-
-        }//if
-    }
-
     private void buildDemoAdapter(Node node){
         mPager.addOnPageChangeListener(mUpdateActivityTitle);
         final DemosTabAdapter adapter=new DemosTabAdapter(node,getAllDemos(), getFragmentManager());

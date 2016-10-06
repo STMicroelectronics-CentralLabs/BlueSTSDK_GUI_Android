@@ -111,7 +111,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
      * @param savedInstanceState
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mManager = Manager.getSharedInstance();
@@ -159,7 +159,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
      * with new discover nodes and start the node discovery
      */
     @Override
-    public void onStart() {
+    protected void onStart() {
         //add the listener that will hide the progress indicator when the first device is discovered
         mManager.addListener(mUpdateDiscoverGui);
         //disconnect all the already discovered device
@@ -175,7 +175,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
      * stop the discovery and remove all the lister that we attach to the manager
      */
     @Override
-    public void onStop() {
+    protected void onStop() {
 
         //remove the listener add by this class
         mManager.removeListener(mUpdateDiscoverGui);
