@@ -381,8 +381,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             }
         }
 
-
-
         return super.onCreateOptionsMenu(menu);
     }
 
