@@ -2,4 +2,5 @@
 <resources>
     <string name="NodeConn_disconnect">Disconnect</string>
     <string name="NodeConn_nodeIsConnected"> %s connected</string>
+    <string name="NodeConn_nodeConnectedTitile">BlueST node still connected</string>
 </resources>
