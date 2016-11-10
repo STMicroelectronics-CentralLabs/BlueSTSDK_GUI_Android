@@ -39,9 +39,14 @@ public class LicenseDefines {
                 "MotionPM v1.0.0 - Pedometer",
                 LicenseType.OpenMems,R.raw.generic_disclaimer,R.string.licenseDesc_PM));
 
+        //Mems motion ID
+        sLicenseInfo.add(new LicenseInfo("ID","osxMotionID","OSX_MOTION_ID_V100",
+                "MotionID v1.0.0 - Intensity Detection",
+                LicenseType.OpenMems,R.raw.generic_disclaimer,R.string.licenseDesc_ID));
+
         //Audio source localization
-        sLicenseInfo.add(new LicenseInfo("SL","osxAcusticSL","OSX_ACOUSTIC_SL_V100",
-                "AcousticSL v1.0.0 - Acoustic source-localization",
+        sLicenseInfo.add(new LicenseInfo("SL","osxAcusticSL","OSX_ACOUSTIC_SL_V110",
+                "AcousticSL v1.1.0 - Acoustic source-localization",
                 LicenseType.OpenAudio,R.raw.generic_disclaimer,R.string.licenseDesc_SL));
 
         //Audio BlueVoice
@@ -52,6 +57,10 @@ public class LicenseDefines {
         sLicenseInfo.add(new LicenseInfo("BV","osxAudioBV","OSX_BLUEVOICE_V200",
                 "BlueVoice v2.0.0 - Voice over BTLE",
                 LicenseType.OpenAudio,R.raw.generic_disclaimer,R.string.licenseDesc_BV));
+
+        sLicenseInfo.add(new LicenseInfo("BF","osxAudioBF","OSX_ACOUSTIC_BF_V110",
+                "AcousticBF v1.1.0 - Acoustic beam-forming",
+                LicenseType.OpenAudio,R.raw.generic_disclaimer,R.string.licenseDesc_BF));
 
     }
 
