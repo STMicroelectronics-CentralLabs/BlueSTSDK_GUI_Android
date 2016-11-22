@@ -456,8 +456,9 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      */
     private void setConsoleListener(Debug.DebugOutputListener listener) {
         synchronized (this) {
+            mConsole.removeDebugOutputListener(mCurrentListener);
+            mConsole.addDebugOutputListener(listener);
             mCurrentListener = listener;
-            mConsole.setDebugOutputListener(listener);
         }//synchronized
     }
 

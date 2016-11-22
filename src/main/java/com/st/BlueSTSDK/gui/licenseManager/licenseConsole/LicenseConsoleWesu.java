@@ -383,8 +383,10 @@ public class LicenseConsoleWesu extends LicenseConsole {
      */
     private void setConsoleListener(Debug.DebugOutputListener listener) {
         synchronized (this) {
+            if(mCurrentListener!=null)
+                mConsole.removeDebugOutputListener(mCurrentListener);
             mCurrentListener = listener;
-            mConsole.setDebugOutputListener(listener);
+            mConsole.addDebugOutputListener(listener);
         }//synchronized
     }
 

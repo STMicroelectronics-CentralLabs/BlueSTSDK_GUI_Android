@@ -116,9 +116,11 @@ public class DebugConsoleActivity extends ActivityWithNode {
 
     /** object that will send/receive commands from the node */
     private Debug mDebugService;
-
+    private Debug.DebugOutputListener mDebugListener = new UpdateConsole();
     private String mToSent=null;
     private int mNextPartToSent = -1;
+
+
 
     private boolean mAutoScroll = true;
 
@@ -245,7 +247,7 @@ public class DebugConsoleActivity extends ActivityWithNode {
     private void setUpConsoleService(Debug debugService){
         mDebugService=debugService;
         if(mDebugService!=null) {
-            mDebugService.setDebugOutputListener( new UpdateConsole());
+            mDebugService.addDebugOutputListener(mDebugListener);
             DebugConsoleActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -279,7 +281,7 @@ public class DebugConsoleActivity extends ActivityWithNode {
     @Override
     public void onDestroy(){
         if(mDebugService!=null)
-            mDebugService.setDebugOutputListener(null);
+            mDebugService.removeDebugOutputListener(mDebugListener);
 
         super.onDestroy();
     }

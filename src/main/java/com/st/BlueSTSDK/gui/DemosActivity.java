@@ -360,7 +360,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
                 Debug debug = mNode.getDebug();
                 //remove the listener
                 if (debug != null)
-                    debug.setDebugOutputListener(null);
+                    debug.removeDebugOutputListener(mDebugListener);
             }
         }//if
         super.onPause();
@@ -524,10 +524,10 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
                 return;
             }//else
             mConsoleView.setVisibility(View.VISIBLE);
-            debug.setDebugOutputListener(mDebugListener);
+            debug.addDebugOutputListener(mDebugListener);
         } else {
             mConsoleView.setVisibility(View.GONE);
-            if (debug!=null) debug.setDebugOutputListener(null);
+            if (debug!=null) debug.removeDebugOutputListener(mDebugListener);
         }
     }
 
@@ -580,7 +580,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem menuItem) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         CharSequence title = menuItem.getTitle();
         FragmentPagerAdapter adapter = (FragmentPagerAdapter) mPager.getAdapter();
         int nDemo = adapter.getCount();
