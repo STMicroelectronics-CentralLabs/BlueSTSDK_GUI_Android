@@ -19,7 +19,9 @@
         android:id="@+id/nodeName"
         android:layout_alignTop="@id/nodeBoardIcon"
         android:layout_toEndOf="@id/nodeBoardIcon"
-        android:paddingStart="16dp"/>
+        android:layout_toStartOf="@+id/isSleepingIcon"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,6 +30,28 @@
         android:id="@+id/nodeTag"
         android:layout_below="@+id/nodeName"
         android:layout_toEndOf="@id/nodeBoardIcon"
-        android:paddingStart="32dp"/>
+        android:layout_toStartOf="@+id/hasExtensionIcon"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/isSleepingIcon"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_sleeping_24dp"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/hasExtensionIcon"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/isSleepingIcon"
+        android:src="@drawable/ic_extra_gp_24dp"
+        android:visibility="gone" />
+
+
 
 </RelativeLayout>

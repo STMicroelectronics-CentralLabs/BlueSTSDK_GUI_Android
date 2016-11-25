@@ -104,6 +104,17 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
                 }
             }
         });
+
+        if(n.isSleeping()){
+            holder.mNodeIsSleeping.setVisibility(View.VISIBLE);
+        }else
+            holder.mNodeIsSleeping.setVisibility(View.GONE);
+
+        if(n.hasGeneralPurpose()){
+            holder.mNodeHasExtension.setVisibility(View.VISIBLE);
+        }else
+            holder.mNodeHasExtension.setVisibility(View.GONE);
+
     }
 
     @Override
@@ -155,19 +166,23 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         }//if
     }//onNodeDiscovered
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mNodeNameLabel;
-        public final TextView mNodeTagLabel;
-        public final ImageView mNodeImage;
-        public Node mItem;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        final View mView;
+        final TextView mNodeNameLabel;
+        final TextView mNodeTagLabel;
+        final ImageView mNodeImage;
+        final ImageView mNodeIsSleeping;
+        final ImageView mNodeHasExtension;
+        Node mItem;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             mNodeImage = (ImageView) view.findViewById(R.id.nodeBoardIcon);
             mNodeNameLabel = (TextView) view.findViewById(R.id.nodeName);
             mNodeTagLabel = (TextView) view.findViewById(R.id.nodeTag);
+            mNodeHasExtension = (ImageView) view.findViewById(R.id.hasExtensionIcon);
+            mNodeIsSleeping = (ImageView) view.findViewById(R.id.isSleepingIcon);
         }
     }
 }
