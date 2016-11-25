@@ -51,7 +51,7 @@ import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
-import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersion;
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersionBoard;
 
 public class FwUpgradeActivity extends ActivityWithNode {

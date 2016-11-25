@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.st.BlueSTSDK.Debug;
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.Utils.NumberConversion;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;

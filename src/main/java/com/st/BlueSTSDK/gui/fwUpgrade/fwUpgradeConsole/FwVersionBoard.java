@@ -29,6 +29,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;
 
 import java.util.regex.Matcher;

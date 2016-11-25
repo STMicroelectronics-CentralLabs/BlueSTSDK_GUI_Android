@@ -29,6 +29,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 import android.os.Parcel;
 import android.support.annotation.IntDef;
 
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;
 
 import java.lang.annotation.Retention;

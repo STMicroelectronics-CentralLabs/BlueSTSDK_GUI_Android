@@ -31,6 +31,7 @@ import android.support.annotation.Nullable;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
 
 import java.lang.annotation.Retention;

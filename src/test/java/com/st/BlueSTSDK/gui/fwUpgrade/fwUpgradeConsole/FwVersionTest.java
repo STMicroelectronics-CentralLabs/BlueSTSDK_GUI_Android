@@ -1,10 +1,9 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
-import android.os.Parcel;
+import com.st.BlueSTSDK.Utils.FwVersion;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
