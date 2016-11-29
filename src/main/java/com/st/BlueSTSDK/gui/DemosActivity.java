@@ -610,16 +610,28 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      * @param c context used for create the intent
      * @param n node that will be configurated
      */
-    protected void startSettingsActivity(Context c,Node n){
+    public void startSettingsActivity(Context c,Node n){
         keepConnectionOpen(true,false);
         Intent i = SettingsActivity.getStartIntent(c,n);
         startActivity(i);
+    }
+
+    public void startLicenseManagerActivity(Node node) {
+        if(!enableLicenseManager())
+            return;
+        startLicenseManagerActivity(this,node);
     }
 
     protected void startLicenseManagerActivity(Context context, Node node) {
         keepConnectionOpen(true,false);
         Intent i = LicenseManagerActivity.getStartIntent(context, node,true);
         startActivity(i);
+    }
+
+    public void startFwUpgradeActivity(Node node) {
+        if(!enableFwUploading())
+            return;
+        startFwUpgradeActivity(this,node);
     }
 
     protected void startFwUpgradeActivity(Context context, Node node) {
