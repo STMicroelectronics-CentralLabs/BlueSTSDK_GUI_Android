@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 
 import com.st.BlueSTSDK.gui.ActivityWithNode;
+import com.st.BlueSTSDK.gui.R;
 
 /**
  * Display and close close the actvity when the use visualize the message
@@ -79,7 +80,7 @@ public class AlertAndFinishDialog extends DialogFragment {
         return new AlertDialog.Builder(actvity)
                 .setTitle(title)
                 .setMessage(msg)
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIcon(R.drawable.ic_warning_24dp)
                 .setCancelable(false)
                 .setNeutralButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {

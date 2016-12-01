@@ -242,7 +242,7 @@ public class NodeConnectionService extends Service {
      */
     private @DrawableRes int getResourceLogo(){
         String packageName = getPackageName();
-        @DrawableRes int logo=android.R.drawable.ic_dialog_alert;
+        @DrawableRes int logo=R.drawable.ic_warning_24dp;
         try {
             final ApplicationInfo applicationInfo=getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
             if(applicationInfo.logo!=0)

@@ -29,68 +29,115 @@ package com.st.BlueSTSDK.gui.preferences;
 import android.app.Activity;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import com.st.BlueSTSDK.Manager;
+import com.st.BlueSTSDK.gui.NodeConnectionService;
+import com.st.BlueSTSDK.gui.NodeContainer;
 import com.st.BlueSTSDK.gui.NodeContainerFragment;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.gui.util.ConnectProgressDialog;
 
-/**
- * A preference fragment that have to use a node have to extend this class and
- * implement the {@link #onNodeIsAvailable(Node)} function that will be called when the
- * node will be available in the preference activity.
- * the preference activity where this fragment will be attached have to implement the
- * {@link PreferenceActivityWithNode} interface for be able to create the node.
- */
+
 public abstract class PreferenceFragmentWithNode extends PreferenceFragment {
 
-    /**
-     * parent activity
-     */
-    private PreferenceActivityWithNode mPreferenceActivity;
+    private final static String NODE_TAG = PreferenceFragmentWithNode.class.getCanonicalName()
+            + ".NODE_TAG";
 
-    /**
-     * fragment that contains the node, this can't be instantiate directly inside the fragment
-     * because it has setRetainInstance(true)
-     */
-    protected NodeContainerFragment mNodeContainer;
+    private final static String KEEP_CONNECTION_OPEN = PreferenceFragmentWithNode.class.getCanonicalName() +
+            ".KEEP_CONNECTION_OPEN";
+
+    private boolean mKeepConnectionOpen;
+    private boolean mShowKeepConnectionOpenNotification;
+
+    private ConnectProgressDialog mConnectionProgressDialog;
+
+    protected Node mNode;
+
+    public static Bundle addStartArgs(@Nullable Bundle args, @NonNull String nodeTag, boolean keepConnectionOpen) {
+        if (args == null)
+            args = new Bundle();
+        args.putString(NODE_TAG, nodeTag);
+        args.putBoolean(KEEP_CONNECTION_OPEN, keepConnectionOpen);
+        return args;
+    }
 
     @Override
-    public void onAttach(Activity activity){
-        super.onAttach(activity);
-        if(activity instanceof PreferenceActivityWithNode)
-            mPreferenceActivity = (PreferenceActivityWithNode)activity;
-        else
-            throw new ClassCastException(activity.toString()
-                    + " must implement PreferenceActivityWithNode");
-    }//onAttach
-
-    /**
-     * Ask to the Activity to create the nodeContainer, and attach it to the activity
-     * @param savedInstanceState
-     */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mNodeContainer = mPreferenceActivity.instantiateNodeContainer();
-        mPreferenceActivity.createNodeContainer();
+        Bundle args = getArguments();
+        String nodeTag;
+        if (savedInstanceState == null) {
+            nodeTag = args.getString(NODE_TAG);
+            mKeepConnectionOpen = args.getBoolean(KEEP_CONNECTION_OPEN, false);
+        } else {
+            nodeTag = savedInstanceState.getString(NODE_TAG);
+            mKeepConnectionOpen = savedInstanceState.getBoolean(KEEP_CONNECTION_OPEN, false);
+        }
+        // recover the node
+        mNode = Manager.getSharedInstance().getNodeWithTag(nodeTag);
+
+    }//onCreate
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(NODE_TAG, mNode.getTag());
+        outState.putBoolean(KEEP_CONNECTION_OPEN, mKeepConnectionOpen);
     }
 
-    /**
-     * Ask to the activity to call the {@link #onNodeIsAvailable(Node)} when the node is available,
-     */
-    public void onStart(){
-        super.onStart();
-        //ask to have the node or call directly the setNode method
-        mPreferenceActivity.notifyWhenNodeIsAvailable(this);
+    @Override
+    public void onResume() {
+        super.onResume();
+        Activity context = getActivity();
+        //if the node is connected -> this frame is recreated
+        if (mNode == null) {
+            getActivity().onBackPressed(); // go to the previous activity
+            return;
+        }
+        keepConnectionOpen(true, true);
+        mConnectionProgressDialog = new ConnectProgressDialog(context, mNode.getName());
+        mNode.addNodeStateListener(mConnectionProgressDialog);
+        NodeConnectionService.removeDisconnectNotification(context);
+        if (!mNode.isConnected()) {
+            mNode.addNodeStateListener(new Node.NodeStateListener() {
+                @Override
+                public void onStateChange(Node node, Node.State newState, Node.State prevState) {
+                    if(newState== Node.State.Connected) {
+                        onNodeIsAvailable(node);
+                        node.removeNodeStateListener(this);
+                    }
+                }
+            });
+            NodeConnectionService.connect(context, mNode);
+        }else
+            onNodeIsAvailable(mNode);
     }
 
-    /**
-     * method called by the activity when the node is available
-     * @param n node to use for set the preference
-     */
-    abstract public void onNodeIsAvailable(Node n);
+    @Override
+    public void onStop() {
+        super.onStop();
+        Activity context = getActivity();
+        mNode.removeNodeStateListener(mConnectionProgressDialog);
+        if (!mKeepConnectionOpen) {
+            NodeConnectionService.disconnect(context, mNode);
+        } else if (mShowKeepConnectionOpenNotification) {
+            NodeConnectionService.displayDisconnectNotification(context, mNode);
+        }
+    }
+
+    public void keepConnectionOpen(boolean keepOpen, boolean showNotificaiton) {
+        mKeepConnectionOpen = keepOpen;
+        mShowKeepConnectionOpenNotification = keepOpen && showNotificaiton;
+    }
+
+    protected abstract void onNodeIsAvailable(Node node);
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mPreferenceActivity = null;
+        NodeConnectionService.removeDisconnectNotification(getActivity());
     }
 }

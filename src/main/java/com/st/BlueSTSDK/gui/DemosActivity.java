@@ -402,6 +402,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             if(!enableLicenseManager() || debug==null){
                 menu.findItem(R.id.menu_start_license_manager).setVisible(false);
             }
+
             if(!enableFwUploading() || debug==null){
                 menu.findItem(R.id.menu_start_fw_upgrade).setVisible(false);
             }
@@ -612,7 +613,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      */
     public void startSettingsActivity(Context c,Node n){
         keepConnectionOpen(true,false);
-        Intent i = SettingsActivity.getStartIntent(c,n);
+        Intent i = SettingsActivityWithNode.getStartIntent(c,n,true);
         startActivity(i);
     }
 
