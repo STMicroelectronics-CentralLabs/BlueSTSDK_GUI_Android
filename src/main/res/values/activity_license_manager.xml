@@ -19,7 +19,7 @@
     <string name="licenseManager_errorClearBoardLic">Error cleaning the board licenses</string>
     <string name="licenseManager_clearBoardLicOk">Licenses removed, board is resetting</string>
     <string name="licenseManager_notAvailableDialogTitle">License Manager</string>
-    <string name="licenseManager_notAvailableDialogMsg">License manager not available</string>
+    <string name="licenseManager_notAvailableDialogMsg">This board doesn\'t require any license</string>
     <string name="licenseManager_licenseLoadFailMsg">Wrong license, please reset the board</string>
     <string name="licenseManager_licenseLoadSuccessMsg">License loaded, reconnect to the board to
         enable it

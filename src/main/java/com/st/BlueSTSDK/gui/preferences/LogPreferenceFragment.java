@@ -132,6 +132,8 @@ public class LogPreferenceFragment extends PreferenceFragment {
 
     private String[] getSessions(){
         File files[] = getLogFiles(getLogPath(), null);
+        if(files==null)
+            return new String[0];
         List<String> strSessions = new ArrayList<>();
 
         for (File f: files){
@@ -151,6 +153,8 @@ public class LogPreferenceFragment extends PreferenceFragment {
     private void createSessionDialog(String title, int resId,  DialogInterface.OnClickListener actionListener ){
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         mSessionsLocal = getSessions();
+        if(mSessionsLocal.length==0)
+            return;
         mCheckedSession = new boolean[mSessionsLocal.length];
         for (int i = 0; i< mCheckedSession.length; i++)
         {
