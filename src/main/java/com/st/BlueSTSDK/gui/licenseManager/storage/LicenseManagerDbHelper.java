@@ -1,7 +1,5 @@
 package com.st.BlueSTSDK.gui.licenseManager.storage;
 
-import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseManagerDBContract.LicenseEntry;
-
 import android.content.AsyncTaskLoader;
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,6 +7,8 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseManagerDBContract.LicenseEntry;
 
 import java.util.ArrayList;
 import java.util.List;

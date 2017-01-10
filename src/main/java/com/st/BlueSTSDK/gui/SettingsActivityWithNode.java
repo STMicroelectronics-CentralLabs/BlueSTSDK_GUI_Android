@@ -4,21 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NavUtils;
-import android.util.Log;
-import android.view.MenuItem;
 
-import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.preferences.LogPreferenceFragment;
 import com.st.BlueSTSDK.gui.preferences.PreferenceFragmentWithNode;
 import com.st.BlueSTSDK.gui.util.AppCompatPreferenceActivity;
-import com.st.BlueSTSDK.gui.util.ConnectProgressDialog;
 
 import java.util.List;
 

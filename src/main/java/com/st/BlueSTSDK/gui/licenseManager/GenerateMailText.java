@@ -8,9 +8,9 @@ import android.provider.Settings;
 import android.util.SparseArray;
 
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseInfo;
-import com.st.generatelicensecodelib.GenerateLicenseCode.UserInfo;
-import com.st.generatelicensecodelib.GenerateLicenseCode.LicenseCode;
 import com.st.generatelicensecodelib.GenerateLicenseCode;
+import com.st.generatelicensecodelib.GenerateLicenseCode.LicenseCode;
+import com.st.generatelicensecodelib.GenerateLicenseCode.UserInfo;
 
 /**
  * Class that generate the request mail for the license

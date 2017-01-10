@@ -33,10 +33,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.st.BlueSTSDK.Manager;
-import com.st.BlueSTSDK.gui.NodeConnectionService;
-import com.st.BlueSTSDK.gui.NodeContainer;
-import com.st.BlueSTSDK.gui.NodeContainerFragment;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.gui.NodeConnectionService;
 import com.st.BlueSTSDK.gui.util.ConnectProgressDialog;
 
 

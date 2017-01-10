@@ -17,17 +17,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-
 import android.widget.Toast;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
-import com.st.BlueSTSDK.gui.util.AlertAndFinishDialog;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.licenseManager.licenseConsole.LicenseConsole;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseInfo;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseManagerDBContract.LicenseEntry;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseManagerDbHelper;
+import com.st.BlueSTSDK.gui.util.AlertAndFinishDialog;
 
 import java.util.ArrayList;
 import java.util.List;

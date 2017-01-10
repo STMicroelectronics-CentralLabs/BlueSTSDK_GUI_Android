@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.licenseManager.storage.LicenseInfo.LicenseType;
+
 import java.util.ArrayList;
 
 /**

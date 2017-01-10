@@ -37,7 +37,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -50,14 +49,14 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.st.BlueSTSDK.Manager;
-import com.st.BlueSTSDK.Utils.LogFeatureActivity;
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Log.FeatureLogCSVFile;
 import com.st.BlueSTSDK.Log.FeatureLogDB;
 import com.st.BlueSTSDK.Log.FeatureLogLogCat;
+import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.LogFeatureActivity;
 import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.BlueSTSDK.gui.demos.DemoFragment;
 import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeActivity;

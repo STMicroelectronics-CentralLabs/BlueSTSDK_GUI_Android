@@ -39,11 +39,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Service that connect a node, in this way the node connection is bounded with the live cicle of the

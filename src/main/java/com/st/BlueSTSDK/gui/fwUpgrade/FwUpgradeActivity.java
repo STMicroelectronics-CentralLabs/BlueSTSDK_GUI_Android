@@ -27,8 +27,8 @@
 package com.st.BlueSTSDK.gui.fwUpgrade;
 
 import android.Manifest;
-import android.app.DialogFragment;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -46,13 +46,13 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.TextView;
 
-import com.st.BlueSTSDK.gui.util.AlertAndFinishDialog;
-import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.Node;
-import com.st.BlueSTSDK.gui.ActivityWithNode;
-import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
 import com.st.BlueSTSDK.Utils.FwVersion;
+import com.st.BlueSTSDK.gui.ActivityWithNode;
+import com.st.BlueSTSDK.gui.R;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersionBoard;
+import com.st.BlueSTSDK.gui.util.AlertAndFinishDialog;
 
 public class FwUpgradeActivity extends ActivityWithNode {
 
