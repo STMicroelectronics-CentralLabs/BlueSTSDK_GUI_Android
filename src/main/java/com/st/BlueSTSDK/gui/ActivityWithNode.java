@@ -112,6 +112,9 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
     @Override
     protected void onStop() {
         super.onStop();
+        if(mNode==null)
+            return;
+
         mNode.removeNodeStateListener(mConnectionProgressDialog);
         if(!mKeepConnectionOpen){
             NodeConnectionService.disconnect(this,mNode);

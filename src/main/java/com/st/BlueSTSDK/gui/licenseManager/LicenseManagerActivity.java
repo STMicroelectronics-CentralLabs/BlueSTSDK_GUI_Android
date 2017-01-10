@@ -365,16 +365,27 @@ public class LicenseManagerActivity extends ActivityWithNode implements
 
     @Override
     public void onLicenseUploadClick(LicenseStatus lic) {
+        Node node = getNode();
+        if(node==null) {
+            Toast.makeText(this, R.string.licenseManager_nodeNotFound,Toast.LENGTH_SHORT).show();
+            return;
+        }
+        keepConnectionOpen(true,false);
+        startActivity(LoadLicenseActivity.getStartIntent(this, node, mBoardUid, lic.info));
+    }
+
+    @Override
+    public void onLicenseUploadStoreClick(LicenseStatus lic) {
         LicenseEntry knowLic = isKnowLicense(lic.info);
         Node node = getNode();
-        if(node==null)
+        if(node==null) {
+            Toast.makeText(this,R.string.licenseManager_nodeNotFound,Toast.LENGTH_SHORT).show();
             return;
-        if(knowLic==null) {
-            keepConnectionOpen(true,false);
-            startActivity(LoadLicenseActivity.getStartIntent(this, node, mBoardUid, lic.info));
-        }else{
-            loadKnowLicense(knowLic);
         }
+        if(knowLic!=null) {
+            loadKnowLicense(knowLic);
+        }else
+            Toast.makeText(this, R.string.licenseManager_licNotFound,Toast.LENGTH_SHORT).show();
     }
 
     @Override

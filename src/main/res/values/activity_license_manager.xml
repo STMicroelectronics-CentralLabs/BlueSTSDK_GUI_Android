@@ -15,6 +15,7 @@
     <string name="licenseManager_clearDb">Clear app license DB</string>
     <string name="licenseManager_clearDbMessage">License database erased</string>
     <string name="licenseManager_uploadButton">Upload</string>
+    <string name="licenseManager_uploadStoredButton">Upload Stored</string>
     <string name="licenseManager_clear_board_license">Clear board licenses</string>
     <string name="licenseManager_errorClearBoardLic">Error cleaning the board licenses</string>
     <string name="licenseManager_clearBoardLicOk">Licenses removed, board is resetting</string>
@@ -24,4 +25,7 @@
     <string name="licenseManager_licenseLoadSuccessMsg">License loaded, reconnect to the board to
         enable it
     </string>
+    <string name="licenseManager_nodeNotFound">Node not found</string>
+    <string name="licenseManager_licNotFound">License not found</string>
+
 </resources>

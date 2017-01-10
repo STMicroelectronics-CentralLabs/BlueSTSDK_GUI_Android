@@ -19,13 +19,13 @@ public class DefaultLicenseCleanCallback implements LicenseConsole.CleanLicenseC
     public void onLicenseClearedFail(LicenseConsole console) {
         SimpleFragmentDialog dialog = SimpleFragmentDialog.newInstance(R.string
                 .licenseManager_errorClearBoardLic);
-        dialog.show(mFragmentManager,"LicenseLoadDialog");
+        dialog.show(mFragmentManager,"LicenseCleanDialog");
     }
 
     @Override
     public void onLicenseClearedSuccess(LicenseConsole console) {
         SimpleFragmentDialog dialog = SimpleFragmentDialog.newInstance(R.string
                 .licenseManager_clearBoardLicOk);
-        dialog.show(mFragmentManager,"LicenseLoadDialog");
+        dialog.show(mFragmentManager,"LicenseCleanDialog");
     }
 }
