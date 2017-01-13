@@ -30,6 +30,8 @@ public class LicenseConsoleWesu extends LicenseConsole {
     private static final String ALG_MOTION_CP = "CP";
 
     private static final SparseArray<String> LIC_MAPPING = new SparseArray<>();
+    public static final String EMPTY_LIC = "[0]{96}";
+
     static {
         LIC_MAPPING.put(1,ALG_MOTION_FX);
         LIC_MAPPING.put(2,ALG_MOTION_AR);
@@ -320,11 +322,9 @@ public class LicenseConsoleWesu extends LicenseConsole {
     }
 
     private static boolean loadLicenseStatus(String data){
-        Log.d("loadLicenseStatus",data);
         return  LICENSE_LOAD_STATUS_PARSE.matcher(data).find();
     }
     private static String extractBoardUid(String data){
-        Log.d("extractBoardUid",data);
         Matcher matcher = BOARD_ID_PARSE.matcher(data);
 
         if (matcher.find()) {
@@ -344,14 +344,13 @@ public class LicenseConsoleWesu extends LicenseConsole {
     }
 
     private static List<LicenseStatus> extractLicenseStatus(String data){
-        Log.d("extractLicenseStatus",data);
         ArrayList<LicenseStatus> licStatus = new ArrayList<>();
         Matcher matcher = LICENSE_STATUS_PARSE_OLD.matcher(data);
         while (matcher.find()) {
             int licId = Integer.parseInt(matcher.group(1));   //old style Alg 1 ==> lic2 ...
             LicenseInfo licCode = LicenseDefines.getLicenseInfo(LIC_MAPPING.get(licId + 1));
             String lic = matcher.group(2);
-            boolean isPresent = lic != null && (!Pattern.matches("[0]{96}", lic)); //96 0 (zeros) means not valid license
+            boolean isPresent = lic != null && (!Pattern.matches(EMPTY_LIC, lic)); //96 0 (zeros) means not valid license
             if (licCode != null) {
                 licStatus.add(new LicenseStatus(licCode,isPresent));
             }
@@ -365,7 +364,7 @@ public class LicenseConsoleWesu extends LicenseConsole {
                 String licName = matcher_new.group(1);
                 LicenseInfo licCode = LicenseDefines.getLicenseInfo(licName);
                 String lic = matcher_new.group(2);
-                boolean isPresent = lic != null && (!Pattern.matches("[0]{96}", lic)); //96 0 (zeros) means not valid license
+                boolean isPresent = lic != null && (!Pattern.matches(EMPTY_LIC, lic)); //96 0 (zeros) means not valid license
 
                 if (licCode != null)
                     licStatus.add(new LicenseStatus(licCode, isPresent ));

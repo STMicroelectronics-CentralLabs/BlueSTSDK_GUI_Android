@@ -28,6 +28,7 @@ package com.st.BlueSTSDK.gui.util;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.view.View;
 
 /**
  * Helper class that restart an animator when it finish
@@ -84,6 +85,14 @@ public class RepeatAnimator {
         });//addListener
         mAnim.start();
     }//start
+
+    /**
+     * change the view where the animation will be done
+     * @param view view where apply the animation
+     */
+    public void  setTarget(View view){
+        mAnim.setTarget(view);
+    }
 
     /**
      * tell if the animation is running

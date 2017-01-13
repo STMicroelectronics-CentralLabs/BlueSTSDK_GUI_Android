@@ -26,7 +26,17 @@ class LicenseStatusRecyclerViewAdapter extends
          * @param lic license associate to that button
          */
         void onLicenseRequestClick(LicenseStatus lic);
+
+        /**
+         * called when the user want to insert a new license value
+         * @param lic license that would be insert by the user
+         */
         void onLicenseUploadClick(LicenseStatus lic);
+
+        /**
+         * called when the user want to load a stored lincese
+         * @param lic license to load
+         */
         void onLicenseUploadStoreClick(LicenseStatus lic);
     }
 
