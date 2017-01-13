@@ -83,8 +83,11 @@ class LicenseStatusRecyclerViewAdapter extends
         holder.mLicenseDesc.setText(lic.info.licenseDesc);
 
         setVisible(holder.mLicenseIsOk,lic.isPresentOnTheBoard);
-        setVisible(holder.mLicenseRequest,!lic.isPresentOnTheBoard);
-        setVisible(holder.mLicenseUpload, !lic.isPresentOnTheBoard);
+        //keep the request and upload visible button always visible because
+        // the wesu board keep as valid license also wrong one so can be necessary upload an already
+        //valid license
+        //setVisible(holder.mLicenseRequest,!lic.isPresentOnTheBoard);
+        //setVisible(holder.mLicenseUpload, !lic.isPresentOnTheBoard);
         setVisible(holder.mLicenseUploadStored, !lic.isPresentOnTheBoard && lic.isPresentOnDB);
 
     }//onBindViewHolder
