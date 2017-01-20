@@ -63,7 +63,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
     private static int sNFail=0;
 
     private static int getBlockPkgSize(){
-        return Math.max(1,10/(1<<(sNFail)));
+        return Math.max(1,BLOCK_PKG_SIZE/(1<<(sNFail)));
     }
 
     static private final String GET_VERSION_BOARD_FW="versionFw\n";
@@ -180,6 +180,12 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      * class that manage the file upload
      */
     private class UploadFileProtocol implements  Debug.DebugOutputListener{
+
+        /**
+         * since the traffic is high, we use a bigger timeout for give time to the system to notify
+         * that sent a message
+         */
+        static private final int FW_UPLOAD_MSG_TIMEOUT_MS=4*LOST_MSG_TIMEOUT_MS;
 
         /**
          * file that we are uploading
@@ -352,7 +358,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                 mByteSend += byteRead;
                 return mConsole.write(mLastPackageSend, 0, lastPackageSize)==lastPackageSize;
             } else
-                //it read an unaspected number of byte, something bad happen
+                //it read an unexpected number of byte, something bad happen
                 return false;
         }//sendFwPackage
 
@@ -408,7 +414,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                     //reset the timeout
                     mTimeout.removeCallbacks(onTimeout);
                     notifyNodeReceivedFwMessage();
-                    mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
+                    mTimeout.postDelayed(onTimeout,FW_UPLOAD_MSG_TIMEOUT_MS);
                 }
             }else{
                 onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
