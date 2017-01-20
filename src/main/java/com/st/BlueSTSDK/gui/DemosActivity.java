@@ -278,6 +278,8 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
 
     private void buildDemoAdapter(Node node){
+        if(mPager.getAdapter()!=null) // it is already initialized
+            return;
         mPager.addOnPageChangeListener(mUpdateActivityTitle);
         final DemosTabAdapter adapter=new DemosTabAdapter(node,getAllDemos(), getFragmentManager());
         mPager.setAdapter(adapter);
