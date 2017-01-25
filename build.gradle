@@ -17,6 +17,12 @@ android {
         }
     }
 
+    sourceSets{
+        main {
+            res.srcDirs += ['st_images']
+        }
+    }
+
 }
 
 
