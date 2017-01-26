@@ -1,2 +1,2 @@
 include ':LicenseGenerator'
-project(':LicenseGenerator').projectDir = new File('./LicenseGenerator')
+project(':LicenseGenerator').projectDir = new File('BlueSTSDK_Gui_Android/LicenseGenerator')
