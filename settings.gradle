@@ -1,0 +1,2 @@
+include ':LicenseGenerator'
+project(':LicenseGenerator').projectDir = new File('./LicenseGenerator')
