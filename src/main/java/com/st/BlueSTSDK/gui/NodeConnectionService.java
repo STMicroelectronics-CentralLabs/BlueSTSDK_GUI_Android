@@ -56,7 +56,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Service that connect a node, in this way the node connection is bounded with the live cicle of the
+ * Service that connect a node, in this way the node connection is bounded with the live cycle of the
  * service
  */
 public class NodeConnectionService extends Service {

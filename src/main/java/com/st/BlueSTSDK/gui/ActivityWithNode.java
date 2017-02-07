@@ -49,6 +49,10 @@ import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.util.ConnectProgressDialog;
 
+/**
+ * Activity that contains a Node. It will automatically display a dialog during the node connection
+ * and try to reconnect the node if the connection get lost.
+ */
 public class ActivityWithNode extends AppCompatActivity implements NodeContainer {
 
     private final static String NODE_TAG = DebugConsoleActivity.class.getCanonicalName()
@@ -69,6 +73,7 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
      *
      * @param c    context used for create the intent
      * @param node note that will be used by the activity
+     * @param keepConnectionOpen true if the node must remain connected also if this activity get stopped
      * @return intent for start this activity
      */
     protected static Intent getStartIntent(Context c, @NonNull Class activity, @NonNull Node

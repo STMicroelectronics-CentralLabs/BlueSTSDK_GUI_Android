@@ -51,21 +51,39 @@ import com.st.BlueSTSDK.Node;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * adapter view for a list of discovered nodes
+ */
 public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerViewAdapter.ViewHolder>
         implements Manager.ManagerListener{
 
     private final List<Node> mValues = new ArrayList<>();
 
+    /**
+     * interface to use when a node is selected by the user
+     */
     public interface OnNodeSelectedListener{
+        /**
+         * function call when a node is selected by the user
+         * @param n node selected
+         */
         void onNodeSelected(Node n);
     }
 
+    /**
+     * interface used to filter the node
+     */
     public interface FilterNode{
+        /**
+         * function for filter the node to display
+         * @param n node to display
+         * @return true if the node must be displayed, false otherwise
+         */
         boolean displayNode(Node n);
     }
 
-    OnNodeSelectedListener mListener;
-    FilterNode mFilterNode;
+    private OnNodeSelectedListener mListener;
+    private FilterNode mFilterNode;
 
     public NodeRecyclerViewAdapter(List<Node> items, OnNodeSelectedListener listener,
                                    FilterNode filter) {

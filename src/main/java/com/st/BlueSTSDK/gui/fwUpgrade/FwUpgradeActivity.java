@@ -64,6 +64,9 @@ import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersionBoard;
 import com.st.BlueSTSDK.gui.util.AlertAndFinishDialog;
 
+/**
+ * Activity where the user can see the current firware name and version and upload a new firmware
+ */
 public class FwUpgradeActivity extends ActivityWithNode {
 
     private static final FwVersionBoard MIN_COMPATIBILITY_VERSION[] = new FwVersionBoard[]{

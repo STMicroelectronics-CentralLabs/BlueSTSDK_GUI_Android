@@ -51,6 +51,9 @@ import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.NodeScanActivity;
 
+/**
+ * Activity that will show the list of discovered nodes
+ */
 public abstract class NodeListActivity extends NodeScanActivity implements NodeRecyclerViewAdapter
 .OnNodeSelectedListener, NodeRecyclerViewAdapter.FilterNode, View.OnClickListener{
     private final static String TAG = NodeListActivity.class.getCanonicalName();

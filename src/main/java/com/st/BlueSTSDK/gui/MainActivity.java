@@ -46,8 +46,8 @@ import android.view.View;
 import android.widget.TextView;
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
+ * Main activity, it will show the ST logo and a button for the about page and one for start the ble
+ * scanning
  */
 public abstract class MainActivity extends AppCompatActivity {
 
@@ -158,7 +158,15 @@ public abstract class MainActivity extends AppCompatActivity {
         mHideHandler.postDelayed(mShowContentRunnable, delayMillis);
     }
 
+    /**
+     * function called when the start ble scan button is pressed
+     * @param view view pressed
+     */
     public abstract void startScanBleActivity(View view);
 
+    /**
+     * function called when the about button is pressed
+     * @param view view pressed
+     */
     public abstract void startAboutActivity(View view);
 }

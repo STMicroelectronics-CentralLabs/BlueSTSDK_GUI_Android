@@ -59,6 +59,7 @@ import com.st.BlueSTSDK.Node;
  * If you move in nother activity that will use the same node you can avoid to disconnect calling
  * the method {@link NodeContainerFragment#keepConnectionOpen(boolean, boolean)}
  */
+@Deprecated
 public class NodeContainerFragment extends Fragment implements NodeContainer {
     private final static String TAG = NodeContainerFragment.class.getCanonicalName();
     /**
