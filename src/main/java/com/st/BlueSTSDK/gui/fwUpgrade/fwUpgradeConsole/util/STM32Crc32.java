@@ -42,7 +42,7 @@ import com.st.BlueSTSDK.Utils.NumberConversion;
 import java.util.zip.Checksum;
 
 /**
- * compute the crc32 using the same algorithm used by the stm32 chip,
+ * Class that compute the crc32 using the same algorithm used by the stm32 chip,
  * The algorithm work on uint32 so the buffer must have a length multiple of 4.
  */
 public class STM32Crc32 implements Checksum {

@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * class that ask to the use witch feature enable and log
+ * Activity that ask to the use witch feature enable and log
  */
 public abstract class AskWhatFeatureLogActivity extends LogFeatureActivity {
 

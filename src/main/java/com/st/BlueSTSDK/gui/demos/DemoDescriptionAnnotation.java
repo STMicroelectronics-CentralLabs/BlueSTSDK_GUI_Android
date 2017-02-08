@@ -47,7 +47,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /***
- * annotation that give a name and a icon to a demo fragment
+ * Annotation that give a name and a icon to a demo fragment
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)

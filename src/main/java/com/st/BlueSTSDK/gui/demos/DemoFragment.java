@@ -47,7 +47,7 @@ import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.DemosActivity;
 
 /**
- * base class for a fragment that have to show a particular demo inside the DemoActivity activity
+ * Base class for a fragment that have to show a particular demo inside the DemoActivity activity
  * this class will call the {@link com.st.BlueSTSDK.gui.demos.DemoFragment#enableNeededNotification(com.st.BlueSTSDK.Node)}
  * when the node is connected and the fragment started (inside the onResume method).
  * And call the {@link com.st.BlueSTSDK.gui.demos.DemoFragment#disableNeedNotification(com.st.BlueSTSDK.Node)}

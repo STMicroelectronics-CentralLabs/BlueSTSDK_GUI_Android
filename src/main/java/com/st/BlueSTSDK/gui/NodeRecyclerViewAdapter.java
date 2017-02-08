@@ -52,7 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * adapter view for a list of discovered nodes
+ * Adapter view for a list of discovered nodes
  */
 public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerViewAdapter.ViewHolder>
         implements Manager.ManagerListener{
@@ -60,7 +60,7 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
     private final List<Node> mValues = new ArrayList<>();
 
     /**
-     * interface to use when a node is selected by the user
+     * Interface to use when a node is selected by the user
      */
     public interface OnNodeSelectedListener{
         /**
@@ -71,7 +71,7 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
     }
 
     /**
-     * interface used to filter the node
+     * Interface used to filter the node
      */
     public interface FilterNode{
         /**

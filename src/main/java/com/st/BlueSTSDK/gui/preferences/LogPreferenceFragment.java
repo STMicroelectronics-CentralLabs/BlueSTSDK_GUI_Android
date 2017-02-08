@@ -62,7 +62,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * fragment that contains the log preference -> where and how store the data
+ * Fragment that contains the log preference -> where and how store the data
  */
 
 public class LogPreferenceFragment extends PreferenceFragment {

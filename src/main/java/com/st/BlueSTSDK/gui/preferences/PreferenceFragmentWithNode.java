@@ -47,7 +47,10 @@ import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.NodeConnectionService;
 import com.st.BlueSTSDK.gui.util.ConnectProgressDialog;
 
-
+/**
+ * Preference Fragment to use for set preference inside the node, since this fragment will keep a
+ * connection with the node.
+ */
 public abstract class PreferenceFragmentWithNode extends PreferenceFragment {
 
     private final static String NODE_TAG = PreferenceFragmentWithNode.class.getCanonicalName()

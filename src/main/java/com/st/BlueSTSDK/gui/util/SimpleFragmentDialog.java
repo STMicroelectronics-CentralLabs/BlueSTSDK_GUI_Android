@@ -44,7 +44,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 
-
+/**
+ * Dialog Fragment that show a message and an ok button
+ */
 public class SimpleFragmentDialog extends DialogFragment {
     private static final String MESSAGE_ID = "Message_id";
 
