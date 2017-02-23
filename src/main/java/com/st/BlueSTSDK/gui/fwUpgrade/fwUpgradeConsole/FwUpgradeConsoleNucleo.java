@@ -108,6 +108,11 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      */
     private GetVersionProtocol mConsoleGetFwVersion= new GetVersionProtocol();
 
+    private static boolean isCompleteLine(StringBuilder buffer) {
+        return buffer.length()>2 &&
+                buffer.substring(buffer.length()-2).equals("\r\n");
+    }
+
     /**
      * class used for wait/parse the fw version response
      */
@@ -117,8 +122,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
         /**
          * if the timeout is rise, fire an error of type
-         * {@link FwUpgradeConsole.FwUpgradeCallback#ERROR_TRANSMISSION}
-         */
+         * */
         private Runnable onTimeout = new Runnable() {
             @Override
             public void run() {
@@ -149,11 +153,12 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
         @Override
         public void onStdOutReceived(Debug debug, String message) {
-            mTimeout.removeCallbacks(onTimeout);
             mBuffer.append(message);
-            if (mBuffer.length()>2 &&
-                    mBuffer.substring(mBuffer.length()-2).equals("\r\n")) {
+            if (isCompleteLine(mBuffer)) {
+                //remove time out
+                mTimeout.removeCallbacks(onTimeout);
                 mBuffer.delete(mBuffer.length()-2,mBuffer.length());
+                //check if it a valid fwVersion
                 FwVersion version=null;
                 try {
                     switch (mRequestFwType) {
@@ -165,15 +170,13 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                             break;
                     }
                 }catch (IllegalVersionFormatException e){
-                    //clear the current buffer and wait for a new answer
-                    //mBuffer.delete(0,mBuffer.length());
-                    notifyVersionRead(null);
+                    //remove invalid data and wait another timeout
+                    mBuffer.delete(0,mBuffer.length());
+                    mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
                     return;
                 }//try-catch
                 notifyVersionRead(version);
-            }else{
-                mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
-            }
+            }//else wait another package
         }
 
         @Override
@@ -184,7 +187,6 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
         }
     }
-
 
     /**
      * class that manage the file upload

@@ -176,9 +176,9 @@ public abstract class FwUpgradeConsole {
          * called when the node respond to the readVersion command
          * @param console object where the readVersion was called
          * @param type version read
-         * @param version object with the version read
+         * @param version object with the version read, if some error happen it will be null
          */
-        void onVersionRead(FwUpgradeConsole console,@FirmwareType int type, FwVersion version);
+        void onVersionRead(FwUpgradeConsole console,@FirmwareType int type,@Nullable FwVersion version);
 
         /**
          * called when the loadFw finish correctly
