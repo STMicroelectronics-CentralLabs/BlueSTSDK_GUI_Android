@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/fwVersionValue"
-            android:singleLine="false"
+            android:maxLines="1"
             android:layout_toEndOf="@+id/fwVersionBoardLabel"
             android:layout_alignBaseline="@+id/fwVersionBoardLabel"
             android:layout_marginStart="8dp"/>
@@ -91,7 +91,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/boardTypeValue"
-            android:singleLine="false"
+            android:maxLines="1"
             android:layout_toEndOf="@+id/boardTypeLabel"
             android:layout_alignBaseline="@+id/boardTypeLabel"
             android:layout_marginStart="8dp"/>

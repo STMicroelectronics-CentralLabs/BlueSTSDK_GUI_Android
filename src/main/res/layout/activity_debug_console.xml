@@ -43,7 +43,7 @@
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
-                tools:context="com.st.BlueMS.DebugConsoleActivity">
+                tools:context="com.st.BlueSTSDK.gui.DebugConsoleActivity">
 
     <EditText
         android:layout_width="match_parent"
@@ -55,7 +55,7 @@
         android:imeOptions="actionSend"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:singleLine="true"/>
+        android:maxLines="1"/>
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

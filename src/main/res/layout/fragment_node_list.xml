@@ -47,5 +47,5 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context="com.st.SensNet.NodeListFragment"
+    tools:context="com.st.BlueSTSDK.gui.NodeListActivity"
     tools:listitem="@layout/node_list_item"/>

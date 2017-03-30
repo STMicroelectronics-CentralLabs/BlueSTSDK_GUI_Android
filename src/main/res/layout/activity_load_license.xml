@@ -64,6 +64,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/licenseManager_pasteLicenseCode"
+            android:labelFor="@+id/loadLic_text"
             android:layout_marginTop="8dp"/>
         <EditText
             android:layout_width="match_parent"
