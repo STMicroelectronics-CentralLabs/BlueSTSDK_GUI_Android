@@ -51,8 +51,10 @@ import com.st.BlueSTSDK.gui.R;
  */
 public class ConnectProgressDialog extends ProgressDialog implements Node.NodeStateListener {
 
-    //main thread wher run the command for change the gui
+    //main thread where run the command for change the gui
     private Handler mMainThread;
+
+    private String mNodeName;
 
     /**
      * create the dialog
@@ -62,7 +64,7 @@ public class ConnectProgressDialog extends ProgressDialog implements Node.NodeSt
     public ConnectProgressDialog(Context ctx, String nodeName) {
         super(ctx,ProgressDialog.STYLE_SPINNER);
         setTitle(R.string.progressDialogConnTitle);
-        setMessage(String.format(ctx.getString(R.string.progressDialogConnMsg), nodeName));
+        setNodeName(nodeName);
         mMainThread = new Handler(ctx.getMainLooper());
     }
 
@@ -75,33 +77,40 @@ public class ConnectProgressDialog extends ProgressDialog implements Node.NodeSt
      * @param prevState previous node status
      */
     @Override
-    public void onStateChange(final Node node, Node.State newState, Node.State prevState) {
-        //we connect -> hide the dialog
-        if(newState == Node.State.Connecting && mMainThread!=null)
+    public void onStateChange(final Node node, final Node.State newState, Node.State prevState) {
+        if(mMainThread!=null){
             mMainThread.post(new Runnable() {
                 @Override
                 public void run() {
-                    show();
+                    setState(newState);
                 }
             });
-        else if ((newState == Node.State.Connected) && mMainThread != null) {
-            mMainThread.post(new Runnable() {
-                @Override
-                public void run() {
+        }
+    }
+
+    public void setNodeName(String name){
+        mNodeName=name;
+        setMessage(String.format(getContext().getString(R.string.progressDialogConnMsg), mNodeName));
+    }
+
+    public void setState(Node.State state){
+        switch (state){
+            case Init:
+            case Idle:
+            case Connected:
+            case Disconnecting:
+                if(isShowing())
                     dismiss();
-                }
-            });
-            //error state -> show a toast message and start a new connection
-        } else if ((newState == Node.State.Unreachable ||
-                newState == Node.State.Dead ||
-                newState == Node.State.Lost) && mMainThread != null) {
-            final String msg = getErrorString(newState,node.getName());
-            mMainThread.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
-                }
-            });
+                return;
+            case Connecting:
+                if(!isShowing())
+                    show();
+                return;
+            case Lost:
+            case Unreachable:
+            case Dead:
+                final String msg = getErrorString(state,mNodeName);
+                Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
         }
     }
 

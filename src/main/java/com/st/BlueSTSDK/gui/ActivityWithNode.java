@@ -94,6 +94,8 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
         String nodeTag = i.getStringExtra(NODE_TAG);
         mNode = Manager.getSharedInstance().getNodeWithTag(nodeTag);
         mKeepConnectionOpen = i.getBooleanExtra(KEEP_CONNECTION_OPEN,false);
+        mConnectionProgressDialog = new ConnectProgressDialog(this,"");
+
     }//onCreate
 
     /**
@@ -116,7 +118,8 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
             return;
         }
         keepConnectionOpen(true,true);
-        mConnectionProgressDialog = new ConnectProgressDialog(this,mNode.getName());
+        mConnectionProgressDialog.setNodeName(mNode.getName());
+        mConnectionProgressDialog.setState(mNode.getState());
         mNode.addNodeStateListener(mConnectionProgressDialog);
         NodeConnectionService.removeDisconnectNotification(this);
         if(!mNode.isConnected()){
@@ -125,12 +128,19 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
     }
 
     @Override
+    protected void onPause() {
+        if(mNode!=null) {
+            mNode.removeNodeStateListener(mConnectionProgressDialog);
+        }
+        super.onPause();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         if(mNode==null)
             return;
 
-        mNode.removeNodeStateListener(mConnectionProgressDialog);
         if(!mKeepConnectionOpen){
             NodeConnectionService.disconnect(this,mNode);
         }else if(mShowKeepConnectionOpenNotification){

@@ -184,9 +184,13 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      */
     private boolean mShowDebugConsole = false;
 
-    private Node.NodeStateListener mUpdateMenuOnConnection = new Node.NodeStateListener() {
+    /**
+     * this listener will automatically remove itself after the first connection
+     */
+    private Node.NodeStateListener mUpdateMenuWhenConnect = new Node.NodeStateListener() {
         @Override
         public void onStateChange(Node node, Node.State newState, Node.State prevState) {
+            node.removeNodeStateListener(this);
             if(newState==Node.State.Connected){
                 DemosActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -315,7 +319,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         }
 
         if(!node.isConnected()){
-            node.addNodeStateListener(mUpdateMenuOnConnection);
+            node.addNodeStateListener(mUpdateMenuWhenConnect);
         }
     }
 
@@ -337,8 +341,10 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         }
         keepConnectionOpen(true,true);
         NodeConnectionService.removeDisconnectNotification(this);
-        mConnectionProgressDialog = new ConnectProgressDialog(this,mNode.getName());
+        mConnectionProgressDialog.setNodeName(mNode.getName());
+        mConnectionProgressDialog.setState(mNode.getState());
         mNode.addNodeStateListener(mConnectionProgressDialog);
+
         if(!mNode.isConnected()){
             mNode.addNodeStateListener(new Node.NodeStateListener() {
                 @Override
@@ -366,22 +372,21 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
     @Override
     protected void onPause() {
-        if (mShowDebugConsole) {
-            if(mNode!=null) {
+        if(mNode!=null) {
+            mNode.removeNodeStateListener(mConnectionProgressDialog);
+            if (mShowDebugConsole) {
                 Debug debug = mNode.getDebug();
                 //remove the listener
                 if (debug != null)
                     debug.removeDebugOutputListener(mDebugListener);
-            }
-        }//if
+            }//if
+        }//if !=null
         super.onPause();
     }
 
     @Override
     protected void onStop(){
         if(mNode!=null){
-            mNode.removeNodeStateListener(mUpdateMenuOnConnection);
-            mNode.removeNodeStateListener(mConnectionProgressDialog);
             if(!mKeepConnectionOpen){
                 NodeConnectionService.disconnect(this,mNode);
             }else if(mShowKeepConnectionOpenNotification){
