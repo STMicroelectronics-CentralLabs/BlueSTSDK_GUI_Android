@@ -37,24 +37,5 @@
   -->
 
 <resources>
-    <string name="title_activity_demos">Demos</string>
-
-    <string name="settings">Settings</string>
-    <string name="configuration">Configuration</string>
-    <string name="exportLog">Export dataLog</string>
-    <string name="openDebugConsole">Open Debug Console</string>
-    <string name="showDebugConsole">Show Serial Console</string>
-    <string name="hideDebugConsole">Hide Serial Console</string>
-    <string name="licenseManager">License Manager</string>
-
-    <string name="debugNotAvailable">Debug Service not available</string>
-
-    <string name="showDemoList">Show demo list</string>
-    <string name="closeDemoList">Close demo list</string>
-
-    <string name="navigationDemoHelp">Pull to display the available demos</string>
-    <string name="swipeArrowsDesc">left, right arrow</string>
-    <string name="swipeDemoHelp">Swipe left right to change demo</string>
-    <string name="firmware_upgrade">Firmware upgrade</string>
-
+    <string name="licenseManager_selectLicDialog_title">某些许可证已知, 选择上传</string>
 </resources>

@@ -44,7 +44,7 @@
     <string name="fwUpgrade_loadFwVersion">Loading firmware version</string>
     <string name="fwUpgrade_formatting">Formatting</string>
     <string name="fwUpgrade_uploading">Uploading</string>
-    <string name="fwUpgrade_upgradeNumberFormat">%1$d/%2$d Bytes</string>
+    <string name="fwUpgrade_upgradeNumberFormat" translatable="false">%1$d/%2$d Bytes</string>
     <string name="fwUpgrade_upgradeCompleteMessage">Flash Completed in: %1$.2fs\nThe board is
         resetting</string>
     <string name="FwUpgrade_dialogTitle">Fw upgrade</string>

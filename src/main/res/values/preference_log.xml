@@ -64,9 +64,8 @@
 
     <string name="action_settings">Settings</string>
     @@ -19,6 +20,8 @@
-    <string name="title_activity_splash_screen">Splash_screenActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="title_activity_splash_screen" translatable="false">Splash_screenActivity</string>
+    s
     <string name="pref_logExportSession">Export Logs</string>
     <string name="pref_logExportSession_summary">Select and Export Logs</string>
 

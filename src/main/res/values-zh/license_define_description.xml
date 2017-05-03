@@ -37,24 +37,13 @@
   -->
 
 <resources>
-    <string name="title_activity_demos">Demos</string>
-
-    <string name="settings">Settings</string>
-    <string name="configuration">Configuration</string>
-    <string name="exportLog">Export dataLog</string>
-    <string name="openDebugConsole">Open Debug Console</string>
-    <string name="showDebugConsole">Show Serial Console</string>
-    <string name="hideDebugConsole">Hide Serial Console</string>
-    <string name="licenseManager">License Manager</string>
-
-    <string name="debugNotAvailable">Debug Service not available</string>
-
-    <string name="showDemoList">Show demo list</string>
-    <string name="closeDemoList">Close demo list</string>
-
-    <string name="navigationDemoHelp">Pull to display the available demos</string>
-    <string name="swipeArrowsDesc">left, right arrow</string>
-    <string name="swipeDemoHelp">Swipe left right to change demo</string>
-    <string name="firmware_upgrade">Firmware upgrade</string>
-
+    <string name="licenseDesc_FX">运动传感器融合算法</string>
+    <string name="licenseDesc_AR">运动状态识别算法</string>
+    <string name="licenseDesc_CP">配带位置识别算法</string>
+    <string name="licenseDesc_GR">手势识别算法</string>
+    <string name="licenseDesc_PM">计步器算法</string>
+    <string name="licenseDesc_ID">运动强度检测</string>
+    <string name="licenseDesc_SL">声源定位算法</string>
+    <string name="licenseDesc_BV">低功耗蓝牙传输语音</string>
+    <string name="licenseDesc_BF">声学波束成型算法</string>
 </resources>

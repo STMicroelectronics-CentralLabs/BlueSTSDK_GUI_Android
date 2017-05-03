@@ -37,24 +37,31 @@
   -->
 
 <resources>
-    <string name="title_activity_demos">Demos</string>
 
-    <string name="settings">Settings</string>
-    <string name="configuration">Configuration</string>
-    <string name="exportLog">Export dataLog</string>
-    <string name="openDebugConsole">Open Debug Console</string>
-    <string name="showDebugConsole">Show Serial Console</string>
-    <string name="hideDebugConsole">Hide Serial Console</string>
-    <string name="licenseManager">License Manager</string>
-
-    <string name="debugNotAvailable">Debug Service not available</string>
-
-    <string name="showDemoList">Show demo list</string>
-    <string name="closeDemoList">Close demo list</string>
-
-    <string name="navigationDemoHelp">Pull to display the available demos</string>
-    <string name="swipeArrowsDesc">left, right arrow</string>
-    <string name="swipeDemoHelp">Swipe left right to change demo</string>
-    <string name="firmware_upgrade">Firmware upgrade</string>
+    <string name="licenseManager_refresh">刷新</string>
+    <string name="licenseManager_loadDataTitle">调取</string>
+    <string name="licenseManager_loadUidDesc">调取STM32数据</string>
+    <string name="licenseManager_loadLicStatusDesc">调取许可证数据</string>
+    <string name="licenseManager_availableLicense">已许可的项目:</string>
+    <string name="licenseManager_loadLicButton">调取许可</string>
+    <string name="licenseManager_debugNotAvailable">固件不兼容</string>
+    <string name="licenseManager_wrongBoardFail">该许可不支持此目标板</string>
+    <string name="licenseManager_statusActivityName">许可状态</string>
+    <string name="licenseManager_loadActivityName">调取许可</string>
+    <string name="licenseManager_requestLicenseButton">请求</string>
+    <string name="licenseManager_clearDb">清除app许可证数据记录</string>
+    <string name="licenseManager_clearDbMessage">许可证数据清除</string>
+    <string name="licenseManager_uploadButton">上传</string>
+    <string name="licenseManager_uploadStoredButton">上传成功</string>
+    <string name="licenseManager_clear_board_license">清除板载许可证</string>
+    <string name="licenseManager_errorClearBoardLic">清除板载许可证出错</string>
+    <string name="licenseManager_clearBoardLicOk">许可证清除, 目标板复位中</string>
+    <string name="licenseManager_notAvailableDialogTitle">许可管理</string>
+    <string name="licenseManager_notAvailableDialogMsg">该目标板无需\'t 任何许可证</string>
+    <string name="licenseManager_licenseLoadFailMsg">许可证错误, 请重启目标板</string>
+    <string name="licenseManager_licenseLoadSuccessMsg">许可证调取完成, 再次连接目标板来使能该许可
+    </string>
+    <string name="licenseManager_nodeNotFound">节点未找到</string>
+    <string name="licenseManager_licNotFound">许可证未找到</string>
 
 </resources>

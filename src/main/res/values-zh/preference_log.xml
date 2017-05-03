@@ -37,24 +37,33 @@
   -->
 
 <resources>
-    <string name="title_activity_demos">Demos</string>
+    <!-- Log General settings -->
+    <string name="pref_logSettings_title">日志设置</string>
+    <string name="pref_logSettings_summary">设定日志记录方式和保存的位置</string>
+    <string name="pref_exportPath">导出路径</string>
+    <string name="pref_exportPath_summary">为日志选择保存路径</string>
 
-    <string name="settings">Settings</string>
-    <string name="configuration">Configuration</string>
-    <string name="exportLog">Export dataLog</string>
-    <string name="openDebugConsole">Open Debug Console</string>
-    <string name="showDebugConsole">Show Serial Console</string>
-    <string name="hideDebugConsole">Hide Serial Console</string>
-    <string name="licenseManager">License Manager</string>
+    <string name="pref_logStore">日志保存</string>
+    <string name="pref_logStore_summary">选择日志类型</string>
+    <string-array name="pref_logStoreString">
+        <item>Database</item>
+        <item>CSV File</item>
+        <item>LogCat</item>
+    </string-array>
 
-    <string name="debugNotAvailable">Debug Service not available</string>
+    <string-array name="pref_logStoreValue">
+        <item>DB</item>
+        <item>File</item>
+        <item>LogCat</item>
+    </string-array>
 
-    <string name="showDemoList">Show demo list</string>
-    <string name="closeDemoList">Close demo list</string>
+    <string name="pref_logClear">清除日志</string>
+    <string name="pref_logClearDone">日志文件清除</string>
+    <string name="pref_logClear_summary">移除旧日志</string>
 
-    <string name="navigationDemoHelp">Pull to display the available demos</string>
-    <string name="swipeArrowsDesc">left, right arrow</string>
-    <string name="swipeDemoHelp">Swipe left right to change demo</string>
-    <string name="firmware_upgrade">Firmware upgrade</string>
+    <string name="action_settings">设定</string>
+    <string name="pref_logExportSession">导出日志</string>
+    <string name="pref_logExportSession_summary">选择并导出日志</string>
+
 
 </resources>

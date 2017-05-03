@@ -37,24 +37,26 @@
   -->
 
 <resources>
-    <string name="title_activity_demos">Demos</string>
+    <string name="title_activity_demos">演示</string>
 
-    <string name="settings">Settings</string>
-    <string name="configuration">Configuration</string>
-    <string name="exportLog">Export dataLog</string>
-    <string name="openDebugConsole">Open Debug Console</string>
-    <string name="showDebugConsole">Show Serial Console</string>
-    <string name="hideDebugConsole">Hide Serial Console</string>
-    <string name="licenseManager">License Manager</string>
+    <string name="settings">设定</string>
+    <string name="configuration">配置</string>
+    <string name="exportLog">日志导出</string>
+    <string name="openDebugConsole">打开调试窗口</string>
+    <string name="showDebugConsole">显示串口界面</string>
+    <string name="hideDebugConsole">隐藏串口界面</string>
+    <string name="licenseManager">许可证管理</string>
 
-    <string name="debugNotAvailable">Debug Service not available</string>
+    <string name="debugNotAvailable">不支持调试服务</string>
 
-    <string name="showDemoList">Show demo list</string>
-    <string name="closeDemoList">Close demo list</string>
 
-    <string name="navigationDemoHelp">Pull to display the available demos</string>
-    <string name="swipeArrowsDesc">left, right arrow</string>
-    <string name="swipeDemoHelp">Swipe left right to change demo</string>
-    <string name="firmware_upgrade">Firmware upgrade</string>
+
+    <string name="showDemoList">演示列表</string>
+    <string name="closeDemoList">关闭演示列表</string>
+
+    <string name="navigationDemoHelp">拖动以显示全部演示列表</string>
+    <string name="swipeArrowsDesc">左, 右 箭头</string>
+    <string name="swipeDemoHelp">左右滑动切换演示界面</string>
+    <string name="firmware_upgrade">固件升级</string>
 
 </resources>
