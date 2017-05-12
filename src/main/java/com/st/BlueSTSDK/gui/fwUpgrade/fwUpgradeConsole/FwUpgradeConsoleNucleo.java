@@ -38,6 +38,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Utils.FwVersion;
@@ -109,8 +110,12 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
     private GetVersionProtocol mConsoleGetFwVersion= new GetVersionProtocol();
 
     private static boolean isCompleteLine(StringBuilder buffer) {
-        return buffer.length()>2 &&
-                buffer.substring(buffer.length()-2).equals("\r\n");
+        if(buffer.length()>2){
+            String endLine = buffer.substring(buffer.length()-2);
+            return endLine.equals("\r\n") || endLine.equals("\n\r");
+        }
+
+        return false;
     }
 
     /**
