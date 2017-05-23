@@ -37,9 +37,9 @@
   -->
 
 <resources>
-    <string name="fwUpgrade_notificationTitle">新固件上传中</string>
+    <string name="fwUpgrade_notificationTitle">开启文件时出错</string>
     <string name="fwUpgrade_error_corrupted_file">发送数据已损坏</string>
-    <string name="fwUpgrade_error_transmission">发送数据时出错</string>
+    <string name="fwUpgrade_error_transmission">开启文件时出错</string>
     <string name="fwUpgrade_error_unknown">未知错误</string>
     <string name="fwUpgrade_error_invalid_file">开启文件时出错</string>
 

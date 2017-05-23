@@ -50,6 +50,6 @@
     <string name="FwUpgrade_needUpdateMsg">无法升级固件,
         请手动升级固件至版本 \>=%1$s></string>
     <string name="FwUpgrade_readSDRationale">读取固件文件要求打开读权限</string>
-    <string name="fwUpgrade_notSupportedMsg">不支持固件升级</string>
+    <string name="fwUpgrade_notSupportedMsg">开启文件时出错</string>
 
 </resources>

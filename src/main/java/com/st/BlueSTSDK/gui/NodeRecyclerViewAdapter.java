@@ -116,6 +116,9 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
             case SENSOR_TILE:
                 holder.mNodeImage.setImageResource(R.drawable.board_sensor_tile);
                 break;
+            case BLUE_COIN:
+                holder.mNodeImage.setImageResource(R.drawable.board_bluecoin);
+                break;
             default:
                 holder.mNodeImage.setImageResource(R.drawable.board_generic);
                 break;
