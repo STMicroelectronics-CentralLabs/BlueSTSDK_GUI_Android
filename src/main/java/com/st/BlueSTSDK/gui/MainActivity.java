@@ -47,6 +47,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import com.st.BlueSTSDK.gui.privacyPolicy.PrivacyPolicyFragment;
+
 /**
  * Main activity, it will show the ST logo and a button for the about page and one for start the ble
  * scanning

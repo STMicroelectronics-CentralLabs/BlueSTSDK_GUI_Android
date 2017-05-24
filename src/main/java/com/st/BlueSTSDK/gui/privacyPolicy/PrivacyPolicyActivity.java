@@ -35,15 +35,15 @@
  * OF SUCH DAMAGE.
  */
 
-package com.st.BlueSTSDK.gui;
+package com.st.BlueSTSDK.gui.privacyPolicy;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.RawRes;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
+
+import com.st.BlueSTSDK.gui.R;
 
 public class PrivacyPolicyActivity extends AppCompatActivity {
     private static final String PRIVACY_PAGE_URL = PrivacyPolicyActivity.class.getCanonicalName()+".PrivacyPolicyFragment";

@@ -35,24 +35,22 @@
  * OF SUCH DAMAGE.
  */
 
-package com.st.BlueSTSDK.gui;
+package com.st.BlueSTSDK.gui.privacyPolicy;
 
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.annotation.RawRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.st.BlueSTSDK.gui.R;
+
 import java.io.BufferedReader;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 

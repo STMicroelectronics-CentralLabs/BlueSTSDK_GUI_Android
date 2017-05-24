@@ -50,6 +50,8 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import com.st.BlueSTSDK.gui.privacyPolicy.PrivacyPolicyActivity;
+
 
 /**
  * Activity to display with the app info

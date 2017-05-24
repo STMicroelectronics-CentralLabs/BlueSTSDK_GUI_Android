@@ -90,7 +90,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".PrivacyPolicyActivity"
+            android:name=".privacyPolicy.PrivacyPolicyActivity"
             android:label="@string/title_activity_privacy_policy"
             android:parentActivityName=".AboutActivity">
             <meta-data
