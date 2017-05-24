@@ -36,10 +36,12 @@
  */
 package com.st.BlueSTSDK.gui;
 
+import android.app.DialogFragment;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.RawRes;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -58,6 +60,8 @@ public abstract class MainActivity extends AppCompatActivity {
     private static final int AUTO_HIDE_DELAY_MILLIS = 1000;
     private static final String SPLASH_SCREEN_WAS_SHOWN = MainActivity.class.getCanonicalName()+"" +
             ".SplashWasShown";
+    public static final String PRIVACY_DIALOG_TAG = MainActivity.class.getCanonicalName()+".PravacyDialogTag";
+
     /**
      * Some older devices needs a small delay between UI widget updates
      * and a change of the status and navigation bar.
@@ -109,6 +113,11 @@ public abstract class MainActivity extends AppCompatActivity {
 
         if(appText!=null && appName!=null){
             appText.setText(appName);
+        }
+
+        if(showPrivacyDialog()) {
+            DialogFragment dialog = PrivacyPolicyFragment.getInstance(getPrivacyPolicyFileRes());
+            dialog.show(getFragmentManager(), PRIVACY_DIALOG_TAG);
         }
 
     }
@@ -169,4 +178,17 @@ public abstract class MainActivity extends AppCompatActivity {
      * @param view view pressed
      */
     public abstract void startAboutActivity(View view);
+
+    /**
+     * tell if the the class need to show the privacy dialog
+     * @return true to show the privacy dialog
+     */
+    public abstract boolean showPrivacyDialog();
+
+    /**
+     * tell witch file is containing the privacy policy, the file content will be shown in the dialog
+     * @return raw resource id with the privacy policy
+     */
+    public abstract @RawRes int getPrivacyPolicyFileRes();
+
 }

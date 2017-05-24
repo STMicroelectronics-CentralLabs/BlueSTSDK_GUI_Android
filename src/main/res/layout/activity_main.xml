@@ -49,63 +49,72 @@
                  android:visibility="visible">
 
         <RelativeLayout
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:id="@+id/main_content_controls"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/background_light"
-            android:visibility="gone"
-            android:id="@+id/main_content_controls">
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/startScanButton"
-                android:background="@drawable/search_button_icon"
-                android:id="@+id/searchButton"
-                android:gravity="bottom|center_horizontal"
-                android:onClick="startScanBleActivity" android:layout_above="@+id/aboutButton"
-                android:layout_centerHorizontal="true" android:layout_margin="16dp"/>
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:visibility="gone">
 
             <Button
+                android:id="@+id/searchButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/startAboutButton"
-                android:background="@drawable/about_button_icon"
-                android:id="@+id/aboutButton"
-                android:onClick="startAboutActivity"
+                android:layout_above="@+id/aboutButton"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="16dp"
+                android:background="@drawable/search_button_icon"
                 android:gravity="bottom|center_horizontal"
-                android:layout_above="@+id/appNameText" android:layout_centerHorizontal="true"
-                android:layout_margin="16dp"/>
-            <TextView
+                android:onClick="startScanBleActivity"
+                android:text="@string/startScanButton" />
+
+            <Button
+                android:id="@+id/aboutButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/copyright"
+                android:layout_above="@+id/appNameText"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="16dp"
+                android:background="@drawable/about_button_icon"
+                android:gravity="bottom|center_horizontal"
+                android:onClick="startAboutActivity"
+                android:text="@string/startAboutButton" />
+
+            <TextView
                 android:id="@+id/copyrightText"
-                android:textColor="@color/colorPrimary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="true"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:layout_marginEnd="@dimen/activity_vertical_margin"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+                android:text="@string/copyright"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/colorPrimary" />
+
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/version"
                 android:id="@+id/versionText"
-                android:textColor="@color/colorPrimary"
-                android:layout_above="@+id/copyrightText" android:layout_alignParentEnd="true"
-                android:layout_marginEnd="@dimen/activity_vertical_margin"/>
-            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_above="@+id/copyrightText"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="@dimen/activity_vertical_margin"
+                android:text="@string/version"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorPrimary" />
+
+            <TextView
                 android:id="@+id/appNameText"
-                android:textColor="@color/colorPrimary"
-                android:layout_above="@+id/versionText" android:layout_alignParentEnd="true"
-                android:layout_marginEnd="@dimen/activity_vertical_margin"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/versionText"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="@dimen/activity_vertical_margin"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@color/colorPrimary" />
         </RelativeLayout>
     </FrameLayout>
 

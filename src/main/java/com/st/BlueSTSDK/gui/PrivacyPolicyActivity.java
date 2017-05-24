@@ -37,16 +37,44 @@
 
 package com.st.BlueSTSDK.gui;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.app.Activity;
+import android.support.annotation.NonNull;
+import android.support.annotation.RawRes;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 
-public class PrivacyPolicy extends Activity {
+public class PrivacyPolicyActivity extends AppCompatActivity {
+    private static final String PRIVACY_PAGE_URL = PrivacyPolicyActivity.class.getCanonicalName()+".PrivacyPolicyFragment";
+
+    /**
+     * create an activity that will show the privacy policy
+     * @param c context where create the activity
+     * @param fileId file with the privacy policy
+     */
+    public static void startPrivacyPolicyActivity(Context c, @RawRes int fileId){
+        Intent i = new Intent(c,PrivacyPolicyActivity.class);
+        i.putExtra(PRIVACY_PAGE_URL,fileId);
+        c.startActivity(i);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_privacy_policy);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if (savedInstanceState != null) {
+            return;
+        }
+
+        int pageUrl = getIntent().getIntExtra(PRIVACY_PAGE_URL,0);
+        PrivacyPolicyFragment fragment = PrivacyPolicyFragment.getInstance(pageUrl);
+
+        getFragmentManager().beginTransaction()
+                .add(R.id.privacyPolicy_content_fragment, fragment).commit();
     }
 
 }

@@ -43,6 +43,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RawRes;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,16 +56,29 @@ import android.widget.TextView;
  */
 public class AboutActivity extends AppCompatActivity {
     private static final String ABOUT_PAGE_URL = AboutActivity.class.getCanonicalName()+".ABOUT_PAGE_URL";
-    private static final String PRIVACY_PAGE_URL = AboutActivity.class.getCanonicalName()+".PRIVACY_PAGE_URL";
+    private static final String PRIVACY_RES_ID = AboutActivity.class.getCanonicalName()+".PRIVACY_RES_ID";
 
 
-    public static void startActivityWithAboutPage(Context c, @Nullable String aboutPageUrl,@Nullable String privacyUrl){
+    /**
+     *  display the actvity that will show the about page
+     * @param c context where start the activity
+     * @param aboutPageUrl html page to show as central content
+     * @param privacyUrl resource id of the file containing the privacy settings or null to hide the menu
+     */
+    public static void startActivityWithAboutPage(Context c,
+                                                  @Nullable String aboutPageUrl,
+                                                  @Nullable @RawRes Integer privacyUrl){
         Intent intent = new Intent(c,AboutActivity.class);
         intent.putExtra(ABOUT_PAGE_URL,aboutPageUrl);
-        intent.putExtra(PRIVACY_PAGE_URL,privacyUrl);
+        if(privacyUrl!=null)
+            intent.putExtra(PRIVACY_RES_ID,privacyUrl);
         c.startActivity(intent);
     }
 
+    // resource where read the privacy policy
+    private Integer mPrivacyResFile =null;
+
+    // set the text view with the app version
     private void setUpAppVersion(){
         TextView tvVersion = (TextView) findViewById(R.id.textViewVersion);
         try {
@@ -76,6 +90,7 @@ public class AboutActivity extends AppCompatActivity {
         }
     }
 
+    // set the text view with the app name
     private void setUpAppName(){
         TextView tvAppName = (TextView) findViewById(R.id.textViewName);
         try {
@@ -87,6 +102,7 @@ public class AboutActivity extends AppCompatActivity {
         }
     }
 
+    // set the main content with the html page from the user
     private void setUpMainPage(@Nullable String aboutPageUrl){
         if(aboutPageUrl==null)
             return;
@@ -96,13 +112,17 @@ public class AboutActivity extends AppCompatActivity {
         browser.loadUrl(aboutPageUrl);
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
+        Bundle extra = getIntent().getExtras();
+        mPrivacyResFile = null;
+        if(extra.containsKey(PRIVACY_RES_ID))
+            mPrivacyResFile = extra.getInt(PRIVACY_RES_ID);
 
-        setUpMainPage(getIntent().getStringExtra(ABOUT_PAGE_URL));
-
+        setUpMainPage(extra.getString(ABOUT_PAGE_URL));
 
         setUpAppName();
         setUpAppVersion();
@@ -115,20 +135,22 @@ public class AboutActivity extends AppCompatActivity {
 
         MenuItem item = menu.findItem(R.id.menu_about_show_privacy);
 
-        setUpPrivacyMenu(item, getIntent().getStringExtra(PRIVACY_PAGE_URL));
+        setUpPrivacyMenu(item);
 
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void setUpPrivacyMenu(MenuItem item, @Nullable String privacyPage) {
-        if(privacyPage == null)
+    // hide the privacy menu if the user doesn't pass a privacy page
+    private void setUpPrivacyMenu(MenuItem item) {
+        if(mPrivacyResFile == null)
             item.setVisible(false);
     }
 
+    // show the privacy policy if the view is selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_about_show_privacy){
-
+            PrivacyPolicyActivity.startPrivacyPolicyActivity(this, mPrivacyResFile);
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -37,16 +37,47 @@
 
 package com.st.BlueSTSDK.gui;
 
-import android.app.Fragment;
+import android.app.DialogFragment;
+import android.content.Context;
+import android.content.res.Resources;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.annotation.RawRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import java.io.BufferedReader;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
- * A placeholder fragment containing a simple view.
+ * Fragment that will show the privacy policy and a button to clos the dialog/activity
  */
-public class PrivacyPolicyFragment extends Fragment {
+public class PrivacyPolicyFragment extends DialogFragment {
+    private static final String PRIVACY_PAGE_RAW_RES = PrivacyPolicyFragment.class.getCanonicalName()+".PrivacyPolicyFragment";
+
+    /**
+     * crate a fragment
+     * @param privacyPage file that contains the privacy policy
+     * @return fragmet that will display the content of the file
+     */
+    public static PrivacyPolicyFragment getInstance(@RawRes int privacyPage) {
+
+        PrivacyPolicyFragment fragment = new PrivacyPolicyFragment();
+
+        //add the file as agrument
+        Bundle args = new Bundle();
+        args.putInt(PRIVACY_PAGE_RAW_RES,privacyPage);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
 
     public PrivacyPolicyFragment() {
     }
@@ -54,6 +85,77 @@ public class PrivacyPolicyFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_privacy_policy, container, false);
+        View root = inflater.inflate(R.layout.fragment_privacy_policy, container, false);
+
+        TextView content = (TextView) root.findViewById(R.id.privacyPolicy_content);
+
+        //load the file content in on the text view
+        new LoadFileAsyncTask(getResources(),content).execute(getArguments().getInt(PRIVACY_PAGE_RAW_RES));
+
+        root.findViewById(R.id.privacyPolicy_okButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //close the window -> if we are a dialog call dismiss otherwise call back
+                if(getShowsDialog())
+                    dismiss();
+                else
+                    getActivity().onBackPressed();
+            }
+        });
+
+        return root;
+    }
+
+
+    /**
+     * read the file content in a background thread
+     */
+    private static class LoadFileAsyncTask extends AsyncTask<Integer,Void, CharSequence>{
+
+        private TextView mTargetView;
+        private Resources resources;
+
+        /**
+         * load the content of the file into the text view
+         * @param res object used to open the resource file
+         * @param targetView view where display the file content
+         */
+        public LoadFileAsyncTask(Resources res , TextView targetView){
+            resources=res;
+            mTargetView = targetView;
+        }
+
+        /**
+         * read all the file into a string
+         * @param files resource id of the file to read
+         * @return the concatenation of the file content
+         */
+        @Override
+        protected CharSequence doInBackground(Integer... files) {
+            StringBuffer fileContent = new StringBuffer();
+            String line;
+            for (@RawRes int fileId : files) {
+                try {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(resources.openRawResource(fileId)));
+                    while ((line = in.readLine()) != null) {
+                        fileContent.append(line);
+                        fileContent.append('\n');
+                    }
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }//for
+            return fileContent;
+        }
+
+        /**
+         * show the file content into the text view
+         * @param content file content
+         */
+        @Override
+        protected void onPostExecute(CharSequence content) {
+            mTargetView.setText(content);
+        }
     }
 }

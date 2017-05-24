@@ -46,19 +46,20 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".AboutActivity"
-            android:label="@string/title_activity_about"></activity>
+            android:label="@string/title_activity_about"
+            android:launchMode="singleTop"/>
         <activity
             android:name=".DebugConsoleActivity"
             android:label="@string/title_activity_debug_console"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".SettingsActivityWithNode"
             android:label="@string/title_activity_settings"
-            android:theme="@style/AppTheme.Settings"></activity>
+            android:theme="@style/AppTheme.Settings"/>
         <activity
             android:name=".licenseManager.LicenseManagerActivity"
             android:label="@string/licenseManager_statusActivityName"
-            android:launchMode="singleTop"></activity>
+            android:launchMode="singleTop"/>
         <activity
             android:name=".licenseManager.RequestLicenseActivity"
             android:label="@string/title_activity_approve_license"
@@ -78,18 +79,18 @@
         </activity>
         <activity
             android:name=".fwUpgrade.FwUpgradeActivity"
-            android:label="@string/title_activity_fw_upgrade"></activity>
+            android:label="@string/title_activity_fw_upgrade"/>
 
         <service
             android:name=".fwUpgrade.FwUpgradeService"
-            android:exported="false"></service>
+            android:exported="false"/>
         <service
             android:name=".NodeConnectionService"
             android:enabled="true"
             android:exported="false" />
 
         <activity
-            android:name=".PrivacyPolicy"
+            android:name=".PrivacyPolicyActivity"
             android:label="@string/title_activity_privacy_policy"
             android:parentActivityName=".AboutActivity">
             <meta-data
