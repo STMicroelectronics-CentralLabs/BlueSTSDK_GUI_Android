@@ -66,7 +66,6 @@ public class LibLicenseDetailsFragment extends Fragment {
     }
 
     public LibLicenseDetailsFragment() {
-
         // Required empty public constructor
     }
 

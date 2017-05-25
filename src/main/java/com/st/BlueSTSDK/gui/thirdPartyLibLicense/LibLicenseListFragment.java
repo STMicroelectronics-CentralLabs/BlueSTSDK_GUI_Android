@@ -41,6 +41,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,18 +66,19 @@ public class LibLicenseListFragment extends Fragment {
         // Required empty public constructor
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         View root =  inflater.inflate(R.layout.fragment_lib_license_list, container, false);
 
         mRecyclerView = (RecyclerView) root.findViewById(R.id.libLicense_libsList);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
+                DividerItemDecoration.HORIZONTAL));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
+                DividerItemDecoration.VERTICAL));
         mRecyclerView.setAdapter(mAdapter);
 
         return root;
@@ -93,9 +95,6 @@ public class LibLicenseListFragment extends Fragment {
         }
     }
 
-
-
-
     @Override
     public void onDetach() {
         super.onDetach();
@@ -103,8 +102,8 @@ public class LibLicenseListFragment extends Fragment {
         mRecyclerView.setAdapter(null);
     }
 
-    public void addLibs(List<LibLicense> libs){
-        mAdapter.addLicenses(libs);
+    public void setDisplayLibs(List<LibLicense> libs){
+        mAdapter.setLibs(libs);
     }
 
     private static class LibAdapter extends RecyclerView.Adapter<LibAdapter.ViewHolder>{
@@ -134,7 +133,8 @@ public class LibLicenseListFragment extends Fragment {
             return mData.size();
         }
 
-        public void addLicenses(List<LibLicense> newData){
+        public void setLibs(List<LibLicense> newData){
+            mData.clear();
             mData.addAll(newData);
             notifyDataSetChanged();
         }
@@ -149,7 +149,7 @@ public class LibLicenseListFragment extends Fragment {
                 super(itemView);
 
                 mLibName = (TextView) itemView.findViewById(R.id.libLicense_nameLabel);
-                itemView.findViewById(R.id.libLicense_detailsImg).setOnClickListener(new View.OnClickListener() {
+                itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         mOnSelect.onSelected(mLib);

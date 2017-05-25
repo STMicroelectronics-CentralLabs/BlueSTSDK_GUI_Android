@@ -35,25 +35,29 @@
   ~ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
   ~ OF SUCH DAMAGE.
   -->
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_vertical_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    tools:context="com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicenseActivity">
+    tools:context="com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicenseActivity"
+    android:baselineAligned="false">
 
-    <fragment
-        android:layout_weight="3"
+    <FrameLayout
+        android:layout_margin="8dp"
+        android:layout_weight="1"
         android:id="@+id/libLicense_fragmentListView"
-        android:name="com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicenseListFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent" />
 
-    <fragment
-        android:layout_weight="7"
+    <FrameLayout
+        android:layout_margin="8dp"
+        android:layout_weight="2"
         android:id="@+id/libLicense_fragmentDetails"
-        android:name="com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicenseDetailsFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent" />
 

@@ -37,10 +37,10 @@
 
 package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
 
-import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -61,10 +61,9 @@ public class LibLicenseActivity extends AppCompatActivity implements LibLicenseC
         c.startActivity(intent);
     }
 
-
     private LibLicenseContract.Presenter mPresenter;
     private LibLicenseListFragment mLibListView;
-    private LibLicense mDetailsShown=null;
+    private LibLicenseDetailsFragment mDetailsView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,44 +74,44 @@ public class LibLicenseActivity extends AppCompatActivity implements LibLicenseC
 
         setContentView(R.layout.activity_lib_license);
 
-        if(savedInstanceState!=null && savedInstanceState.containsKey("Details")){
-            mDetailsShown = savedInstanceState.getParcelable("Details");
-            displayDetails(mDetailsShown);
+        if(savedInstanceState==null){
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+            mLibListView = new LibLicenseListFragment();
+            transaction.add(R.id.libLicense_fragmentListView,mLibListView);
+
+            if(findViewById(R.id.libLicense_fragmentDetails)!=null) {
+                mDetailsView = new LibLicenseDetailsFragment();
+                transaction.add(R.id.libLicense_fragmentDetails, mDetailsView);
+            }
+
+            transaction.commit();
+        }else{
+            FragmentManager fragmentMng = getFragmentManager();
+            mLibListView = (LibLicenseListFragment) fragmentMng.findFragmentById(R.id.libLicense_fragmentListView);
+            mDetailsView = (LibLicenseDetailsFragment) fragmentMng.findFragmentById(R.id.libLicense_fragmentDetails);
         }
+
     }
 
     @Override
-    public void onAttachFragment(Fragment fragment) {
-        super.onAttachFragment(fragment);
-        if(fragment instanceof  LibLicenseListFragment){
-            mLibListView = (LibLicenseListFragment) fragment;
-            mPresenter.onListViewIsDisplayed();
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if(mDetailsShown!=null)
-            outState.putParcelable("Details",mDetailsShown);
+    protected void onStart() {
+        super.onStart();
+        mPresenter.onListViewIsDisplayed();
     }
 
     @Override
     public void displayLibraries(@NonNull List<LibLicense> libs) {
-        mLibListView.addLibs(libs);
+        mLibListView.setDisplayLibs(libs);
     }
 
     @Override
     public void displayDetails(@NonNull LibLicense lib) {
 
-        LibLicenseDetailsFragment details = (LibLicenseDetailsFragment) getFragmentManager().findFragmentById(R.id.libLicense_fragmentDetails);
-
-        if(details==null) {
+        if(mDetailsView==null) {
             LibLicenseDetailsActivity.startLicenseDetailActivity(this, lib);
         }else {
-            mDetailsShown=lib;
-            details.showDetails(lib);
-
+            mDetailsView.showDetails(lib);
         }
 
     }

@@ -38,13 +38,13 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/libLicense_fragmentListView"
     tools:context="com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicenseActivity">
 
-    <fragment
-        android:id="@+id/libLicense_fragmentListView"
-        android:name="com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicenseListFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 </FrameLayout>
