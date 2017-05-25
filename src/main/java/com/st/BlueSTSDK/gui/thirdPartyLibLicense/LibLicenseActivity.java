@@ -40,6 +40,7 @@ package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -63,6 +64,7 @@ public class LibLicenseActivity extends AppCompatActivity implements LibLicenseC
 
     private LibLicenseContract.Presenter mPresenter;
     private LibLicenseListFragment mLibListView;
+    private LibLicense mDetailsShown=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +74,11 @@ public class LibLicenseActivity extends AppCompatActivity implements LibLicenseC
         mPresenter = new LibLicensePresenter(this,libs);
 
         setContentView(R.layout.activity_lib_license);
+
+        if(savedInstanceState!=null && savedInstanceState.containsKey("Details")){
+            mDetailsShown = savedInstanceState.getParcelable("Details");
+            displayDetails(mDetailsShown);
+        }
     }
 
     @Override
@@ -81,6 +88,13 @@ public class LibLicenseActivity extends AppCompatActivity implements LibLicenseC
             mLibListView = (LibLicenseListFragment) fragment;
             mPresenter.onListViewIsDisplayed();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(mDetailsShown!=null)
+            outState.putParcelable("Details",mDetailsShown);
     }
 
     @Override
@@ -96,7 +110,9 @@ public class LibLicenseActivity extends AppCompatActivity implements LibLicenseC
         if(details==null) {
             LibLicenseDetailsActivity.startLicenseDetailActivity(this, lib);
         }else {
+            mDetailsShown=lib;
             details.showDetails(lib);
+
         }
 
     }
