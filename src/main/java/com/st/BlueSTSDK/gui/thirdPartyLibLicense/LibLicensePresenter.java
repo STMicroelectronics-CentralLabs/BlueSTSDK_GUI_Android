@@ -35,76 +35,29 @@
  * OF SUCH DAMAGE.
  */
 
-package com.st.BlueSTSDK.gui.privacyPolicy;
+package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
 
-import android.app.DialogFragment;
-import android.content.res.Resources;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.annotation.RawRes;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.support.annotation.NonNull;
 
-import com.st.BlueSTSDK.gui.R;
-import com.st.BlueSTSDK.gui.util.LoadFileAsyncTask;
+import java.util.List;
 
-import java.io.BufferedReader;
+public class LibLicensePresenter implements LibLicenseContract.Presenter {
 
-import java.io.IOException;
-import java.io.InputStreamReader;
+    private final LibLicenseContract.View mView;
+    private final List<LibLicense> mLibs;
 
-/**
- * Fragment that will show the privacy policy and a button to clos the dialog/activity
- */
-public class PrivacyPolicyFragment extends DialogFragment {
-    private static final String PRIVACY_PAGE_RAW_RES = PrivacyPolicyFragment.class.getCanonicalName()+".PrivacyPolicyFragment";
-
-    /**
-     * crate a fragment
-     * @param privacyPage file that contains the privacy policy
-     * @return fragmet that will display the content of the file
-     */
-    public static PrivacyPolicyFragment getInstance(@RawRes int privacyPage) {
-
-        PrivacyPolicyFragment fragment = new PrivacyPolicyFragment();
-
-        //add the file as agrument
-        Bundle args = new Bundle();
-        args.putInt(PRIVACY_PAGE_RAW_RES,privacyPage);
-        fragment.setArguments(args);
-
-        return fragment;
-    }
-
-    public PrivacyPolicyFragment() {
+    public LibLicensePresenter(LibLicenseContract.View mView, List<LibLicense> mLibs) {
+        this.mView = mView;
+        this.mLibs = mLibs;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_privacy_policy, container, false);
-
-        TextView content = (TextView) root.findViewById(R.id.privacyPolicy_content);
-
-        //load the file content in on the text view
-        new LoadFileAsyncTask(getResources(),content).execute(getArguments().getInt(PRIVACY_PAGE_RAW_RES));
-
-        root.findViewById(R.id.privacyPolicy_okButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //close the window -> if we are a dialog call dismiss otherwise call back
-                if(getShowsDialog())
-                    dismiss();
-                else
-                    getActivity().onBackPressed();
-            }
-        });
-
-        return root;
+    public void onListViewIsDisplayed() {
+        mView.displayLibraries(mLibs);
     }
 
-
-
+    @Override
+    public void onLibSelected(@NonNull LibLicense lib) {
+        mView.displayDetails(lib);
+    }
 }

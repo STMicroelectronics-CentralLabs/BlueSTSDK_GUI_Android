@@ -35,76 +35,65 @@
  * OF SUCH DAMAGE.
  */
 
-package com.st.BlueSTSDK.gui.privacyPolicy;
+package com.st.BlueSTSDK.gui.util;
 
-import android.app.DialogFragment;
 import android.content.res.Resources;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.support.annotation.RawRes;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.st.BlueSTSDK.gui.R;
-import com.st.BlueSTSDK.gui.util.LoadFileAsyncTask;
-
 import java.io.BufferedReader;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * Fragment that will show the privacy policy and a button to clos the dialog/activity
+ * read the file content in a background thread
  */
-public class PrivacyPolicyFragment extends DialogFragment {
-    private static final String PRIVACY_PAGE_RAW_RES = PrivacyPolicyFragment.class.getCanonicalName()+".PrivacyPolicyFragment";
+public class LoadFileAsyncTask extends AsyncTask<Integer,Void, CharSequence> {
+
+    private TextView mTargetView;
+    private Resources resources;
 
     /**
-     * crate a fragment
-     * @param privacyPage file that contains the privacy policy
-     * @return fragmet that will display the content of the file
+     * load the content of the file into the text view
+     * @param res object used to open the resource file
+     * @param targetView view where display the file content
      */
-    public static PrivacyPolicyFragment getInstance(@RawRes int privacyPage) {
-
-        PrivacyPolicyFragment fragment = new PrivacyPolicyFragment();
-
-        //add the file as agrument
-        Bundle args = new Bundle();
-        args.putInt(PRIVACY_PAGE_RAW_RES,privacyPage);
-        fragment.setArguments(args);
-
-        return fragment;
+    public LoadFileAsyncTask(Resources res , TextView targetView){
+        resources=res;
+        mTargetView = targetView;
     }
 
-    public PrivacyPolicyFragment() {
-    }
-
+    /**
+     * read all the file into a string
+     * @param files resource id of the file to read
+     * @return the concatenation of the file content
+     */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_privacy_policy, container, false);
-
-        TextView content = (TextView) root.findViewById(R.id.privacyPolicy_content);
-
-        //load the file content in on the text view
-        new LoadFileAsyncTask(getResources(),content).execute(getArguments().getInt(PRIVACY_PAGE_RAW_RES));
-
-        root.findViewById(R.id.privacyPolicy_okButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //close the window -> if we are a dialog call dismiss otherwise call back
-                if(getShowsDialog())
-                    dismiss();
-                else
-                    getActivity().onBackPressed();
+    protected CharSequence doInBackground(Integer... files) {
+        StringBuffer fileContent = new StringBuffer();
+        String line;
+        for (@RawRes int fileId : files) {
+            try {
+                BufferedReader in = new BufferedReader(new InputStreamReader(resources.openRawResource(fileId)));
+                while ((line = in.readLine()) != null) {
+                    fileContent.append(line);
+                    fileContent.append('\n');
+                }
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
-
-        return root;
+        }//for
+        return fileContent;
     }
 
-
-
+    /**
+     * show the file content into the text view
+     * @param content file content
+     */
+    @Override
+    protected void onPostExecute(CharSequence content) {
+        mTargetView.setText(content);
+    }
 }

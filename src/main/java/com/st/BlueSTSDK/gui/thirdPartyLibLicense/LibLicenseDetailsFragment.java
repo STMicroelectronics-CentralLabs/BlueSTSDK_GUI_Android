@@ -35,13 +35,12 @@
  * OF SUCH DAMAGE.
  */
 
-package com.st.BlueSTSDK.gui.privacyPolicy;
+package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
 
-import android.app.DialogFragment;
-import android.content.res.Resources;
-import android.os.AsyncTask;
+
+import android.app.Fragment;
 import android.os.Bundle;
-import android.support.annotation.RawRes;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,61 +49,49 @@ import android.widget.TextView;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.util.LoadFileAsyncTask;
 
-import java.io.BufferedReader;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 /**
- * Fragment that will show the privacy policy and a button to clos the dialog/activity
+ * Fragment that show the license agreement for a specific library
  */
-public class PrivacyPolicyFragment extends DialogFragment {
-    private static final String PRIVACY_PAGE_RAW_RES = PrivacyPolicyFragment.class.getCanonicalName()+".PrivacyPolicyFragment";
+public class LibLicenseDetailsFragment extends Fragment {
 
-    /**
-     * crate a fragment
-     * @param privacyPage file that contains the privacy policy
-     * @return fragmet that will display the content of the file
-     */
-    public static PrivacyPolicyFragment getInstance(@RawRes int privacyPage) {
+    private static final String DETAILS =LibLicenseDetailsFragment.class.getCanonicalName()+".DETAILS";
 
-        PrivacyPolicyFragment fragment = new PrivacyPolicyFragment();
-
-        //add the file as agrument
+    static public LibLicenseDetailsFragment newInstance(@NonNull LibLicense details){
         Bundle args = new Bundle();
-        args.putInt(PRIVACY_PAGE_RAW_RES,privacyPage);
-        fragment.setArguments(args);
+        args.putParcelable(DETAILS,details);
 
-        return fragment;
+        LibLicenseDetailsFragment temp = new LibLicenseDetailsFragment();
+        temp.setArguments(args);
+        return temp;
     }
 
-    public PrivacyPolicyFragment() {
+    public LibLicenseDetailsFragment() {
+        // Required empty public constructor
     }
+
+    private TextView mTitle;
+    private TextView mLicense;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_privacy_policy, container, false);
+        // Inflate the layout for this fragment
+        View root =  inflater.inflate(R.layout.fragment_lib_licese_details, container, false);
+        mTitle = (TextView) root.findViewById(R.id.libLicense_detailsName);
+        mLicense = (TextView) root.findViewById(R.id.libLicense_detailsLic);
 
-        TextView content = (TextView) root.findViewById(R.id.privacyPolicy_content);
-
-        //load the file content in on the text view
-        new LoadFileAsyncTask(getResources(),content).execute(getArguments().getInt(PRIVACY_PAGE_RAW_RES));
-
-        root.findViewById(R.id.privacyPolicy_okButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //close the window -> if we are a dialog call dismiss otherwise call back
-                if(getShowsDialog())
-                    dismiss();
-                else
-                    getActivity().onBackPressed();
-            }
-        });
+        Bundle args = getArguments();
+        if(args!=null && args.containsKey(DETAILS)){
+            LibLicense lib = args.getParcelable(DETAILS);
+            showDetails(lib);
+        }
 
         return root;
     }
 
-
+    public void showDetails(LibLicense lib){
+        mTitle.setText(lib.name);
+        new LoadFileAsyncTask(getResources(),mLicense).execute(lib.licenseFile);
+    }
 
 }

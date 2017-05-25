@@ -35,76 +35,77 @@
  * OF SUCH DAMAGE.
  */
 
-package com.st.BlueSTSDK.gui.privacyPolicy;
+package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
 
-import android.app.DialogFragment;
-import android.content.res.Resources;
-import android.os.AsyncTask;
+import android.app.Fragment;
+import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.annotation.RawRes;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.st.BlueSTSDK.gui.R;
-import com.st.BlueSTSDK.gui.util.LoadFileAsyncTask;
 
-import java.io.BufferedReader;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
+public class LibLicenseActivity extends AppCompatActivity implements LibLicenseContract.View,
+        LibLicenseListFragment.OnLibLicenseSelected {
 
-/**
- * Fragment that will show the privacy policy and a button to clos the dialog/activity
- */
-public class PrivacyPolicyFragment extends DialogFragment {
-    private static final String PRIVACY_PAGE_RAW_RES = PrivacyPolicyFragment.class.getCanonicalName()+".PrivacyPolicyFragment";
+    private static final String LIBS = LibLicenseActivity.class.getCanonicalName()+".Libs";
 
-    /**
-     * crate a fragment
-     * @param privacyPage file that contains the privacy policy
-     * @return fragmet that will display the content of the file
-     */
-    public static PrivacyPolicyFragment getInstance(@RawRes int privacyPage) {
-
-        PrivacyPolicyFragment fragment = new PrivacyPolicyFragment();
-
-        //add the file as agrument
-        Bundle args = new Bundle();
-        args.putInt(PRIVACY_PAGE_RAW_RES,privacyPage);
-        fragment.setArguments(args);
-
-        return fragment;
+    public static void startLibLicenseActivity(Context c, ArrayList<LibLicense> libs){
+        Intent intent = new Intent(c , LibLicenseActivity.class);
+        intent.putExtra(LIBS,libs);
+        c.startActivity(intent);
     }
 
-    public PrivacyPolicyFragment() {
+
+    private LibLicenseContract.Presenter mPresenter;
+    private LibLicenseListFragment mLibListView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        ArrayList<LibLicense> libs = getIntent().getParcelableArrayListExtra(LIBS);
+        mPresenter = new LibLicensePresenter(this,libs);
+
+        setContentView(R.layout.activity_lib_license);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_privacy_policy, container, false);
-
-        TextView content = (TextView) root.findViewById(R.id.privacyPolicy_content);
-
-        //load the file content in on the text view
-        new LoadFileAsyncTask(getResources(),content).execute(getArguments().getInt(PRIVACY_PAGE_RAW_RES));
-
-        root.findViewById(R.id.privacyPolicy_okButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //close the window -> if we are a dialog call dismiss otherwise call back
-                if(getShowsDialog())
-                    dismiss();
-                else
-                    getActivity().onBackPressed();
-            }
-        });
-
-        return root;
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+        if(fragment instanceof  LibLicenseListFragment){
+            mLibListView = (LibLicenseListFragment) fragment;
+            mPresenter.onListViewIsDisplayed();
+        }
     }
 
+    @Override
+    public void displayLibraries(@NonNull List<LibLicense> libs) {
+        mLibListView.addLibs(libs);
+    }
 
+    @Override
+    public void displayDetails(@NonNull LibLicense lib) {
+
+        LibLicenseDetailsActivity.startLicenseDetailActivity(this,lib);
+        /*
+        mDetailsView = LibLicenseDetailsFragment.newInstance(lib);
+        getFragmentManager().beginTransaction()
+                .replace(R.id.libLicense_fragmentListView,mDetailsView)
+                .addToBackStack(null)
+                .commit();
+        */
+
+    }
+
+    @Override
+    public void onSelected(LibLicense lib) {
+        mPresenter.onLibSelected(lib);
+    }
 
 }
+

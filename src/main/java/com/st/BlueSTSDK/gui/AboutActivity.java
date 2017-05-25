@@ -51,6 +51,10 @@ import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.st.BlueSTSDK.gui.privacyPolicy.PrivacyPolicyActivity;
+import com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicense;
+import com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicenseActivity;
+
+import java.util.ArrayList;
 
 
 /**
@@ -151,6 +155,14 @@ public class AboutActivity extends AppCompatActivity {
     // show the privacy policy if the view is selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_about_show_privacy){
+            ArrayList<LibLicense> temp = new ArrayList<>();
+            temp.add(new LibLicense("prova1",R.raw.fx_disclaimer));
+            temp.add(new LibLicense("prova2",R.raw.generic_disclaimer));
+            LibLicenseActivity.startLibLicenseActivity(this,temp);
+            return true;
+        }
+
         if (item.getItemId() == R.id.menu_about_show_privacy){
             PrivacyPolicyActivity.startPrivacyPolicyActivity(this, mPrivacyResFile);
             return true;

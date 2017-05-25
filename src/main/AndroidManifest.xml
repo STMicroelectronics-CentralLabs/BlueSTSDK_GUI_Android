@@ -47,19 +47,19 @@
         <activity
             android:name=".AboutActivity"
             android:label="@string/title_activity_about"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name=".DebugConsoleActivity"
             android:label="@string/title_activity_debug_console"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SettingsActivityWithNode"
             android:label="@string/title_activity_settings"
-            android:theme="@style/AppTheme.Settings"/>
+            android:theme="@style/AppTheme.Settings" />
         <activity
             android:name=".licenseManager.LicenseManagerActivity"
             android:label="@string/licenseManager_statusActivityName"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name=".licenseManager.RequestLicenseActivity"
             android:label="@string/title_activity_approve_license"
@@ -79,11 +79,11 @@
         </activity>
         <activity
             android:name=".fwUpgrade.FwUpgradeActivity"
-            android:label="@string/title_activity_fw_upgrade"/>
+            android:label="@string/title_activity_fw_upgrade" />
 
         <service
             android:name=".fwUpgrade.FwUpgradeService"
-            android:exported="false"/>
+            android:exported="false" />
         <service
             android:name=".NodeConnectionService"
             android:enabled="true"
@@ -96,6 +96,22 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.st.BlueSTSDK.gui.AboutActivity" />
+        </activity>
+        <activity
+            android:name=".thirdPartyLibLicense.LibLicenseActivity"
+            android:label="License"
+            android:launchMode="singleTop"
+            android:parentActivityName=".AboutActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.st.BlueSTSDK.gui.AboutActivity" />
+        </activity>
+        <activity android:name=".thirdPartyLibLicense.LibLicenseDetailsActivity"
+            android:label="Details"
+            android:parentActivityName=".thirdPartyLibLicense.LibLicenseActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicenseActivity" />
         </activity>
     </application>
 
