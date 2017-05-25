@@ -91,14 +91,13 @@ public class LibLicenseActivity extends AppCompatActivity implements LibLicenseC
     @Override
     public void displayDetails(@NonNull LibLicense lib) {
 
-        LibLicenseDetailsActivity.startLicenseDetailActivity(this,lib);
-        /*
-        mDetailsView = LibLicenseDetailsFragment.newInstance(lib);
-        getFragmentManager().beginTransaction()
-                .replace(R.id.libLicense_fragmentListView,mDetailsView)
-                .addToBackStack(null)
-                .commit();
-        */
+        LibLicenseDetailsFragment details = (LibLicenseDetailsFragment) getFragmentManager().findFragmentById(R.id.libLicense_fragmentDetails);
+
+        if(details==null) {
+            LibLicenseDetailsActivity.startLicenseDetailActivity(this, lib);
+        }else {
+            details.showDetails(lib);
+        }
 
     }
 
