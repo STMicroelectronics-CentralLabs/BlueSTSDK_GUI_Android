@@ -37,51 +37,55 @@
 
 package com.st.BlueSTSDK.gui.privacyPolicy;
 
+
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.annotation.RawRes;
-import android.support.annotation.VisibleForTesting;
-import android.support.v7.app.AppCompatActivity;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 
-import com.st.BlueSTSDK.gui.R;
+import com.st.BlueSTSDK.gui.test.R;
 
-public class PrivacyPolicyActivity extends AppCompatActivity {
-    private static final String PRIVACY_PAGE_URL = PrivacyPolicyActivity.class.getCanonicalName()+".PrivacyPolicyFragment";
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-    @VisibleForTesting
-    public static Intent getStartPrivacyPolicyActivityIntent(Context c, @RawRes int fileId){
-        Intent i = new Intent(c,PrivacyPolicyActivity.class);
-        i.putExtra(PRIVACY_PAGE_URL,fileId);
-        return i;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.containsString;
+
+@RunWith(AndroidJUnit4.class)
+public class PrivacyPolicyActivityTest {
+
+
+    @Rule
+    public ActivityTestRule<PrivacyPolicyActivity> mActivityTestRule = new ActivityTestRule<>(PrivacyPolicyActivity.class,true, false);
+
+    @Before
+    public void startActivity(){
+        Context targetContext = InstrumentationRegistry.getInstrumentation()
+                .getTargetContext();
+        Intent startIntent = PrivacyPolicyActivity.getStartPrivacyPolicyActivityIntent(targetContext,R.raw.test_privacy);
+
+        mActivityTestRule.launchActivity(startIntent);
     }
 
-    /**
-     * create an activity that will show the privacy policy
-     * @param c context where create the activity
-     * @param fileId file with the privacy policy
-     */
-    public static void startPrivacyPolicyActivity(Context c, @RawRes int fileId){
+    @Test
+    public void theResourceContentIsSnown(){
 
-        c.startActivity(getStartPrivacyPolicyActivityIntent(c,fileId));
+        onView(withId(R.id.privacyPolicy_content)).check(
+                matches(withText(containsString("privacy agreement"))));
     }
 
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_privacy_policy);
-
-        if (savedInstanceState != null) {
-            return;
-        }
-
-        int pageUrl = getIntent().getIntExtra(PRIVACY_PAGE_URL,0);
-        PrivacyPolicyFragment fragment = PrivacyPolicyFragment.getInstance(pageUrl);
-
-        getFragmentManager().beginTransaction()
-                .add(R.id.privacyPolicy_content_fragment, fragment).commit();
+    @Test
+    public void theOKButtonCloseTheActivity(){
+        onView(withId(R.id.privacyPolicy_okButton)).perform(click());
+        Assert.assertTrue(mActivityTestRule.getActivity().isFinishing());
     }
 
 }
