@@ -63,7 +63,7 @@ import java.util.ArrayList;
 public class AboutActivity extends AppCompatActivity {
     private static final String ABOUT_PAGE_URL = AboutActivity.class.getCanonicalName()+".ABOUT_PAGE_URL";
     private static final String PRIVACY_RES_ID = AboutActivity.class.getCanonicalName()+".PRIVACY_RES_ID";
-
+    private static final String LIB_LICENSES_INFOS = AboutActivity.class.getCanonicalName()+".LIB_LICENSES_INFOS";
 
     /**
      *  display the actvity that will show the about page
@@ -73,16 +73,33 @@ public class AboutActivity extends AppCompatActivity {
      */
     public static void startActivityWithAboutPage(Context c,
                                                   @Nullable String aboutPageUrl,
-                                                  @Nullable @RawRes Integer privacyUrl){
+                                                  @Nullable @RawRes Integer privacyUrl,
+                                                  @Nullable ArrayList<LibLicense> usedLibrary){
         Intent intent = new Intent(c,AboutActivity.class);
         intent.putExtra(ABOUT_PAGE_URL,aboutPageUrl);
         if(privacyUrl!=null)
             intent.putExtra(PRIVACY_RES_ID,privacyUrl);
+        if(usedLibrary!=null)
+            intent.putExtra(LIB_LICENSES_INFOS,usedLibrary);
         c.startActivity(intent);
+    }
+
+    public static void startActivityWithAboutPage(Context c,
+                                                  @Nullable String aboutPageUrl,
+                                                  @Nullable @RawRes Integer privacyUrl){
+        startActivityWithAboutPage(c,aboutPageUrl,privacyUrl,null);
+    }
+
+    public static void startActivityWithAboutPage(Context c,
+                                                  @Nullable String aboutPageUrl){
+        startActivityWithAboutPage(c,aboutPageUrl,null,null);
     }
 
     // resource where read the privacy policy
     private Integer mPrivacyResFile =null;
+
+    private ArrayList<LibLicense> mLicenseInfos=null;
+
 
     // set the text view with the app version
     private void setUpAppVersion(){
@@ -128,6 +145,10 @@ public class AboutActivity extends AppCompatActivity {
         if(extra.containsKey(PRIVACY_RES_ID))
             mPrivacyResFile = extra.getInt(PRIVACY_RES_ID);
 
+        if(extra.containsKey(LIB_LICENSES_INFOS)){
+            mLicenseInfos = extra.getParcelableArrayList(LIB_LICENSES_INFOS);
+        }
+
         setUpMainPage(extra.getString(ABOUT_PAGE_URL));
 
         setUpAppName();
@@ -139,11 +160,15 @@ public class AboutActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.activity_about, menu);
 
-        MenuItem item = menu.findItem(R.id.menu_about_show_privacy);
-
-        setUpPrivacyMenu(item);
+        setUpPrivacyMenu(menu.findItem(R.id.menu_about_show_privacy));
+        setUpLibInfoMenu(menu.findItem(R.id.menu_about_show_lib_info));
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void setUpLibInfoMenu(MenuItem item) {
+        if(mLicenseInfos == null)
+            item.setVisible(false);
     }
 
     // hide the privacy menu if the user doesn't pass a privacy page
@@ -155,11 +180,8 @@ public class AboutActivity extends AppCompatActivity {
     // show the privacy policy if the view is selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_about_show_privacy){
-            ArrayList<LibLicense> temp = new ArrayList<>();
-            temp.add(new LibLicense("prova1",R.raw.fx_disclaimer));
-            temp.add(new LibLicense("prova2",R.raw.generic_disclaimer));
-            LibLicenseActivity.startLibLicenseActivity(this,temp);
+        if (item.getItemId() == R.id.menu_about_show_lib_info){
+            LibLicenseActivity.startLibLicenseActivity(this,mLicenseInfos);
             return true;
         }
 

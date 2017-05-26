@@ -41,6 +41,10 @@
 
     <item
         android:id="@+id/menu_about_show_privacy"
-        android:title="Privacy policy"
+        android:title="Privacy Policy"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_about_show_lib_info"
+        android:title="Open Source Library"
         app:showAsAction="never" />
 </menu>
