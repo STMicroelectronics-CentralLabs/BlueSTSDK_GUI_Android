@@ -37,50 +37,53 @@
 
 package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
 
-import android.app.Fragment;
+
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 
-import com.st.BlueSTSDK.gui.R;
+import com.st.BlueSTSDK.gui.test.R;
 
-/**
- * Activity that show the license agreement for a specific license
- * */
-public class LibLicenseDetailsActivity extends AppCompatActivity {
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-    private static final String DETAILS = LibLicenseDetailsActivity.class.getCanonicalName()+".DETAILS";
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.containsString;
 
-    @VisibleForTesting
-    public static Intent getStartLicenseDetailActivityIntent(@NonNull Context c,@NonNull LibLicense lib){
-        Intent intent = new Intent(c,LibLicenseDetailsActivity.class);
-        intent.putExtra(DETAILS,lib);
-        return intent;
+@RunWith(AndroidJUnit4.class)
+public class LibLicenseDetailsActivityTest {
+
+    private static LibLicense LIBRARY = new LibLicense("Library", R.raw.test_licese);
+
+    @Rule
+    public ActivityTestRule<LibLicenseDetailsActivity> mActivityTestRule = new ActivityTestRule<>(LibLicenseDetailsActivity.class,true, false);
+
+    @Before
+    public void startActivity(){
+        Context targetContext = InstrumentationRegistry.getInstrumentation()
+                .getTargetContext();
+        Intent startIntent = LibLicenseDetailsActivity.getStartLicenseDetailActivityIntent(targetContext,LIBRARY);
+
+        mActivityTestRule.launchActivity(startIntent);
     }
 
-    /**
-     *  lunch an activity to show the license details
-     * @param c context to use to start the activity
-     * @param lib library to show
-     */
-    public static void startLicenseDetailActivity(@NonNull Context c,@NonNull LibLicense lib){
-        c.startActivity(getStartLicenseDetailActivityIntent(c,lib));
+    @Test
+    public void licenseNameIsUsedAsTitle(){
+        Assert.assertEquals(mActivityTestRule.getActivity().getTitle(),LIBRARY.name);
+        onView(withId(R.id.libLicense_detailsName)).check(matches(withText(LIBRARY.name)));
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_lib_license_details);
-        LibLicense lib = getIntent().getParcelableExtra(DETAILS);
-        setTitle(lib.name);
-        if (savedInstanceState == null) {
-            Fragment fragment = LibLicenseDetailsFragment.newInstance(lib);
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.libLicense_fragmentDetails,fragment)
-                    .commit();
-        }//if
+    @Test
+    public void licenseTermAreDisplayed(){
+        onView(withId(R.id.libLicense_detailsLic)).check(matches(withText(containsString("license content"))));
     }
+
 }

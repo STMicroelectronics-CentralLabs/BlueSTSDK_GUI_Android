@@ -42,6 +42,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -55,10 +56,15 @@ public class LibLicenseActivity extends AppCompatActivity implements LibLicenseC
 
     private static final String LIBS = LibLicenseActivity.class.getCanonicalName()+".Libs";
 
-    public static void startLibLicenseActivity(Context c, ArrayList<LibLicense> libs){
+    @VisibleForTesting
+    public static Intent getStartLibLicenseActivityIntent(Context c, ArrayList<LibLicense> libs){
         Intent intent = new Intent(c , LibLicenseActivity.class);
         intent.putExtra(LIBS,libs);
-        c.startActivity(intent);
+        return intent;
+    }
+
+    public static void startLibLicenseActivity(Context c, ArrayList<LibLicense> libs){
+        c.startActivity(getStartLibLicenseActivityIntent(c,libs));
     }
 
     private LibLicenseContract.Presenter mPresenter;

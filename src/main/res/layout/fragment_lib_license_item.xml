@@ -51,7 +51,7 @@
         app:srcCompat="@android:drawable/ic_menu_info_details" />
 
     <TextView
-        android:id="@+id/libLicense_nameLabel"
+        android:id="@+id/libLicense_itemName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/libLicense_detailsImg"

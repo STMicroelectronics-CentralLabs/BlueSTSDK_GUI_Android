@@ -40,7 +40,6 @@ package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -148,7 +147,7 @@ public class LibLicenseListFragment extends Fragment {
             public ViewHolder(View itemView) {
                 super(itemView);
 
-                mLibName = (TextView) itemView.findViewById(R.id.libLicense_nameLabel);
+                mLibName = (TextView) itemView.findViewById(R.id.libLicense_itemName);
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
