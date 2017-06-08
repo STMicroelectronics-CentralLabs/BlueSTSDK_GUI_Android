@@ -41,19 +41,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.RawRes;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.widget.TextView;
 
-import com.st.BlueSTSDK.gui.privacyPolicy.PrivacyPolicyActivity;
 import com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicense;
 import com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicenseActivity;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -73,7 +73,7 @@ public class AboutActivity extends AppCompatActivity {
      */
     public static void startActivityWithAboutPage(Context c,
                                                   @Nullable String aboutPageUrl,
-                                                  @Nullable @RawRes Integer privacyUrl,
+                                                  @Nullable URL privacyUrl,
                                                   @Nullable ArrayList<LibLicense> usedLibrary){
         Intent intent = new Intent(c,AboutActivity.class);
         intent.putExtra(ABOUT_PAGE_URL,aboutPageUrl);
@@ -86,7 +86,7 @@ public class AboutActivity extends AppCompatActivity {
 
     public static void startActivityWithAboutPage(Context c,
                                                   @Nullable String aboutPageUrl,
-                                                  @Nullable @RawRes Integer privacyUrl){
+                                                  @Nullable URL privacyUrl){
         startActivityWithAboutPage(c,aboutPageUrl,privacyUrl,null);
     }
 
@@ -96,7 +96,7 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     // resource where read the privacy policy
-    private Integer mPrivacyResFile =null;
+    private URL mPrivacyResFile = null;
 
     private ArrayList<LibLicense> mLicenseInfos=null;
 
@@ -143,7 +143,7 @@ public class AboutActivity extends AppCompatActivity {
         Bundle extra = getIntent().getExtras();
         mPrivacyResFile = null;
         if(extra.containsKey(PRIVACY_RES_ID))
-            mPrivacyResFile = extra.getInt(PRIVACY_RES_ID);
+            mPrivacyResFile = (URL) extra.getSerializable(PRIVACY_RES_ID);
 
         if(extra.containsKey(LIB_LICENSES_INFOS)){
             mLicenseInfos = extra.getParcelableArrayList(LIB_LICENSES_INFOS);
@@ -186,7 +186,9 @@ public class AboutActivity extends AppCompatActivity {
         }
 
         if (item.getItemId() == R.id.menu_about_show_privacy){
-            PrivacyPolicyActivity.startPrivacyPolicyActivity(this, mPrivacyResFile);
+            Intent openUrl = new Intent(Intent.ACTION_VIEW);
+            openUrl.setData(Uri.parse(mPrivacyResFile.toString()));
+            startActivity(openUrl);
             return true;
         }
         return super.onOptionsItemSelected(item);
