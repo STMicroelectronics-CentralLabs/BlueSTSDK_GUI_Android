@@ -52,6 +52,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatDelegate;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -87,6 +88,10 @@ import java.util.List;
  */
 public abstract class DemosActivity extends LogFeatureActivity implements NodeContainer,
         NavigationView.OnNavigationItemSelectedListener {
+
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
 
     private final static String NODE_TAG_ARG = DemosActivity.class.getCanonicalName() + "" +
             ".NODE_TAG";

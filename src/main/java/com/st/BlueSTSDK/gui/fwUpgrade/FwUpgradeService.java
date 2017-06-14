@@ -42,6 +42,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -227,10 +228,17 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
      * @return object that will build the notification
      */
     private NotificationCompat.Builder buildUploadNotification() {
-        return new NotificationCompat.Builder(this)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setCategory(NotificationCompat.CATEGORY_PROGRESS)
-                .setSmallIcon(R.drawable.ic_upload_license_white_24dp)
+
                 .setContentTitle(getString(R.string.fwUpgrade_notificationTitle));
+
+        if(Build.VERSION.SDK_INT>=21){
+            builder.setSmallIcon(R.drawable.ic_upload_license_white_24dp);
+        }else{
+            builder.setSmallIcon(android.R.drawable.ic_menu_upload);
+        }
+        return builder;
     }
 
     @Override

@@ -43,6 +43,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
@@ -277,7 +278,6 @@ public class NodeConnectionService extends Service {
         PendingIntent disconnectNode = getDisconnectPendingIntent(n);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(notificationIcon)
                 .setContentTitle(getString(R.string.NodeConn_nodeConnectedTitile))
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -285,6 +285,12 @@ public class NodeConnectionService extends Service {
                 .setDeleteIntent(disconnectNode)
                 .addAction(buildDisconnectAction(disconnectNode))
                 .setContentText(getString(R.string.NodeConn_nodeIsConnected,n.getName()));
+
+        if(Build.VERSION.SDK_INT>=21){
+            notificationBuilder.setSmallIcon(notificationIcon);
+        }else{
+            notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
+        }
 
         mNotificationManager.notify(NOTIFICAITON_ID, notificationBuilder.build());
     }

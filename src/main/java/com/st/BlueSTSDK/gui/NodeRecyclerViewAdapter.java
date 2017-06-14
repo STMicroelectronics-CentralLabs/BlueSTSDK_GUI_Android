@@ -36,8 +36,10 @@
  */
 package com.st.BlueSTSDK.gui;
 
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,23 +108,25 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         holder.mNodeNameLabel.setText(n.getName());
         holder.mNodeTagLabel.setText(n.getTag());
 
+        Drawable boadImage;
         switch (n.getType()){
             case STEVAL_WESU1:
-                holder.mNodeImage.setImageResource(R.drawable.board_steval_wesu1);
+                boadImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),R.drawable.board_steval_wesu1);
                 break;
             case NUCLEO:
-                holder.mNodeImage.setImageResource(R.drawable.board_nucleo);
+                boadImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),R.drawable.board_nucleo);
                 break;
             case SENSOR_TILE:
-                holder.mNodeImage.setImageResource(R.drawable.board_sensor_tile);
+                boadImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),R.drawable.board_sensor_tile);
                 break;
             case BLUE_COIN:
-                holder.mNodeImage.setImageResource(R.drawable.board_bluecoin);
+                boadImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),R.drawable.board_bluecoin);
                 break;
             default:
-                holder.mNodeImage.setImageResource(R.drawable.board_generic);
+                boadImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),R.drawable.board_generic);
                 break;
         }
+        holder.mNodeImage.setImageDrawable(boadImage);
 
 
         holder.mView.setOnClickListener(new View.OnClickListener() {

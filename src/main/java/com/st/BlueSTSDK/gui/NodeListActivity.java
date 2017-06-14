@@ -39,6 +39,7 @@ package com.st.BlueSTSDK.gui;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -57,7 +58,6 @@ import com.st.BlueSTSDK.Utils.NodeScanActivity;
 public abstract class NodeListActivity extends NodeScanActivity implements NodeRecyclerViewAdapter
 .OnNodeSelectedListener, NodeRecyclerViewAdapter.FilterNode, View.OnClickListener{
     private final static String TAG = NodeListActivity.class.getCanonicalName();
-
 
     private Manager.ManagerListener mUpdateDiscoverGui = new Manager.ManagerListener() {
 
