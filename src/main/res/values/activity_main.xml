@@ -41,4 +41,8 @@
     <string name="version">Version: </string>
     <string name="startScanButton">Start scanning</string>
     <string name="startAboutButton">About</string>
+
+    <string name="privacyDialog_title">Privacy Policy</string>
+    <string name="privacyDialog_message">Open the link to show the app privacy policy</string>
+    <string name="privacyDialog_button">Privacy Policy</string>
 </resources>

@@ -36,10 +36,19 @@
  */
 package com.st.BlueSTSDK.gui;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
@@ -65,6 +74,9 @@ public abstract class MainActivity extends AppCompatActivity {
     private static final int AUTO_HIDE_DELAY_MILLIS = 1000;
     private static final String SPLASH_SCREEN_WAS_SHOWN = MainActivity.class.getCanonicalName()+"" +
             ".SplashWasShown";
+    private static final String PRIVACY_DIALOG_SHOWN = MainActivity.class.getCanonicalName()+".PRIVACY_DIALOG_SHOWN";
+    private static final String PRIVACY_DIALOG_SHOWN_TAG = MainActivity.class.getCanonicalName()+".PRIVACY_DIALOG_SHOWN";
+
 
     /**
      * Some older devices needs a small delay between UI widget updates
@@ -183,5 +195,77 @@ public abstract class MainActivity extends AppCompatActivity {
      * @return raw resource id with the privacy policy
      */
     public abstract URL getPrivacyPolicyUrl();
+
+
+    private static void setDialogShown(final SharedPreferences prefs, boolean showNextTime){
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(PRIVACY_DIALOG_SHOWN, showNextTime);
+        editor.apply();
+    }
+
+    public boolean showPrivacyDialog(){
+        final SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
+        return !prefs.contains(PRIVACY_DIALOG_SHOWN) && getPrivacyPolicyUrl()!=null;
+    }
+
+    public void displayPrivacyDialog(){
+        URL page = getPrivacyPolicyUrl();
+        if(page!=null)
+            PrivacyDialog.newInstance(page).show(getFragmentManager(),PRIVACY_DIALOG_SHOWN_TAG);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(showPrivacyDialog())
+            displayPrivacyDialog();
+    }
+
+    public static class PrivacyDialog extends DialogFragment {
+
+        private static final String PRIVACY_URL_EXTRA = PrivacyDialog.class.getCanonicalName()+".PRIVACY_URL_EXTRA";
+
+        public static DialogFragment newInstance(@NonNull URL privacyPage){
+            Bundle param = new Bundle();
+            param.putSerializable(PRIVACY_URL_EXTRA,privacyPage);
+
+            DialogFragment dialog = new PrivacyDialog();
+            dialog.setArguments(param);
+            return dialog;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            final String urlPage = getArguments().getSerializable(PRIVACY_URL_EXTRA).toString();
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            final SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+            dialogBuilder.setTitle(R.string.privacyDialog_title);
+            dialogBuilder.setMessage(R.string.privacyDialog_message);
+            dialogBuilder.setPositiveButton(R.string.privacyDialog_button, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent openUrl = new Intent(Intent.ACTION_VIEW);
+                    openUrl.setData(Uri.parse(urlPage));
+                    startActivity(openUrl);
+                    setDialogShown(prefs,false);
+                }
+            });
+            dialogBuilder.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    setDialogShown(prefs,false);
+                }
+            });
+            dialogBuilder.setCancelable(false);
+
+            return dialogBuilder.create();
+
+        }
+    }
+
 
 }
