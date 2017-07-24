@@ -37,7 +37,7 @@
   -->
 
 <resources>
-    <string name="copyright">\u00A9 2016 意法半导体</string>
+    <string name="copyright">\u00A9 2017 意法半导体</string>
     <string name="version">版本: </string>
     <string name="startScanButton">开始扫描</string>
     <string name="startAboutButton">关于</string>
