@@ -203,23 +203,28 @@ public abstract class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    public boolean showPrivacyDialog(){
+    private boolean showPrivacyDialog(){
         final SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
         return !prefs.contains(PRIVACY_DIALOG_SHOWN) && getPrivacyPolicyUrl()!=null;
     }
 
-    public void displayPrivacyDialog(){
+    private void displayPrivacyDialog(){
         URL page = getPrivacyPolicyUrl();
         if(page!=null)
             PrivacyDialog.newInstance(page).show(getFragmentManager(),PRIVACY_DIALOG_SHOWN_TAG);
 
     }
 
+    private boolean privacyDialogIsCurrentlyDisplayed(){
+        return getFragmentManager().findFragmentByTag(PRIVACY_DIALOG_SHOWN_TAG)!=null;
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        if(showPrivacyDialog())
+        if(showPrivacyDialog() && !privacyDialogIsCurrentlyDisplayed()) {
             displayPrivacyDialog();
+        }
     }
 
     public static class PrivacyDialog extends DialogFragment {
