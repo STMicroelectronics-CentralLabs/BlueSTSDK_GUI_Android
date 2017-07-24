@@ -73,7 +73,7 @@ public class DebugConsoleActivity extends ActivityWithNode {
     private final static String PREFERENCE_AUTO_SCROLL_KEY = "prefDebugActivityAutoScroll";
 
     private final static String WESU_HELP_MESSAGE="?\n";
-    private final static String NUCLEO_HELP_MESSAGE="??";
+    private final static String NUCLEO_HELP_MESSAGE="help";
 
     private enum ConsoleType{
         OUTPUT,
