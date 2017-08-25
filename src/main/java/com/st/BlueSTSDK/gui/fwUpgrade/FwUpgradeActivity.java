@@ -37,17 +37,14 @@
 package com.st.BlueSTSDK.gui.fwUpgrade;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -63,6 +60,7 @@ import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersionBoard;
 import com.st.BlueSTSDK.gui.util.AlertAndFinishDialog;
+import com.st.BlueSTSDK.gui.util.DialogUtil;
 
 /**
  * Activity where the user can see the current firware name and version and upload a new firmware
@@ -79,11 +77,34 @@ public class FwUpgradeActivity extends ActivityWithNode {
 
     private static final String VERSION = FwUpgradeActivity.class.getName()+"FW_VERSION";
     private static final String FINAL_MESSAGE = FwUpgradeActivity.class.getName()+"FINAL_MESSAGE";
+    private static final String EXTRA_FW_TO_LOAD = FwUpgradeActivity.class.getName()+"EXTRA_FW_TO_LOAD";
     private static final int RESULT_READ_ACCESS = 2;
 
+    /**
+     * crate the start intent for this activity
+     * @param c context to use
+     * @param node node where upload the fw
+     * @param keepTheConnectionOpen keep the connection open when the activity ends
+     * @return intent to start the activity
+     */
     public static Intent getStartIntent(Context c, Node node, boolean keepTheConnectionOpen) {
         return ActivityWithNode.getStartIntent(c,FwUpgradeActivity.class,node,
                 keepTheConnectionOpen);
+    }
+
+    /**
+     * crate the start intent for this activity
+     * @param c context to use
+     * @param node node where upload the fw
+     * @param keepTheConnectionOpen keep the connection open when the activity ends
+     * @param fwLocation local file to upload on the node
+     * @return intent to start this activity and automaticaly start uploading the file
+     */
+    public static Intent getStartIntent(Context c, Node node, boolean keepTheConnectionOpen,
+                                        Uri fwLocation) {
+        Intent intent = getStartIntent(c,node,keepTheConnectionOpen);
+        intent.putExtra(EXTRA_FW_TO_LOAD,fwLocation);
+        return intent;
     }
 
     private View mRootView;
@@ -121,7 +142,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
             FwUpgradeActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    releaseDialog(mLoadVersionProgressDialog);
+                    DialogUtil.releaseDialog(mLoadVersionProgressDialog);
                     mLoadVersionProgressDialog=null;
                     if(version==null){
                         displayFwUpgradeNotAvailableAndFinish();
@@ -129,14 +150,31 @@ public class FwUpgradeActivity extends ActivityWithNode {
                     }
                     if(fwType==FwUpgradeConsole.BOARD_FW) {
                         FwVersionBoard boardVersion =(FwVersionBoard) version;
-                        if(checkFwIncompatibility(boardVersion))
+                        if(checkFwIncompatibility(boardVersion)) {
                             displayVersion(boardVersion);
+                            startExternalFwUpgrade();
+                        }
                     }
                 }
             });
+            console.setLicenseConsoleListener(null);
         }
 
     };
+
+    /**
+     * if the intent contains the fw uri, and the permission are in place start the fw upload
+     * @return true if the fw upload starts
+     */
+    private boolean startExternalFwUpgrade() {
+        Intent intent = getIntent();
+        if(intent.hasExtra(EXTRA_FW_TO_LOAD) && checkReadSDPermission()){
+            Uri fwLocation = intent.getParcelableExtra(EXTRA_FW_TO_LOAD);
+            FwUpgradeService.startUploadService(this,getNode(),fwLocation);
+            return true;
+        }//if
+        return false;
+    }
 
     private void displayFwUpgradeNotAvailableAndFinish() {
         DialogFragment newFragment = AlertAndFinishDialog.newInstance(
@@ -233,20 +271,15 @@ public class FwUpgradeActivity extends ActivityWithNode {
         outState.putString(FINAL_MESSAGE, mFinalMessage.getText().toString());
     }
 
-    private static void releaseDialog(@Nullable Dialog d){
-        if(d!=null && d.isShowing()) {
-            d.dismiss();
-        }
-    }
+
 
     @Override
     protected void onPause() {
         super.onPause();
         mNode.removeNodeStateListener(mOnConnected);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
-        releaseDialog(mUploadFileProgressDialog);
-        releaseDialog(mFormattingProgressDialog);
-        releaseDialog(mLoadVersionProgressDialog);
+        mMessageReceiver.releaseDialog();
+        DialogUtil.releaseDialog(mLoadVersionProgressDialog);
     }
 
 
@@ -258,91 +291,29 @@ public class FwUpgradeActivity extends ActivityWithNode {
         //Intent i = Intent.createChooser(intent, "Open firmwere file");
     }
 
-    private ProgressDialog mUploadFileProgressDialog;
-    private ProgressDialog mFormattingProgressDialog;
 
 
-    private class FwUpgradeServiceActionReceiver extends BroadcastReceiver
-    {
+    private class FwUpgradeServiceActionReceiver extends com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeServiceActionReceiver{
 
-        private Context mContext;
-
-
-        FwUpgradeServiceActionReceiver(Context c){
-            mContext=c;
+        FwUpgradeServiceActionReceiver(Context c) {
+            super(c);
         }
 
-        private ProgressDialog createUpgradeProgressDialog(Context c){
-            ProgressDialog dialog = new ProgressDialog(c);
-            dialog.setTitle(R.string.fwUpgrade_uploading);
-            dialog.setCancelable(false);
-            dialog.setProgressNumberFormat(c.getString(R.string.fwUpgrade_upgradeNumberFormat));
-            dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            return dialog;
-        }
-
-        private ProgressDialog createFormatProgressDialog(Context c){
-            ProgressDialog dialog = new ProgressDialog(c);
-            dialog.setTitle(R.string.fwUpgrade_formatting);
-            dialog.setCancelable(false);
-            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            return dialog;
-        }
-
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if(action.equals(FwUpgradeService.FW_UPLOAD_STARTED_ACTION))
-                uploadStarted();
-            if(action.equals(FwUpgradeService.FW_UPLOAD_STATUS_UPGRADE_ACTION)){
-                long total = intent.getLongExtra(FwUpgradeService
-                        .FW_UPLOAD_STATUS_UPGRADE_TOTAL_BYTE_EXTRA, Integer.MAX_VALUE);
-                long upload = intent.getLongExtra(FwUpgradeService
-                        .FW_UPLOAD_STATUS_UPGRADE_SEND_BYTE_EXTRA,0);
-                upgradeUploadStatus(upload,total);
-            }else if(action.equals(FwUpgradeService.FW_UPLOAD_FINISHED_ACTION)){
-                float time = intent.getFloatExtra(FwUpgradeService
-                        .FW_UPLOAD_FINISHED_TIME_S_EXTRA,0.0f);
-                uploadFinished(time);
-            }else if(action.equals(FwUpgradeService.FW_UPLOAD_ERROR_ACTION)){
-                String message = intent.getStringExtra(FwUpgradeService
-                        .FW_UPLOAD_ERROR_MESSAGE_EXTRA);
-                uploadError(message);
-
-            }
-        }
-
-        private void uploadStarted() {
-            mFormattingProgressDialog = createFormatProgressDialog(mContext);
-            mFormattingProgressDialog.show();
-        }
-
-        private void upgradeUploadStatus(long uploadBytes, long totalBytes){
-            if(mUploadFileProgressDialog==null){
-                mUploadFileProgressDialog= createUpgradeProgressDialog(mContext);
-                mUploadFileProgressDialog.setMax((int)totalBytes);
-                releaseDialog(mFormattingProgressDialog);
-                mFormattingProgressDialog=null;
-            }
-            mUploadFileProgressDialog.show();
-            mUploadFileProgressDialog.setProgress((int)uploadBytes);
-        }
-
-        private void uploadFinished(float timeS){
-            releaseDialog(mUploadFileProgressDialog);
-            mUploadFileProgressDialog=null;
-            mFinalMessage.setText(String.format(getString(R.string.fwUpgrade_upgradeCompleteMessage),timeS));
-        }
-
-        private void uploadError(String msg){
-            releaseDialog(mUploadFileProgressDialog);
-            mUploadFileProgressDialog=null;
-
+        @Override
+        protected void onUploadError(String msg) {
+            super.onUploadError(msg);
             mFinalMessage.setText(msg);
+        }
+
+        @Override
+        protected void onUploadFinished(float timeS) {
+            super.onUploadFinished(timeS);
+            mFinalMessage.setText(String.format(getString(R.string.fwUpgrade_upgradeCompleteMessage),timeS));
         }
     }
 
 
-    private BroadcastReceiver mMessageReceiver;
+    private FwUpgradeServiceActionReceiver mMessageReceiver;
 
     @Override
     public void onResume() {
@@ -412,7 +383,8 @@ public class FwUpgradeActivity extends ActivityWithNode {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startFwUpgrade();
+                    if(!startExternalFwUpgrade()) //if we already have a fw to upload
+                        startFwUpgrade(); // ask to the user
                 } else {
                     Snackbar.make(mRootView, "Impossible read Firmware files",
                             Snackbar.LENGTH_SHORT).show();
