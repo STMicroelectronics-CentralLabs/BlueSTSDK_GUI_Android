@@ -124,6 +124,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
     private class GetVersionProtocol implements Debug.DebugOutputListener {
 
         private @FirmwareType int mRequestFwType;
+        private  int mNInvalidLine=0;
 
         /**
          * if the timeout is rise, fire an error of type
@@ -177,6 +178,10 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                 }catch (IllegalVersionFormatException e){
                     //remove invalid data and wait another timeout
                     mBuffer.delete(0,mBuffer.length());
+                    if(++mNInvalidLine % 10 ==0) {
+                        //send again the request message, the message get lost
+                        requestVersion(mRequestFwType);
+                    }
                     mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
                     return;
                 }//try-catch
