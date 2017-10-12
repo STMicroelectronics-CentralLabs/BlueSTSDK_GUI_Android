@@ -67,8 +67,8 @@ import java.util.regex.Pattern;
 
 public class LogPreferenceFragment extends PreferenceFragment {
 
-    private static final String EXPORT_LOG_FILE_EXTENSION = ".csv";
-    private static final Pattern PATTERN_FILE_NAME_SESSION = Pattern.compile("^(\\d{8})_(\\d{6})_.*csv$");
+    private static final String EXPORT_LOG_FILE_EXTENSION = "csv";
+    private static final Pattern PATTERN_FILE_NAME_SESSION = Pattern.compile("^(\\d{8})_(\\d{6})_.*(csv|wav)$");
 
     public final static String KEY_PREF_LOG_STORE="prefLog_logStore";
     public final static String KEY_PREF_LOG_DUMP_PATH="prefLog_exportPath";
@@ -88,13 +88,6 @@ public class LogPreferenceFragment extends PreferenceFragment {
 
     }
 
-    /** remove the generated log files */
-    void clearLog(){
-        SharedPreferences sharedPref = getPreferenceManager().getSharedPreferences();
-        String path = sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_DUMP_PATH,"");
-        FeatureLogBase.clean(getActivity(), path);
-    }
-
     /**
      * get all the log file in the directory
      * @param directoryPath path where search the file
@@ -102,18 +95,15 @@ public class LogPreferenceFragment extends PreferenceFragment {
      */
     static public File[] getLogFiles(String directoryPath, final String session){
         File directory = new File(directoryPath);
-        //find all the csv files
-        final FileFilter csvFilter = new FileFilter() {
+        //find all the log files files
+        final FileFilter isLogFile = new FileFilter() {
             @Override
             public boolean accept(File pathname) {
                 final String fileName = pathname.getName();
-                if (session != null)
-                    return fileName.endsWith(EXPORT_LOG_FILE_EXTENSION) && fileName.startsWith(session);
-                else
-                    return fileName.endsWith(EXPORT_LOG_FILE_EXTENSION);
+                return PATTERN_FILE_NAME_SESSION.matcher(fileName).matches();
             }//accept
         };
-        return directory.listFiles(csvFilter);
+        return directory.listFiles(isLogFile);
     }//getLogFiles
 
     /**
@@ -134,8 +124,7 @@ public class LogPreferenceFragment extends PreferenceFragment {
     }//clean
 
     private String getLogPath(){
-        SharedPreferences sharedPref = getPreferenceManager().getSharedPreferences();
-        return sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_DUMP_PATH,"");
+        return LogFeatureActivity.getLogDirectory();
     }
 
 

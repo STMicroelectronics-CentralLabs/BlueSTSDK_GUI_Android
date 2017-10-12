@@ -38,16 +38,6 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <EditTextPreference
-        android:key="prefLog_exportPath"
-        android:title="@string/pref_exportPath"
-        android:summary="@string/pref_exportPath_summary"
-        android:defaultValue="@string/pref_exportPath_defaultValue"
-        android:selectAllOnFocus="true"
-        android:inputType="textCapWords"
-        android:singleLine="true"
-        android:maxLines="1" />
-
     <ListPreference
         android:key="prefLog_logStore"
         android:summary="@string/pref_logStore_summary"
@@ -65,7 +55,10 @@
                 android:data="http://www.example.com" />
     </Preference>
 
-    <Preference android:title="@string/pref_logExportSession" android:summary="@string/pref_logExportSession_summary" android:key="prefLog_exportSessionLog"></Preference>
+    <Preference
+        android:title="@string/pref_logExportSession"
+        android:summary="@string/pref_logExportSession_summary"
+        android:key="prefLog_exportSessionLog"/>
 
 
 </PreferenceScreen>

@@ -40,9 +40,6 @@
     <!-- Log General settings -->
     <string name="pref_logSettings_title">Log Settings</string>
     <string name="pref_logSettings_summary">Set how and where to store the log</string>
-    <string name="pref_exportPath">Export Path</string>
-    <string name="pref_exportPath_summary">Select the log saving path</string>
-    <string name="pref_exportPath_defaultValue">/sdcard/STMicroelectronics/logs</string>
 
     <string name="pref_logStore">Log storage</string>
     <string name="pref_logStore_summary">Select the log type</string>

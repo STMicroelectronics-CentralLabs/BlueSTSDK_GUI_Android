@@ -493,12 +493,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         return Collections.singletonList(mNode);
     }
 
-    protected String getLogDirectory() {
-        final SharedPreferences sharedPref = PreferenceManager
-                                .getDefaultSharedPreferences(DemosActivity.this);
-        return sharedPref.getString(LogPreferenceFragment.KEY_PREF_LOG_DUMP_PATH,"");
-    }
-
     /**
      * listener that will show the debug message on the textView
      */
