@@ -63,12 +63,17 @@ android {
         }
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
 }
 
 dependencies {
 
-    testCompile "junit:junit:$rootProject.junitVersion"
-    testCompile "org.mockito:mockito-core:$rootProject.mockitoVersion"
+    testImplementation "junit:junit:$rootProject.junitVersion"
+    testImplementation "org.mockito:mockito-core:$rootProject.mockitoVersion"
 
     androidTestCompile "junit:junit:$rootProject.junitVersion"
     androidTestCompile "org.mockito:mockito-core:$rootProject.mockitoVersion"
