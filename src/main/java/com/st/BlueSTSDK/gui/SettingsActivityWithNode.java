@@ -43,6 +43,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NavUtils;
+import android.util.Log;
+import android.view.MenuItem;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.preferences.LogPreferenceFragment;
@@ -132,5 +135,21 @@ public class SettingsActivityWithNode extends AppCompatPreferenceActivity {
     public void onHeaderClick(Header header, int position) {
         header.fragmentArguments = PreferenceFragmentWithNode.addStartArgs(header.fragmentArguments,nodeTag,mKeepConnectionOpen);
         super.onHeaderClick(header,position);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if(id==android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
