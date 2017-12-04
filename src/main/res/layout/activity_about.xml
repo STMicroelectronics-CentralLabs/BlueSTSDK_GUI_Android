@@ -49,8 +49,7 @@
         android:layout_height="0dp"
         android:layout_margin="16dp"
         android:layout_weight="1"
-        app:srcCompat="@drawable/press_contact" />
-
+        app:srcCompat="@drawable/about_header" />
     <TextView
         android:id="@+id/about_appName"
         android:layout_width="match_parent"
