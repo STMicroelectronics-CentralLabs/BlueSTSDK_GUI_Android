@@ -1,3 +1,40 @@
+/*
+ * Copyright (c) 2017  STMicroelectronics – All rights reserved
+ * The STMicroelectronics corporate logo is a trademark of STMicroelectronics
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice, this list of conditions
+ *   and the following disclaimer.
+ *
+ * - Redistributions in binary form must reproduce the above copyright notice, this list of
+ *   conditions and the following disclaimer in the documentation and/or other materials provided
+ *   with the distribution.
+ *
+ * - Neither the name nor trademarks of STMicroelectronics International N.V. nor any other
+ *   STMicroelectronics company nor the names of its contributors may be used to endorse or
+ *   promote products derived from this software without specific prior written permission.
+ *
+ * - All of the icons, pictures, logos and other images that are provided with the source code
+ *   in a directory whose title begins with st_images may only be used for internal purposes and
+ *   shall not be redistributed to any third party or modified in any way.
+ *
+ * - Any redistributions in binary form shall not include the capability to display any of the
+ *   icons, pictures, logos and other images that are provided with the source code in a directory
+ *   whose title begins with st_images.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+ * OF SUCH DAMAGE.
+ */
+
 package com.st.BlueSTSDK.gui.licenseManager.licenseConsole;
 
 import android.app.Activity;
@@ -30,6 +67,8 @@ public class LicenseConsoleWesu extends LicenseConsole {
     private static final String ALG_MOTION_CP = "CP";
 
     private static final SparseArray<String> LIC_MAPPING = new SparseArray<>();
+    public static final String EMPTY_LIC = "[0]{96}";
+
     static {
         LIC_MAPPING.put(1,ALG_MOTION_FX);
         LIC_MAPPING.put(2,ALG_MOTION_AR);
@@ -320,11 +359,9 @@ public class LicenseConsoleWesu extends LicenseConsole {
     }
 
     private static boolean loadLicenseStatus(String data){
-        Log.d("loadLicenseStatus",data);
         return  LICENSE_LOAD_STATUS_PARSE.matcher(data).find();
     }
     private static String extractBoardUid(String data){
-        Log.d("extractBoardUid",data);
         Matcher matcher = BOARD_ID_PARSE.matcher(data);
 
         if (matcher.find()) {
@@ -344,14 +381,13 @@ public class LicenseConsoleWesu extends LicenseConsole {
     }
 
     private static List<LicenseStatus> extractLicenseStatus(String data){
-        Log.d("extractLicenseStatus",data);
         ArrayList<LicenseStatus> licStatus = new ArrayList<>();
         Matcher matcher = LICENSE_STATUS_PARSE_OLD.matcher(data);
         while (matcher.find()) {
             int licId = Integer.parseInt(matcher.group(1));   //old style Alg 1 ==> lic2 ...
             LicenseInfo licCode = LicenseDefines.getLicenseInfo(LIC_MAPPING.get(licId + 1));
             String lic = matcher.group(2);
-            boolean isPresent = lic != null && (!Pattern.matches("[0]{96}", lic)); //96 0 (zeros) means not valid license
+            boolean isPresent = lic != null && (!Pattern.matches(EMPTY_LIC, lic)); //96 0 (zeros) means not valid license
             if (licCode != null) {
                 licStatus.add(new LicenseStatus(licCode,isPresent));
             }
@@ -365,7 +401,7 @@ public class LicenseConsoleWesu extends LicenseConsole {
                 String licName = matcher_new.group(1);
                 LicenseInfo licCode = LicenseDefines.getLicenseInfo(licName);
                 String lic = matcher_new.group(2);
-                boolean isPresent = lic != null && (!Pattern.matches("[0]{96}", lic)); //96 0 (zeros) means not valid license
+                boolean isPresent = lic != null && (!Pattern.matches(EMPTY_LIC, lic)); //96 0 (zeros) means not valid license
 
                 if (licCode != null)
                     licStatus.add(new LicenseStatus(licCode, isPresent ));
@@ -383,8 +419,10 @@ public class LicenseConsoleWesu extends LicenseConsole {
      */
     private void setConsoleListener(Debug.DebugOutputListener listener) {
         synchronized (this) {
+            if(mCurrentListener!=null)
+                mConsole.removeDebugOutputListener(mCurrentListener);
             mCurrentListener = listener;
-            mConsole.setDebugOutputListener(listener);
+            mConsole.addDebugOutputListener(listener);
         }//synchronized
     }
 

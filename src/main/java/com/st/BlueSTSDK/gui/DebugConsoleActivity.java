@@ -1,29 +1,39 @@
-/*******************************************************************************
- * COPYRIGHT(c) 2015 STMicroelectronics
+/*
+ * Copyright (c) 2017  STMicroelectronics – All rights reserved
+ * The STMicroelectronics corporate logo is a trademark of STMicroelectronics
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- *   1. Redistributions of source code must retain the above copyright notice,
- *      this list of conditions and the following disclaimer.
- *   2. Redistributions in binary form must reproduce the above copyright notice,
- *      this list of conditions and the following disclaimer in the documentation
- *      and/or other materials provided with the distribution.
- *   3. Neither the name of STMicroelectronics nor the names of its contributors
- *      may be used to endorse or promote products derived from this software
- *      without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * - Redistributions of source code must retain the above copyright notice, this list of conditions
+ *   and the following disclaimer.
  *
- ******************************************************************************/
+ * - Redistributions in binary form must reproduce the above copyright notice, this list of
+ *   conditions and the following disclaimer in the documentation and/or other materials provided
+ *   with the distribution.
+ *
+ * - Neither the name nor trademarks of STMicroelectronics International N.V. nor any other
+ *   STMicroelectronics company nor the names of its contributors may be used to endorse or
+ *   promote products derived from this software without specific prior written permission.
+ *
+ * - All of the icons, pictures, logos and other images that are provided with the source code
+ *   in a directory whose title begins with st_images may only be used for internal purposes and
+ *   shall not be redistributed to any third party or modified in any way.
+ *
+ * - Any redistributions in binary form shall not include the capability to display any of the
+ *   icons, pictures, logos and other images that are provided with the source code in a directory
+ *   whose title begins with st_images.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+ * OF SUCH DAMAGE.
+ */
 package com.st.BlueSTSDK.gui;
 
 import android.content.Context;
@@ -33,6 +43,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -61,6 +72,9 @@ public class DebugConsoleActivity extends ActivityWithNode {
 
     private final static String PREFERENCE_AUTO_SCROLL_KEY = "prefDebugActivityAutoScroll";
 
+    private final static String WESU_HELP_MESSAGE="?\n";
+    private final static String NUCLEO_HELP_MESSAGE="help";
+
     private enum ConsoleType{
         OUTPUT,
         INPUT,
@@ -69,13 +83,13 @@ public class DebugConsoleActivity extends ActivityWithNode {
         public @ColorRes int getColorID(){
             switch (this){
                 case ERROR:
-                    return  R.color.ErrorMsg;
+                    return  R.color.debugConsole_errorMsg;
                 case OUTPUT:
-                    return R.color.OutMsg;
+                    return R.color.debugConsole_outMsg;
                 case INPUT:
-                    return R.color.InMsg;
+                    return R.color.debugConsole_inMsg;
                 default:
-                    return R.color.InMsg;
+                    return R.color.debugConsole_inMsg;
             }
         }
 
@@ -111,9 +125,11 @@ public class DebugConsoleActivity extends ActivityWithNode {
 
     /** object that will send/receive commands from the node */
     private Debug mDebugService;
-
+    private Debug.DebugOutputListener mDebugListener = new UpdateConsole();
     private String mToSent=null;
     private int mNextPartToSent = -1;
+
+
 
     private boolean mAutoScroll = true;
 
@@ -132,7 +148,7 @@ public class DebugConsoleActivity extends ActivityWithNode {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.activity_debug_console, menu);
 
-        menu.findItem(R.id.action_device_auto_scroll).setTitle(mAutoScroll ? R.string.deviceAutoScroll : R.string.deviceAutoScrollOff);
+        menu.findItem(R.id.action_device_auto_scroll).setTitle(mAutoScroll ? R.string.debugConsole_deviceAutoScroll : R.string.debugConsole_deviceAutoScrollOff);
         menu.findItem(R.id.action_device_auto_scroll).setIcon(mAutoScroll ? R.drawable.ic_auto_scroll_down_24dp :R.drawable.ic_auto_scroll_off_24dp);
 
         return super.onCreateOptionsMenu(menu);
@@ -240,7 +256,7 @@ public class DebugConsoleActivity extends ActivityWithNode {
     private void setUpConsoleService(Debug debugService){
         mDebugService=debugService;
         if(mDebugService!=null) {
-            mDebugService.setDebugOutputListener( new UpdateConsole());
+            mDebugService.addDebugOutputListener(mDebugListener);
             DebugConsoleActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -274,19 +290,11 @@ public class DebugConsoleActivity extends ActivityWithNode {
     @Override
     public void onDestroy(){
         if(mDebugService!=null)
-            mDebugService.setDebugOutputListener(null);
+            mDebugService.removeDebugOutputListener(mDebugListener);
 
         super.onDestroy();
     }
 
-    /**
-     * if we have to leave this activity, we force the disconnection of the node
-     */
-    @Override
-    public void onBackPressed(){
-        keepConnectionOpen(true);
-        super.onBackPressed();
-    }
 
      /**
      * call when the user press the back button on the menu bar, we are leaving this activity so
@@ -307,9 +315,44 @@ public class DebugConsoleActivity extends ActivityWithNode {
             mConsole.setText(""); //clear
             return true;
         }
+        if(itemId == R.id.action_send_help){
+            sendHelpMessage();
+            return true;
+        }
         //else
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     *help a message for request the list of command available
+     */
+    private void sendHelpMessage() {
+        String msg = getHelpMessage(getNode());
+        if(msg==null)
+            return;
+        //else
+        sendMessage(msg);
+    }
+
+    /**
+     * return the command that return the help information
+     * @param node node where the help message will be sent
+     * @return null if the command is not available/known otherwise the command for display the
+     * help information
+     */
+    protected @Nullable String getHelpMessage(Node node) {
+        switch (node.getType()){
+            case STEVAL_WESU1:
+                return WESU_HELP_MESSAGE;
+            case SENSOR_TILE:
+            case BLUE_COIN:
+            case NUCLEO:
+                return NUCLEO_HELP_MESSAGE;
+            case GENERIC:
+            default:
+                return null;
+        }
     }
 
     private void setAutoScrollPolicy(boolean enableAutoScroll){
@@ -389,5 +432,7 @@ public class DebugConsoleActivity extends ActivityWithNode {
                 }
             }
         }
+
+
 
 }

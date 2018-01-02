@@ -1,18 +1,53 @@
+/*
+ * Copyright (c) 2017  STMicroelectronics – All rights reserved
+ * The STMicroelectronics corporate logo is a trademark of STMicroelectronics
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice, this list of conditions
+ *   and the following disclaimer.
+ *
+ * - Redistributions in binary form must reproduce the above copyright notice, this list of
+ *   conditions and the following disclaimer in the documentation and/or other materials provided
+ *   with the distribution.
+ *
+ * - Neither the name nor trademarks of STMicroelectronics International N.V. nor any other
+ *   STMicroelectronics company nor the names of its contributors may be used to endorse or
+ *   promote products derived from this software without specific prior written permission.
+ *
+ * - All of the icons, pictures, logos and other images that are provided with the source code
+ *   in a directory whose title begins with st_images may only be used for internal purposes and
+ *   shall not be redistributed to any third party or modified in any way.
+ *
+ * - Any redistributions in binary form shall not include the capability to display any of the
+ *   icons, pictures, logos and other images that are provided with the source code in a directory
+ *   whose title begins with st_images.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+ * OF SUCH DAMAGE.
+ */
 package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
-import android.bluetooth.BluetoothAdapter;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.st.BlueSTSDK.Debug;
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.Utils.NumberConversion;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.STM32Crc32;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +74,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
     private static int sNFail=0;
 
     private static int getBlockPkgSize(){
-        return Math.max(1,10/(1<<(sNFail)));
+        return Math.max(1,BLOCK_PKG_SIZE/(1<<(sNFail)));
     }
 
     static private final String GET_VERSION_BOARD_FW="versionFw\n";
@@ -74,17 +109,26 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      */
     private GetVersionProtocol mConsoleGetFwVersion= new GetVersionProtocol();
 
+    private static boolean isCompleteLine(StringBuilder buffer) {
+        if(buffer.length()>2){
+            String endLine = buffer.substring(buffer.length()-2);
+            return endLine.equals("\r\n") || endLine.equals("\n\r");
+        }
+
+        return false;
+    }
+
     /**
      * class used for wait/parse the fw version response
      */
     private class GetVersionProtocol implements Debug.DebugOutputListener {
 
         private @FirmwareType int mRequestFwType;
+        private  int mNInvalidLine=0;
 
         /**
          * if the timeout is rise, fire an error of type
-         * {@link FwUpgradeConsole.FwUpgradeCallback#ERROR_TRANSMISSION}
-         */
+         * */
         private Runnable onTimeout = new Runnable() {
             @Override
             public void run() {
@@ -115,11 +159,12 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
         @Override
         public void onStdOutReceived(Debug debug, String message) {
-            mTimeout.removeCallbacks(onTimeout);
             mBuffer.append(message);
-            if (mBuffer.length()>2 &&
-                    mBuffer.substring(mBuffer.length()-2).equals("\r\n")) {
+            if (isCompleteLine(mBuffer)) {
+                //remove time out
+                mTimeout.removeCallbacks(onTimeout);
                 mBuffer.delete(mBuffer.length()-2,mBuffer.length());
+                //check if it a valid fwVersion
                 FwVersion version=null;
                 try {
                     switch (mRequestFwType) {
@@ -131,15 +176,17 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                             break;
                     }
                 }catch (IllegalVersionFormatException e){
-                    //clear the current buffer and wait for a new answer
-                    //mBuffer.delete(0,mBuffer.length());
-                    notifyVersionRead(null);
+                    //remove invalid data and wait another timeout
+                    mBuffer.delete(0,mBuffer.length());
+                    if(++mNInvalidLine % 10 ==0) {
+                        //send again the request message, the message get lost
+                        requestVersion(mRequestFwType);
+                    }
+                    mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
                     return;
                 }//try-catch
                 notifyVersionRead(version);
-            }else{
-                mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
-            }
+            }//else wait another package
         }
 
         @Override
@@ -151,11 +198,16 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         }
     }
 
-
     /**
      * class that manage the file upload
      */
     private class UploadFileProtocol implements  Debug.DebugOutputListener{
+
+        /**
+         * since the traffic is high, we use a bigger timeout for give time to the system to notify
+         * that sent a message
+         */
+        static private final int FW_UPLOAD_MSG_TIMEOUT_MS=4*LOST_MSG_TIMEOUT_MS;
 
         /**
          * file that we are uploading
@@ -328,7 +380,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                 mByteSend += byteRead;
                 return mConsole.write(mLastPackageSend, 0, lastPackageSize)==lastPackageSize;
             } else
-                //it read an unaspected number of byte, something bad happen
+                //it read an unexpected number of byte, something bad happen
                 return false;
         }//sendFwPackage
 
@@ -384,7 +436,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                     //reset the timeout
                     mTimeout.removeCallbacks(onTimeout);
                     notifyNodeReceivedFwMessage();
-                    mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
+                    mTimeout.postDelayed(onTimeout,FW_UPLOAD_MSG_TIMEOUT_MS);
                 }
             }else{
                 onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
@@ -433,8 +485,9 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      */
     private void setConsoleListener(Debug.DebugOutputListener listener) {
         synchronized (this) {
+            mConsole.removeDebugOutputListener(mCurrentListener);
+            mConsole.addDebugOutputListener(listener);
             mCurrentListener = listener;
-            mConsole.setDebugOutputListener(listener);
         }//synchronized
     }
 
