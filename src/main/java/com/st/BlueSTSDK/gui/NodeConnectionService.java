@@ -68,10 +68,11 @@ public class NodeConnectionService extends Service {
     private static final String SHOW_NOTIFICATION_ACTION = NodeConnectionService.class.getName() + ".SHOW_NOTIFICATION";
     private static final String REMOVE_NOTIFICATION_ACTION = NodeConnectionService.class.getName() + ".REMOVE_NOTIFICATION";
     private static final String NODE_TAG_ARG = NodeConnectionService.class.getName() + ".NODE_TAG";
-    private static final String RESET_CACHE_ARG = NodeConnectionService.class.getName() + ".RESET_CACHE";
+    private static final String CONNECTION_PARAM_ARG = NodeConnectionService.class.getName() + ".CONNECTION_PARAM_ARG";
 
     private static final int STOP_SERVICE = 1;
-    private static final int NOTIFICAITON_ID = 1;
+    private static final int NOTIFICATION_ID = 1;
+    private static final String CONNECTION_NOTIFICATION_CHANNEL = "ConnectionNotification";
 
     @Nullable
     @Override
@@ -95,7 +96,7 @@ public class NodeConnectionService extends Service {
 
     /**
      * ask to the service to remove the notification that can appear on the notification bar
-     * @param c
+     * @param c context used for start the service
      */
     static public void removeDisconnectNotification(Context c){
         Intent i = new Intent(c,NodeConnectionService.class);
@@ -109,7 +110,7 @@ public class NodeConnectionService extends Service {
      * @param n node to connect
      */
     static public void connect(Context c, Node n){
-        connect(c,n,false);
+        connect(c,n,ConnectionOption.builder().build());
     }
 
     /**
@@ -117,15 +118,26 @@ public class NodeConnectionService extends Service {
      * @param c context used for start the service
      * @param n node to connect
      * @param resetCache true to try reset the ble uuid for the node
+     * @deprecated use {{@link #connect(Context, Node, ConnectionOption)}}
      */
+    @Deprecated
     static public void connect(Context c, Node n, boolean resetCache ){
+        connect(c,n,ConnectionOption.builder().resetCache(resetCache).build());
+    }
+
+    /**
+     * start the service asking to connect with the node
+     * @param c context used for start the service
+     * @param n node to connect
+     * @param option connection options
+     */
+    static public void connect(Context c, Node n, ConnectionOption option ){
         Intent i = new Intent(c,NodeConnectionService.class);
         i.setAction(CONNECT_ACTION);
         i.putExtra(NODE_TAG_ARG,n.getTag());
-        i.putExtra(RESET_CACHE_ARG,resetCache);
+        i.putExtra(CONNECTION_PARAM_ARG,option);
         c.startService(i);
     }
-
 
     /**
      * build the intent that will ask to disconnect the node
@@ -163,17 +175,14 @@ public class NodeConnectionService extends Service {
     /**
      * if the node enter in a disconnected state try to connect again
      */
-    private Node.NodeStateListener mStateListener = new Node.NodeStateListener() {
-        @Override
-        public void onStateChange(Node node, Node.State newState, Node.State prevState) {
+    private Node.NodeStateListener mStateListener = (node, newState, prevState) -> {
 
-        if ((newState == Node.State.Unreachable ||
-             newState == Node.State.Dead ||
-             newState == Node.State.Lost ) &&
-             mConnectedNodes.contains(node)) {
-              node.connect(NodeConnectionService.this);
-          }
-        }
+    if ((newState == Node.State.Unreachable ||
+         newState == Node.State.Dead ||
+         newState == Node.State.Lost ) &&
+         mConnectedNodes.contains(node)) {
+          node.connect(NodeConnectionService.this);
+      }
     };
 
     @Override
@@ -209,7 +218,7 @@ public class NodeConnectionService extends Service {
      */
     private void removeConnectionNotification() {
         if(mNotificationManager!=null)
-            mNotificationManager.cancel(NOTIFICAITON_ID);
+            mNotificationManager.cancel(NOTIFICATION_ID);
     }
 
     @Override
@@ -266,7 +275,7 @@ public class NodeConnectionService extends Service {
     }
 
     /**
-     * display the notificaiton that remeber to the use that it has a connected node
+     * display the notification that remember to the use that it has a connected node
      * @param intent data to display in the notification
      */
     private void showConnectionNotification(Intent intent) {
@@ -278,7 +287,8 @@ public class NodeConnectionService extends Service {
             return;
         PendingIntent disconnectNode = getDisconnectPendingIntent(n);
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(this,CONNECTION_NOTIFICATION_CHANNEL)
                 .setContentTitle(getString(R.string.NodeConn_nodeConnectedTitile))
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -293,7 +303,7 @@ public class NodeConnectionService extends Service {
             notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
         }
 
-        mNotificationManager.notify(NOTIFICAITON_ID, notificationBuilder.build());
+        mNotificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
     }
 
     /**
@@ -302,17 +312,15 @@ public class NodeConnectionService extends Service {
      */
     private void connect(Intent intent) {
         String tag = intent.getStringExtra(NODE_TAG_ARG);
-        boolean resetCache = intent.getBooleanExtra(RESET_CACHE_ARG,false);
+        ConnectionOption options = intent.getParcelableExtra(CONNECTION_PARAM_ARG);
         Node n = Manager.getSharedInstance().getNodeWithTag(tag);
         if(n!=null)
             if(!mConnectedNodes.contains(n)) {
                 mConnectedNodes.add(n);
                 n.addNodeStateListener(mStateListener);
-                n.connect(this, ConnectionOption.builder()
-                    .resetCache(resetCache)
-                    .build());
+                n.connect(this,options);
             }else{
-                mNotificationManager.cancel(NOTIFICAITON_ID);
+                mNotificationManager.cancel(NOTIFICATION_ID);
             }
     }
 
@@ -343,7 +351,7 @@ public class NodeConnectionService extends Service {
         mConnectedNodes.remove(n);
         n.removeNodeStateListener(mStateListener);
         n.disconnect();
-        mNotificationManager.cancel(NOTIFICAITON_ID);
+        mNotificationManager.cancel(NOTIFICATION_ID);
         if(mConnectedNodes.size()==0){
             stopSelf();
         }//if

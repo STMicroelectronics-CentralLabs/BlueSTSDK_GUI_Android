@@ -53,7 +53,7 @@ public interface NodeContainer {
     /**
      * Keep the node connection open also when the activity is destroyed
      * @param keepOpen true for keep the node connection
-     * @param showNotification true if it has to show a notificaiton for say that the node is still
+     * @param showNotification true if it has to show a notification for say that the node is still
      *                         connected
      */
     void keepConnectionOpen(boolean keepOpen,boolean showNotification);

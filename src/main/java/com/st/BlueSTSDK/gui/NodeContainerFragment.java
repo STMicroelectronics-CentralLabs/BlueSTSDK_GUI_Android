@@ -57,7 +57,7 @@ import com.st.BlueSTSDK.Utils.ConnectionOption;
  *
  * this class will start the connection with the node inside the onCreate and close it inside the
  * onDestroy.
- * If you move in nother activity that will use the same node you can avoid to disconnect calling
+ * If you move to another activity that will use the same node you can avoid to disconnect calling
  * the method {@link NodeContainerFragment#keepConnectionOpen(boolean, boolean)}
  */
 @Deprecated
