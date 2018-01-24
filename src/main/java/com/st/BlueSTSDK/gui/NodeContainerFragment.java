@@ -48,6 +48,7 @@ import android.widget.Toast;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.ConnectionOption;
 
 /**
  * this is headless fragment that is used for store a connected node. this fragment will not be
@@ -160,7 +161,9 @@ public class NodeContainerFragment extends Fragment implements NodeContainer {
                             mConnectionWait.show(); //show the dialog and set the listener for hide it
                         Toast.makeText(activity, msg, Toast.LENGTH_LONG).show();
 
-                        mNode.connect(getActivity(), mResetNodeCache);
+                        mNode.connect(getActivity(), ConnectionOption.builder()
+                                .resetCache(mResetNodeCache)
+                                .build());
                     }
                 });
             }

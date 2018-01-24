@@ -52,6 +52,7 @@ import android.support.v4.content.ContextCompat;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.ConnectionOption;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -307,7 +308,9 @@ public class NodeConnectionService extends Service {
             if(!mConnectedNodes.contains(n)) {
                 mConnectedNodes.add(n);
                 n.addNodeStateListener(mStateListener);
-                n.connect(this,resetCache);
+                n.connect(this, ConnectionOption.builder()
+                    .resetCache(resetCache)
+                    .build());
             }else{
                 mNotificationManager.cancel(NOTIFICAITON_ID);
             }
