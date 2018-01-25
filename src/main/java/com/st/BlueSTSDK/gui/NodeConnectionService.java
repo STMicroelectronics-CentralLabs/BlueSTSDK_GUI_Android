@@ -176,13 +176,15 @@ public class NodeConnectionService extends Service {
      * if the node enter in a disconnected state try to connect again
      */
     private Node.NodeStateListener mStateListener = (node, newState, prevState) -> {
-
-    if ((newState == Node.State.Unreachable ||
-         newState == Node.State.Dead ||
-         newState == Node.State.Lost ) &&
-         mConnectedNodes.contains(node)) {
-          node.connect(NodeConnectionService.this);
-      }
+        ConnectionOption option = node.getConnectionOption();
+        if ((newState == Node.State.Unreachable ||
+            newState == Node.State.Dead ||
+            newState == Node.State.Lost ) &&
+                mConnectedNodes.contains(node)) {
+                // if the autoConnect if on the system will connect automatically
+                if(!option.enableAutoConnect())
+                    node.connect(NodeConnectionService.this,option);
+        }
     };
 
     @Override

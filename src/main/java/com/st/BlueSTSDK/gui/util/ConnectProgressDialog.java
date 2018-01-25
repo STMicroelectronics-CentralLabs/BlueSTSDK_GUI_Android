@@ -69,8 +69,8 @@ public class ConnectProgressDialog extends ProgressDialog implements Node.NodeSt
     }
 
     /**
-     * change the dialog state in funciton of the node state:
-     * show the dialog when the node is connectiong, dismiss the dialog when the node is connected
+     * change the dialog state in function of the node state:
+     * show the dialog when the node is connecting, dismiss the dialog when the node is connected
      * display a toast message when we lost the connection
      * @param node note that change its status
      * @param newState new node status
@@ -79,12 +79,7 @@ public class ConnectProgressDialog extends ProgressDialog implements Node.NodeSt
     @Override
     public void onStateChange(final Node node, final Node.State newState, Node.State prevState) {
         if(mMainThread!=null){
-            mMainThread.post(new Runnable() {
-                @Override
-                public void run() {
-                    setState(newState);
-                }
-            });
+            mMainThread.post(() -> setState(newState));
         }
     }
 
@@ -103,11 +98,11 @@ public class ConnectProgressDialog extends ProgressDialog implements Node.NodeSt
                     dismiss();
                 return;
             case Connecting:
+            case Unreachable:
                 if(!isShowing())
                     show();
                 return;
             case Lost:
-            case Unreachable:
             case Dead:
                 final String msg = getErrorString(state,mNodeName);
                 Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
