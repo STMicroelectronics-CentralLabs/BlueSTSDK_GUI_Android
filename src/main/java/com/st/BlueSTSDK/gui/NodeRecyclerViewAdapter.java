@@ -39,6 +39,7 @@ package com.st.BlueSTSDK.gui;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.DrawableRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -101,6 +102,24 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         return new ViewHolder(view);
     }
 
+    private static @DrawableRes int getBoardTypeImage(Node.Type type){
+        switch (type){
+            case STEVAL_WESU1:
+                return R.drawable.board_steval_wesu1;
+            case SENSOR_TILE:
+                return R.drawable.board_sensor_tile;
+            case BLUE_COIN:
+                return R.drawable.board_bluecoin;
+            case STEVAL_IDB008VX:
+                return R.drawable.board_bluenrg;
+            case NUCLEO:
+                return R.drawable.board_nucleo;
+            case GENERIC:
+                default:
+                return R.drawable.board_generic;
+        }
+    }
+
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final Node n = mValues.get(position);
@@ -108,35 +127,16 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         holder.mNodeNameLabel.setText(n.getName());
         holder.mNodeTagLabel.setText(n.getTag());
 
-        Drawable boadImage;
-        switch (n.getType()){
-            case STEVAL_WESU1:
-                boadImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),R.drawable.board_steval_wesu1);
-                break;
-            case NUCLEO:
-                boadImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),R.drawable.board_nucleo);
-                break;
-            case SENSOR_TILE:
-                boadImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),R.drawable.board_sensor_tile);
-                break;
-            case BLUE_COIN:
-                boadImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),R.drawable.board_bluecoin);
-                break;
-            default:
-                boadImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),R.drawable.board_generic);
-                break;
-        }
-        holder.mNodeImage.setImageDrawable(boadImage);
+        @DrawableRes int boardImageRes = getBoardTypeImage(n.getType());
+        Drawable boardImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),boardImageRes);
+        holder.mNodeImage.setImageDrawable(boardImage);
 
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onNodeSelected(holder.mItem);
-                }
+        holder.mView.setOnClickListener(v -> {
+            if (null != mListener) {
+                // Notify the active callbacks interface (the activity, if the
+                // fragment is attached to one) that an item has been selected.
+                mListener.onNodeSelected(holder.mItem);
             }
         });
 
@@ -191,12 +191,9 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
     @Override
     public void onNodeDiscovered(Manager m,final Node node) {
         if(mFilterNode.displayNode(node)){
-            mUIThread.post(new Runnable() {
-                @Override
-                public void run() {
-                    mValues.add(node);
-                    notifyItemInserted(mValues.size() - 1);
-                };
+            mUIThread.post(() -> {
+                mValues.add(node);
+                notifyItemInserted(mValues.size() - 1);
             });
         }//if
     }//onNodeDiscovered
@@ -213,11 +210,11 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         ViewHolder(View view) {
             super(view);
             mView = view;
-            mNodeImage = (ImageView) view.findViewById(R.id.nodeBoardIcon);
-            mNodeNameLabel = (TextView) view.findViewById(R.id.nodeName);
-            mNodeTagLabel = (TextView) view.findViewById(R.id.nodeTag);
-            mNodeHasExtension = (ImageView) view.findViewById(R.id.hasExtensionIcon);
-            mNodeIsSleeping = (ImageView) view.findViewById(R.id.isSleepingIcon);
+            mNodeImage = view.findViewById(R.id.nodeBoardIcon);
+            mNodeNameLabel = view.findViewById(R.id.nodeName);
+            mNodeTagLabel = view.findViewById(R.id.nodeTag);
+            mNodeHasExtension = view.findViewById(R.id.hasExtensionIcon);
+            mNodeIsSleeping = view.findViewById(R.id.isSleepingIcon);
         }
     }
 }
