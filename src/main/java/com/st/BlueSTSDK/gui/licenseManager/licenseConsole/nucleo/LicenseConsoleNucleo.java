@@ -319,11 +319,13 @@ public class LicenseConsoleNucleo extends LicenseConsole {
         Matcher parseLine = LICENSE_STATUS_PARSE.matcher(resp);
         while (parseLine.find()) {
             String licName = parseLine.group(1);
-            //last 2 char are the license short name/code
-            LicenseInfo info = LicenseDefines.getLicenseInfo(licName.substring(licName.length()-2));
-            if(info!=null)
-                licStatus.add(new LicenseStatus(info,
-                        parseLine.group(2).equals(LIC_PRESENT)));
+            if(licName.length()>=2) {
+                //last 2 char are the license short name/code
+                LicenseInfo info = LicenseDefines.getLicenseInfo(licName.substring(licName.length() - 2));
+                if (info != null)
+                    licStatus.add(new LicenseStatus(info,
+                            parseLine.group(2).equals(LIC_PRESENT)));
+            }//if length
         }//for
         return licStatus;
     }//parseResponse
