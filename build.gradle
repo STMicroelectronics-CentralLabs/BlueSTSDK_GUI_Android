@@ -75,18 +75,18 @@ dependencies {
     testImplementation "junit:junit:$rootProject.junitVersion"
     testImplementation "org.mockito:mockito-core:$rootProject.mockitoVersion"
 
-    androidTestCompile "junit:junit:$rootProject.junitVersion"
-    androidTestCompile "org.mockito:mockito-core:$rootProject.mockitoVersion"
-    androidTestCompile "com.android.support.test:runner:$rootProject.runnerVersion"
-    androidTestCompile "com.android.support.test:rules:$rootProject.rulesVersion"
-    androidTestCompile "com.android.support.test.espresso:espresso-core:$rootProject.espressoVersion"
+    androidTestImplementation "junit:junit:$rootProject.junitVersion"
+    androidTestImplementation "org.mockito:mockito-core:$rootProject.mockitoVersion"
+    androidTestImplementation "com.android.support.test:runner:$rootProject.runnerVersion"
+    androidTestImplementation "com.android.support.test:rules:$rootProject.rulesVersion"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$rootProject.espressoVersion"
 
-    compile project(':BlueSTSDK')
-    compile project(':LicenseGenerator')
+    implementation project(':BlueSTSDK')
+    implementation project(':LicenseGenerator')
 
-    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
-    compile "com.android.support:support-v13:$rootProject.supportLibraryVersion"
-    compile "com.android.support:design:$rootProject.supportLibraryVersion"
-    compile "com.android.support:recyclerview-v7:$rootProject.supportLibraryVersion"
-    compile "com.android.support.constraint:constraint-layout:$rootProject.constraintLayoutVersion"
+    implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:support-v13:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:design:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:recyclerview-v7:$rootProject.supportLibraryVersion"
+    implementation "com.android.support.constraint:constraint-layout:$rootProject.constraintLayoutVersion"
 }
