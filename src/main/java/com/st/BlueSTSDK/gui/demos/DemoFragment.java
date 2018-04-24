@@ -113,7 +113,8 @@ public abstract class DemoFragment extends Fragment {
      */
     protected void updateGui(Runnable task){
         Activity activity = getActivity();
-        if(activity!=null)
+        //be secure that the activity is displayed
+        if(activity!=null && !activity.isFinishing())
             activity.runOnUiThread(task);
     }
 
