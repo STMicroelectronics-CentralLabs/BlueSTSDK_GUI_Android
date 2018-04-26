@@ -36,6 +36,7 @@
  */
 package com.st.BlueSTSDK.gui;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -276,6 +277,21 @@ public class NodeConnectionService extends Service {
         return logo;
     }
 
+    private String createNotificationChannel(NotificationManager manager){
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            String desc = getString(R.string.NodeConn_channelDescription);
+            String name = getString(R.string.NodeConn_channelName);
+            NotificationChannel channel = new NotificationChannel(CONNECTION_NOTIFICATION_CHANNEL,
+                    name, NotificationManager.IMPORTANCE_LOW);
+            channel.setDescription(desc);
+            manager.createNotificationChannel(channel);
+        }
+
+        return CONNECTION_NOTIFICATION_CHANNEL;
+    }
+
     /**
      * display the notification that remember to the use that it has a connected node
      * @param intent data to display in the notification
@@ -290,7 +306,7 @@ public class NodeConnectionService extends Service {
         PendingIntent disconnectNode = getDisconnectPendingIntent(n);
 
         NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this,CONNECTION_NOTIFICATION_CHANNEL)
+                new NotificationCompat.Builder(this,createNotificationChannel(mNotificationManager))
                 .setContentTitle(getString(R.string.NodeConn_nodeConnectedTitile))
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setPriority(NotificationCompat.PRIORITY_LOW)

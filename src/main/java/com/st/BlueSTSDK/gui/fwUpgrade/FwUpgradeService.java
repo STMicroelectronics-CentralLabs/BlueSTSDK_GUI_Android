@@ -37,6 +37,7 @@
 package com.st.BlueSTSDK.gui.fwUpgrade;
 
 import android.app.IntentService;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -108,6 +109,8 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
      */
     private static final int NOTIFICATION_ID = FwUpgradeService.class.hashCode();
 
+    private static final String CONNECTION_NOTIFICATION_CHANNEL =
+            FwUpgradeService.class.getCanonicalName()+"FwUpgradeNotification";
     /**
      * action used in the intent for create this service
      */
@@ -124,6 +127,7 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
      */
     private static final String NODE_TAG =
             FwUpgradeService.class.getCanonicalName() + "extra.nodeTag";
+
 
     /**
      * object used for send the broadcast message
@@ -224,11 +228,33 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
     }
 
     /**
+     * Create a notification channel to use for the fw upgrade
+     * @param manager manager where create the notification channel
+     * @return id for the notification channel
+     */
+    public static String createNotificationChannel(Context ctx,NotificationManager manager){
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            String desc = ctx.getString(R.string.fwUpgrade_channelName);
+            String name = ctx.getString(R.string.fwUpgrade_channelDesc);
+            NotificationChannel channel = new NotificationChannel(CONNECTION_NOTIFICATION_CHANNEL,
+                    name, NotificationManager.IMPORTANCE_LOW);
+            channel.setDescription(desc);
+            manager.createNotificationChannel(channel);
+        }
+
+        return CONNECTION_NOTIFICATION_CHANNEL;
+    }
+
+    /**
      * crate the notification for display the upload status
      * @return object that will build the notification
+     * @param notificationManager
      */
-    private NotificationCompat.Builder buildUploadNotification() {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+    private NotificationCompat.Builder buildUploadNotification(NotificationManager notificationManager) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this,
+                createNotificationChannel(this,notificationManager))
                 .setCategory(NotificationCompat.CATEGORY_PROGRESS)
 
                 .setContentTitle(getString(R.string.fwUpgrade_notificationTitle));
@@ -306,7 +332,7 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
     void handleActionUpload(Uri file, Node node) {
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
-        mNotification = buildUploadNotification();
+        mNotification = buildUploadNotification(mNotificationManager);
         FwUpgradeConsole console = FwUpgradeConsole.getFwUpgradeConsole(node);
         if (console != null) {
             console.setLicenseConsoleListener(this);

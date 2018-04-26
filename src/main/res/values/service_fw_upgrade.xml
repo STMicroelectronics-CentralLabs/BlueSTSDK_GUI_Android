@@ -37,6 +37,8 @@
   -->
 
 <resources>
+    <string name="fwUpgrade_channelName">Firmware upgrade</string>
+    <string name="fwUpgrade_channelDesc">Firmware upgrade status</string>
     <string name="fwUpgrade_notificationTitle">Uploading the new firmware</string>
     <string name="fwUpgrade_error_corrupted_file">Transmitted data are corrupted</string>
     <string name="fwUpgrade_error_transmission">Error sending the data</string>

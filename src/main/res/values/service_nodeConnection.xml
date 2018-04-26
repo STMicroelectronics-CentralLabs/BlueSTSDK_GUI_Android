@@ -41,4 +41,7 @@
     <string name="NodeConn_nodeIsConnected"> %s connected</string>
     <string name="NodeConn_nodeConnectedTitile">BlueST node still connected</string>
     <string name="NodeConn_multipleNodesConnected">Multiple nodes</string>
+
+    <string name="NodeConn_channelName">BLE Status</string>
+    <string name="NodeConn_channelDescription">BLE connection status</string>
 </resources>
