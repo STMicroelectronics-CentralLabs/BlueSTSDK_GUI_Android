@@ -60,7 +60,6 @@ public abstract class PreferenceFragmentWithNode extends PreferenceFragment {
             ".KEEP_CONNECTION_OPEN";
 
     private boolean mKeepConnectionOpen;
-    private boolean mShowKeepConnectionOpenNotification;
 
     private ConnectProgressDialog mConnectionProgressDialog;
 
@@ -111,7 +110,6 @@ public abstract class PreferenceFragmentWithNode extends PreferenceFragment {
         keepConnectionOpen(true, true);
         mConnectionProgressDialog = new ConnectProgressDialog(context, mNode.getName());
         mNode.addNodeStateListener(mConnectionProgressDialog);
-        NodeConnectionService.removeDisconnectNotification(context);
         if (!mNode.isConnected()) {
             mNode.addNodeStateListener(new Node.NodeStateListener() {
                 @Override
@@ -134,21 +132,13 @@ public abstract class PreferenceFragmentWithNode extends PreferenceFragment {
         mNode.removeNodeStateListener(mConnectionProgressDialog);
         if (!mKeepConnectionOpen) {
             NodeConnectionService.disconnect(context, mNode);
-        } else if (mShowKeepConnectionOpenNotification) {
-            NodeConnectionService.displayDisconnectNotification(context, mNode);
         }
     }
 
     public void keepConnectionOpen(boolean keepOpen, boolean showNotificaiton) {
         mKeepConnectionOpen = keepOpen;
-        mShowKeepConnectionOpenNotification = keepOpen && showNotificaiton;
     }
 
     protected abstract void onNodeIsAvailable(Node node);
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        NodeConnectionService.removeDisconnectNotification(getActivity());
-    }
 }

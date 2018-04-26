@@ -194,7 +194,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     private ConnectProgressDialog mConnectionProgressDialog;
 
     private boolean mKeepConnectionOpen;
-    private boolean mShowKeepConnectionOpenNotification = false;
     private Node mNode;
     private ConnectionOption mConnectionOption;
 
@@ -351,7 +350,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             return;
         }
         keepConnectionOpen(true,true);
-        NodeConnectionService.removeDisconnectNotification(this);
         mConnectionProgressDialog.setNodeName(mNode.getName());
         mConnectionProgressDialog.setState(mNode.getState());
         mNode.addNodeStateListener(mConnectionProgressDialog);
@@ -397,8 +395,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         if(mNode!=null){
             if(!mKeepConnectionOpen){
                 NodeConnectionService.disconnect(this,mNode);
-            }else if(mShowKeepConnectionOpenNotification){
-                NodeConnectionService.displayDisconnectNotification(this,mNode);
             }
         }
         super.onStop();
@@ -466,7 +462,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     @Override
     public void keepConnectionOpen(boolean keepOpen, boolean showNotification){
         mKeepConnectionOpen = keepOpen;
-        mShowKeepConnectionOpenNotification= keepOpen && showNotification;
     }
 
     /**

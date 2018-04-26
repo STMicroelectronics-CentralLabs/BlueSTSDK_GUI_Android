@@ -36,6 +36,7 @@
  */
 package com.st.BlueSTSDK.gui;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -66,8 +67,6 @@ public class NodeConnectionService extends Service {
 
     private static final String DISCONNECT_ACTION = NodeConnectionService.class.getName() + ".DISCONNECT";
     private static final String CONNECT_ACTION = NodeConnectionService.class.getName() + ".CONNECT";
-    private static final String SHOW_NOTIFICATION_ACTION = NodeConnectionService.class.getName() + ".SHOW_NOTIFICATION";
-    private static final String REMOVE_NOTIFICATION_ACTION = NodeConnectionService.class.getName() + ".REMOVE_NOTIFICATION";
     private static final String NODE_TAG_ARG = NodeConnectionService.class.getName() + ".NODE_TAG";
     private static final String CONNECTION_PARAM_ARG = NodeConnectionService.class.getName() + ".CONNECTION_PARAM_ARG";
 
@@ -79,30 +78,6 @@ public class NodeConnectionService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-
-    /**
-     * ask to display a notification for inform the user that the ble connection is still open
-     * @param c context to use for sent the request
-     * @param n node that will remain connected
-     */
-    static public void displayDisconnectNotification(Context c, Node n){
-        Intent i = new Intent(c,NodeConnectionService.class);
-        i.setAction(SHOW_NOTIFICATION_ACTION);
-        i.putExtra(NODE_TAG_ARG,n.getTag());
-        c.startService(i);
-    }
-
-
-    /**
-     * ask to the service to remove the notification that can appear on the notification bar
-     * @param c context used for start the service
-     */
-    static public void removeDisconnectNotification(Context c){
-        Intent i = new Intent(c,NodeConnectionService.class);
-        i.setAction(REMOVE_NOTIFICATION_ACTION);
-        c.startService(i);
     }
 
     /**
@@ -204,13 +179,9 @@ public class NodeConnectionService extends Service {
         String action = intent.getAction();
 
         if(CONNECT_ACTION.equals(action)){
-            connect(intent);
+            connect(startId,intent);
         }else if (DISCONNECT_ACTION.equals(action)) {
             disconnect(intent);
-        }else if (SHOW_NOTIFICATION_ACTION.equals(action)){
-            showConnectionNotification(intent);
-        }else if(REMOVE_NOTIFICATION_ACTION.equals(action)){
-            removeConnectionNotification();
         }
 
         return START_STICKY;
@@ -324,11 +295,37 @@ public class NodeConnectionService extends Service {
         mNotificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
     }
 
+    private Notification buildConnectionNotification(Node n){
+        if (n==null || !mConnectedNodes.contains(n) )
+            return null;
+        @DrawableRes int notificationIcon = getResourceLogo();
+        PendingIntent disconnectNode = getDisconnectPendingIntent(n);
+
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(this,createNotificationChannel(mNotificationManager))
+                        .setContentTitle(getString(R.string.NodeConn_nodeConnectedTitile))
+                        .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                        .setPriority(NotificationCompat.PRIORITY_LOW)
+                        .setColor(ContextCompat.getColor(this,R.color.colorPrimary))
+                        .setDeleteIntent(disconnectNode)
+                        .addAction(buildDisconnectAction(disconnectNode))
+                        .setContentText(getString(R.string.NodeConn_nodeIsConnected,n.getName()));
+        notificationBuilder.setSmallIcon(notificationIcon);
+        /*
+        if(Build.VERSION.SDK_INT>=21){
+
+        }else{
+            notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
+        }*/
+
+        return notificationBuilder.build();
+    }
+
     /**
      * start the connection with the node
      * @param intent node to connect
      */
-    private void connect(Intent intent) {
+    private void connect(int startId,Intent intent) {
         String tag = intent.getStringExtra(NODE_TAG_ARG);
         ConnectionOption options = intent.getParcelableExtra(CONNECTION_PARAM_ARG);
         Node n = Manager.getSharedInstance().getNodeWithTag(tag);
@@ -337,8 +334,7 @@ public class NodeConnectionService extends Service {
                 mConnectedNodes.add(n);
                 n.addNodeStateListener(mStateListener);
                 n.connect(this,options);
-            }else{
-                mNotificationManager.cancel(NOTIFICATION_ID);
+                startForeground(startId,buildConnectionNotification(n));
             }
     }
 
@@ -369,7 +365,7 @@ public class NodeConnectionService extends Service {
         mConnectedNodes.remove(n);
         n.removeNodeStateListener(mStateListener);
         n.disconnect();
-        mNotificationManager.cancel(NOTIFICATION_ID);
+       // mNotificationManager.cancel(NOTIFICATION_ID);
         if(mConnectedNodes.size()==0){
             stopSelf();
         }//if

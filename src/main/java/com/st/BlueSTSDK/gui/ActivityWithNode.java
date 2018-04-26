@@ -62,7 +62,6 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
             ".KEEP_CONNECTION_OPEN";
 
     private boolean mKeepConnectionOpen;
-    private boolean mShowKeepConnectionOpenNotification;
 
     private ConnectProgressDialog mConnectionProgressDialog;
 
@@ -121,7 +120,6 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
         mConnectionProgressDialog.setNodeName(mNode.getName());
         mConnectionProgressDialog.setState(mNode.getState());
         mNode.addNodeStateListener(mConnectionProgressDialog);
-        NodeConnectionService.removeDisconnectNotification(this);
         if(!mNode.isConnected()){
             NodeConnectionService.connect(this,mNode);
         }
@@ -143,8 +141,6 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
 
         if(!mKeepConnectionOpen){
             NodeConnectionService.disconnect(this,mNode);
-        }else if(mShowKeepConnectionOpenNotification){
-            NodeConnectionService.displayDisconnectNotification(this,mNode);
         }
     }
 
@@ -178,7 +174,6 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
     @Override
     public void keepConnectionOpen(boolean keepOpen,boolean showNotificaiton){
         mKeepConnectionOpen=keepOpen;
-        mShowKeepConnectionOpenNotification =keepOpen && showNotificaiton;
     }
 
 }
