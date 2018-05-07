@@ -367,7 +367,7 @@ public class NodeConnectionService extends Service {
         n.disconnect();
        // mNotificationManager.cancel(NOTIFICATION_ID);
         if(mConnectedNodes.size()==0){
-            stopSelf();
+            stopForeground(true);
         }//if
 
     }
