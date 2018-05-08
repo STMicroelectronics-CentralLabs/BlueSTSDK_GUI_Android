@@ -263,38 +263,6 @@ public class NodeConnectionService extends Service {
         return CONNECTION_NOTIFICATION_CHANNEL;
     }
 
-    /**
-     * display the notification that remember to the use that it has a connected node
-     * @param intent data to display in the notification
-     */
-    private void showConnectionNotification(Intent intent) {
-        String tag = intent.getStringExtra(NODE_TAG_ARG);
-        @DrawableRes int notificationIcon = getResourceLogo();
-        Node n = Manager.getSharedInstance().getNodeWithTag(tag);
-        // no connected node = no notification to show
-        if (n==null || !mConnectedNodes.contains(n) )
-            return;
-        PendingIntent disconnectNode = getDisconnectPendingIntent(n);
-
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this,createNotificationChannel(mNotificationManager))
-                .setContentTitle(getString(R.string.NodeConn_nodeConnectedTitile))
-                .setCategory(NotificationCompat.CATEGORY_SERVICE)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setColor(ContextCompat.getColor(this,R.color.colorPrimary))
-                .setDeleteIntent(disconnectNode)
-                .addAction(buildDisconnectAction(disconnectNode))
-                .setContentText(getString(R.string.NodeConn_nodeIsConnected,n.getName()));
-
-        if(Build.VERSION.SDK_INT>=21){
-            notificationBuilder.setSmallIcon(notificationIcon);
-        }else{
-            notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
-        }
-
-        mNotificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
-    }
-
     private Notification buildConnectionNotification(Node n){
         if (n==null || !mConnectedNodes.contains(n) )
             return null;
@@ -311,12 +279,6 @@ public class NodeConnectionService extends Service {
                         .addAction(buildDisconnectAction(disconnectNode))
                         .setContentText(getString(R.string.NodeConn_nodeIsConnected,n.getName()));
         notificationBuilder.setSmallIcon(notificationIcon);
-        /*
-        if(Build.VERSION.SDK_INT>=21){
-
-        }else{
-            notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
-        }*/
 
         return notificationBuilder.build();
     }
