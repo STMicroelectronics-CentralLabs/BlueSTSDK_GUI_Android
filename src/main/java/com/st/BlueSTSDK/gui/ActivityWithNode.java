@@ -118,7 +118,7 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
         }
         keepConnectionOpen(true,true);
         mConnectionProgressDialog.setNodeName(mNode.getName());
-        mConnectionProgressDialog.setState(mNode.getState());
+        mConnectionProgressDialog.setState(mNode.getState(), Node.State.Init);
         mNode.addNodeStateListener(mConnectionProgressDialog);
         if(!mNode.isConnected()){
             NodeConnectionService.connect(this,mNode);

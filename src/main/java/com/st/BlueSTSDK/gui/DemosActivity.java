@@ -351,7 +351,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         }
         keepConnectionOpen(true,true);
         mConnectionProgressDialog.setNodeName(mNode.getName());
-        mConnectionProgressDialog.setState(mNode.getState());
+        mConnectionProgressDialog.setState(mNode.getState(), Node.State.Init);
         mNode.addNodeStateListener(mConnectionProgressDialog);
 
         if(!mNode.isConnected()){

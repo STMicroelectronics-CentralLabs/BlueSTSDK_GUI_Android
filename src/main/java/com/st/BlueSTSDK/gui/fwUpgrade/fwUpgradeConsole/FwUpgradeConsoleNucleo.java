@@ -129,12 +129,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         /**
          * if the timeout is rise, fire an error of type
          * */
-        private Runnable onTimeout = new Runnable() {
-            @Override
-            public void run() {
-                notifyVersionRead(null);
-            }
-        };
+        private Runnable onTimeout = () -> notifyVersionRead(null);
 
         private void notifyVersionRead(FwVersion version){
             setConsoleListener(null);

@@ -79,7 +79,7 @@ public class ConnectProgressDialog extends ProgressDialog implements Node.NodeSt
     @Override
     public void onStateChange(final Node node, final Node.State newState, Node.State prevState) {
         if(mMainThread!=null){
-            mMainThread.post(() -> setState(newState));
+            mMainThread.post(() -> setState(newState,prevState));
         }
     }
 
@@ -88,8 +88,8 @@ public class ConnectProgressDialog extends ProgressDialog implements Node.NodeSt
         setMessage(String.format(getContext().getString(R.string.progressDialogConnMsg), mNodeName));
     }
 
-    public void setState(Node.State state){
-        switch (state){
+    public void setState(Node.State currentState, Node.State prevState){
+        switch (currentState){
             case Init:
             case Idle:
             case Connected:
@@ -104,8 +104,10 @@ public class ConnectProgressDialog extends ProgressDialog implements Node.NodeSt
                 return;
             case Lost:
             case Dead:
-                final String msg = getErrorString(state,mNodeName);
-                Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
+                if(prevState != Node.State.Idle || prevState!= Node.State.Init) {
+                    final String msg = getErrorString(currentState, mNodeName);
+                    Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
+                }
         }
     }
 
