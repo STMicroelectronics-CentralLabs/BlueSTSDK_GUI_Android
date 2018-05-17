@@ -39,4 +39,5 @@
 <resources>
     <string name="title_activity_about">About</string>
     <string name="about_version">Version %s</string>
+    <string name="about_dont_use_production">For Evaluation Only</string>
 </resources>

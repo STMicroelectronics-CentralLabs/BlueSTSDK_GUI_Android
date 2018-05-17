@@ -72,5 +72,12 @@
         android:layout_height="0dp"
         android:layout_weight="3" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:text="@string/about_dont_use_production"
+        android:textAlignment="textEnd"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 </LinearLayout>
 
