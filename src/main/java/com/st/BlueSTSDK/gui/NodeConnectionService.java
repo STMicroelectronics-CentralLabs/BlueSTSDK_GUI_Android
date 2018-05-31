@@ -51,6 +51,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
@@ -143,10 +144,7 @@ public class NodeConnectionService extends Service {
      */
     private Set<Node> mConnectedNodes = new HashSet<>();
 
-    /**
-     * class used for manage the notification
-     */
-    private NotificationManager mNotificationManager;
+
 
     /**
      * if the node enter in a disconnected state try to connect again
@@ -171,11 +169,6 @@ public class NodeConnectionService extends Service {
             return START_NOT_STICKY;
         }
 
-        if(mNotificationManager == null){
-            mNotificationManager = (NotificationManager)
-                    getSystemService(Context.NOTIFICATION_SERVICE);
-        }
-
         String action = intent.getAction();
 
         if(CONNECT_ACTION.equals(action)){
@@ -191,26 +184,19 @@ public class NodeConnectionService extends Service {
      * if present remove the connection notification
      */
     private void removeConnectionNotification() {
-        if(mNotificationManager!=null)
-            mNotificationManager.cancel(NOTIFICATION_ID);
+        stopForeground(true);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //disconnect all the nodes and remove the notificaiton
-        for(Node n : mConnectedNodes){
-            if(n.isConnected()){
-                n.disconnect();
-            }
-        }
-        removeConnectionNotification();
+        disconnectAll();
     }
 
     @Override
     public void onTaskRemoved (Intent rootIntent){
-        //remove the notification, the will be destroyed by the system
-        removeConnectionNotification();
+        disconnectAll();
+        stopSelf(); // stop the service
     }
 
     private PendingIntent getDisconnectPendingIntent(Node n){
@@ -248,16 +234,18 @@ public class NodeConnectionService extends Service {
         return logo;
     }
 
-    private String createNotificationChannel(NotificationManager manager){
+    private String createNotificationChannel(){
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
+            NotificationManager manager = (NotificationManager)
+                    getSystemService(Context.NOTIFICATION_SERVICE);
             String desc = getString(R.string.NodeConn_channelDescription);
             String name = getString(R.string.NodeConn_channelName);
             NotificationChannel channel = new NotificationChannel(CONNECTION_NOTIFICATION_CHANNEL,
                     name, NotificationManager.IMPORTANCE_LOW);
             channel.setDescription(desc);
-            manager.createNotificationChannel(channel);
+            if(manager!=null)
+                manager.createNotificationChannel(channel);
         }
 
         return CONNECTION_NOTIFICATION_CHANNEL;
@@ -270,7 +258,7 @@ public class NodeConnectionService extends Service {
         PendingIntent disconnectNode = getDisconnectPendingIntent(n);
 
         NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this,createNotificationChannel(mNotificationManager))
+                new NotificationCompat.Builder(this,createNotificationChannel())
                         .setContentTitle(getString(R.string.NodeConn_nodeConnectedTitile))
                         .setCategory(NotificationCompat.CATEGORY_SERVICE)
                         .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -314,6 +302,18 @@ public class NodeConnectionService extends Service {
         return null;
     }
 
+    private void disconnectAll(){
+        //disconnect all the nodes and remove the notification
+        for(Node n : mConnectedNodes){
+            if(n.isConnected()){
+                n.disconnect();
+                n.removeNodeStateListener(mStateListener);
+            }
+        }
+        mConnectedNodes.clear();
+        removeConnectionNotification();
+    }
+
     /**
      * disconnect the node
      * @param intent node to disconnect
@@ -321,15 +321,21 @@ public class NodeConnectionService extends Service {
     private void disconnect(Intent intent) {
         String tag = intent.getStringExtra(NODE_TAG_ARG);
         Node n = findConnectedNodeWithTag(tag);
-        if(n==null)
+        if(n==null){
+            if(mConnectedNodes.size()==0){
+                stopForeground(true);
+                stopSelf();
+            }//if
             return;
+        }
 
         mConnectedNodes.remove(n);
         n.removeNodeStateListener(mStateListener);
         n.disconnect();
-       // mNotificationManager.cancel(NOTIFICATION_ID);
+
         if(mConnectedNodes.size()==0){
             stopForeground(true);
+            stopSelf();
         }//if
 
     }
