@@ -82,7 +82,6 @@ dependencies {
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$rootProject.espressoVersion"
 
     implementation project(':BlueSTSDK')
-    implementation project(':LicenseGenerator')
 
     implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
     implementation "com.android.support:support-v13:$rootProject.supportLibraryVersion"

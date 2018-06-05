@@ -45,7 +45,6 @@
     <string name="openDebugConsole">Open Debug Console</string>
     <string name="showDebugConsole">Show Serial Console</string>
     <string name="hideDebugConsole">Hide Serial Console</string>
-    <string name="licenseManager">License Manager</string>
 
     <string name="debugNotAvailable">Debug Service not available</string>
 

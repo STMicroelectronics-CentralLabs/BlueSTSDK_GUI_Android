@@ -72,7 +72,6 @@ import com.st.BlueSTSDK.Utils.LogFeatureActivity;
 import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.BlueSTSDK.gui.demos.DemoFragment;
 import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeActivity;
-import com.st.BlueSTSDK.gui.licenseManager.LicenseManagerActivity;
 import com.st.BlueSTSDK.gui.preferences.LogPreferenceFragment;
 import com.st.BlueSTSDK.gui.util.ConnectProgressDialog;
 
@@ -419,10 +418,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
                 menu.findItem(R.id.showDebugConsole).setVisible(false);
             }
 
-            if(!enableLicenseManager() || debug==null){
-                menu.findItem(R.id.menu_start_license_manager).setVisible(false);
-            }
-
             if(!enableFwUploading() || debug==null){
                 menu.findItem(R.id.menu_start_fw_upgrade).setVisible(false);
             }
@@ -431,10 +426,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         return super.onCreateOptionsMenu(menu);
     }
 
-    /**
-     * @return true if you want enable the license manger, false otherwise
-     */
-    protected abstract boolean enableLicenseManager();
 
     /**
      * @return true if you want enable the fw uploading using the debug console, false otherwise
@@ -568,12 +559,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             invalidateOptionsMenu();
             return true;
         }
-        if(id == R.id.menu_start_license_manager){
-            if(mShowDebugConsole)
-                showConsoleOutput(false);
-            startLicenseManagerActivity(this,mNode);
-            return true;
-        }
         if(id == R.id.menu_start_fw_upgrade){
             if(mShowDebugConsole)
                 showConsoleOutput(false);
@@ -626,17 +611,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         startActivity(i);
     }
 
-    public void startLicenseManagerActivity(Node node) {
-        if(!enableLicenseManager())
-            return;
-        startLicenseManagerActivity(this,node);
-    }
-
-    protected void startLicenseManagerActivity(Context context, Node node) {
-        keepConnectionOpen(true,false);
-        Intent i = LicenseManagerActivity.getStartIntent(context, node,true);
-        startActivity(i);
-    }
 
     public void startFwUpgradeActivity(Node node) {
         if(!enableFwUploading())

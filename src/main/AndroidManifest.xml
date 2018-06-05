@@ -60,25 +60,25 @@
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.Settings" />
         <activity
-            android:name=".licenseManager.LicenseManagerActivity"
+            android:name="com.st.BlueMS.licenseManager.LicenseManagerActivity"
             android:label="@string/licenseManager_statusActivityName"
             android:launchMode="singleTop" />
         <activity
-            android:name=".licenseManager.RequestLicenseActivity"
+            android:name="com.st.BlueMS.licenseManager.RequestLicenseActivity"
             android:label="@string/title_activity_approve_license"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.st.BlueSTSDK.gui.licenseManager.LicenseManagerActivity" />
+                android:value="com.st.BlueMS.licenseManager.LicenseManagerActivity" />
         </activity>
         <activity
-            android:name=".licenseManager.LoadLicenseActivity"
+            android:name="com.st.BlueMS.licenseManager.LoadLicenseActivity"
             android:label="@string/licenseManager_loadActivityName"
-            android:parentActivityName=".licenseManager.LicenseManagerActivity"
+            android:parentActivityName="com.st.BlueMS.licenseManager.LicenseManagerActivity"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.st.BlueSTSDK.gui.licenseManager.LicenseManagerActivity" />
+                android:value="com.st.BlueMS.licenseManager.LicenseManagerActivity" />
         </activity>
         <activity
             android:name=".fwUpgrade.FwUpgradeActivity"
