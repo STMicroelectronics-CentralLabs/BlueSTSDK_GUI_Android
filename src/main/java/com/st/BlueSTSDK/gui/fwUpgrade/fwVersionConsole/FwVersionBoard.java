@@ -34,7 +34,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
+package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
 
 import android.os.Parcel;
 import android.os.Parcelable;

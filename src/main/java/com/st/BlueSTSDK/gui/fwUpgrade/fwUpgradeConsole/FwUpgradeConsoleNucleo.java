@@ -38,14 +38,16 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.Utils.NumberConversion;
+import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.STM32Crc32;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBle;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
 
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
@@ -77,8 +79,6 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         return Math.max(1,BLOCK_PKG_SIZE/(1<<(sNFail)));
     }
 
-    static private final String GET_VERSION_BOARD_FW="versionFw\n";
-    static private final String GET_VERSION_BLE_FW="versionBle\n";
     static private final byte[] UPLOAD_BOARD_FW={'u','p','g','r','a','d','e','F','w'};
     static private final byte[] UPLOAD_BLE_FW={'u','p','g','r','a','d','e','B','l','e'};
 
@@ -104,10 +104,6 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      */
     private StringBuilder mBuffer;
 
-    /**
-     * object used for manage the get board id command
-     */
-    private GetVersionProtocol mConsoleGetFwVersion= new GetVersionProtocol();
 
     private static boolean isCompleteLine(StringBuilder buffer) {
         if(buffer.length()>2){
@@ -118,80 +114,6 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         return false;
     }
 
-    /**
-     * class used for wait/parse the fw version response
-     */
-    private class GetVersionProtocol implements Debug.DebugOutputListener {
-
-        private @FirmwareType int mRequestFwType;
-        private  int mNInvalidLine=0;
-
-        /**
-         * if the timeout is rise, fire an error of type
-         * */
-        private Runnable onTimeout = () -> notifyVersionRead(null);
-
-        private void notifyVersionRead(FwVersion version){
-            setConsoleListener(null);
-            if (mCallback != null)
-                mCallback.onVersionRead(FwUpgradeConsoleNucleo.this,mRequestFwType,version);
-        }
-
-        public void requestVersion(@FirmwareType int fwType){
-            mRequestFwType=fwType;
-            switch (fwType) {
-                case FwUpgradeConsole.BLE_FW:
-                    mConsole.write(GET_VERSION_BLE_FW);
-                    break;
-                case FwUpgradeConsole.BOARD_FW:
-                    mConsole.write(GET_VERSION_BOARD_FW);
-                    break;
-                default:
-                    notifyVersionRead(null);
-                    break;
-            }
-        }
-
-        @Override
-        public void onStdOutReceived(Debug debug, String message) {
-            mBuffer.append(message);
-            if (isCompleteLine(mBuffer)) {
-                //remove time out
-                mTimeout.removeCallbacks(onTimeout);
-                mBuffer.delete(mBuffer.length()-2,mBuffer.length());
-                //check if it a valid fwVersion
-                FwVersion version=null;
-                try {
-                    switch (mRequestFwType) {
-                        case FwUpgradeConsole.BLE_FW:
-                            version = new FwVersionBle(mBuffer.toString());
-                            break;
-                        case FwUpgradeConsole.BOARD_FW:
-                            version = new FwVersionBoard(mBuffer.toString());
-                            break;
-                    }
-                }catch (IllegalVersionFormatException e){
-                    //remove invalid data and wait another timeout
-                    mBuffer.delete(0,mBuffer.length());
-                    if(++mNInvalidLine % 10 ==0) {
-                        //send again the request message, the message get lost
-                        requestVersion(mRequestFwType);
-                    }
-                    mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
-                    return;
-                }//try-catch
-                notifyVersionRead(version);
-            }//else wait another package
-        }
-
-        @Override
-        public void onStdErrReceived(Debug debug, String message) { }
-
-        @Override
-        public void onStdInSent(Debug debug, String message, boolean writeResult) {
-            mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
-        }
-    }
 
     /**
      * class that manage the file upload
@@ -304,11 +226,11 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
          * @param fileCrc file crc
          * @return command to send to the board
          */
-        private byte[] prepareLoadCommand(@FirmwareType int fwType,long fileSize,long
+        private byte[] prepareLoadCommand(@FirmwareType int fwType, long fileSize, long
                 fileCrc){
             byte[] command;
             int offset;
-            if(fwType==BLE_FW){
+            if(fwType==FirmwareType.BLE_FW){
                 offset = UPLOAD_BLE_FW.length;
                 command =new byte[offset+8];
                 System.arraycopy(UPLOAD_BLE_FW,0,command,0,offset);
@@ -491,16 +413,6 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         return mCurrentListener != null;
     }
 
-    @Override
-    public boolean readVersion(@FirmwareType int fwType) {
-        if (isWaitingAnswer())
-            return false;
-
-        mBuffer.setLength(0); //reset the buffer
-        setConsoleListener(mConsoleGetFwVersion);
-        mConsoleGetFwVersion.requestVersion(fwType);
-        return true;
-    }
 
     @Override
     public boolean loadFw(@FirmwareType int fwType,final FwFileDescriptor fwFile) {

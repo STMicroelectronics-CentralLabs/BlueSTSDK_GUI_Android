@@ -39,6 +39,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
 import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
 
 import org.junit.Test;
 

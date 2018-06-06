@@ -45,6 +45,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -57,8 +58,8 @@ import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
 import com.st.BlueSTSDK.gui.R;
-import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
-import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwVersionBoard;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
 import com.st.BlueSTSDK.gui.util.AlertAndFinishDialog;
 import com.st.BlueSTSDK.gui.util.DialogUtil;
 
@@ -114,12 +115,9 @@ public class FwUpgradeActivity extends ActivityWithNode {
     private TextView mFinalMessage;
     private FwVersionBoard mVersion;
 
-    private Node.NodeStateListener mOnConnected = new Node.NodeStateListener() {
-        @Override
-        public void onStateChange(Node node, Node.State newState, Node.State prevState) {
-            if(newState==Node.State.Connected){
-                initFwVersion();
-            }
+    private Node.NodeStateListener mOnConnected = (node, newState, prevState) -> {
+        if(newState==Node.State.Connected){
+            initFwVersion();
         }
     };
 
@@ -133,33 +131,28 @@ public class FwUpgradeActivity extends ActivityWithNode {
     private ProgressDialog mLoadVersionProgressDialog;
 
 
-    private FwUpgradeConsole.FwUpgradeCallback mConsoleListener = new FwUpgradeConsole.SimpleFwUpgradeCallback() {
-
+    private FwVersionConsole.FwVersionCallback mVersionConsoleListener = new FwVersionConsole.FwVersionCallback() {
         @Override
-        public void onVersionRead(final FwUpgradeConsole console,
-                                  @FwUpgradeConsole.FirmwareType final int fwType,
-                                  final FwVersion version) {
-            FwUpgradeActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    DialogUtil.releaseDialog(mLoadVersionProgressDialog);
-                    mLoadVersionProgressDialog=null;
-                    if(version==null){
-                        displayFwUpgradeNotAvailableAndFinish();
-                        return;
-                    }
-                    if(fwType==FwUpgradeConsole.BOARD_FW) {
-                        FwVersionBoard boardVersion =(FwVersionBoard) version;
-                        if(checkFwIncompatibility(boardVersion)) {
-                            displayVersion(boardVersion);
-                            startExternalFwUpgrade();
-                        }
+        public void onVersionRead(FwVersionConsole console,
+                                  @FirmwareType final int fwType,
+                                  @Nullable FwVersion version) {
+            FwUpgradeActivity.this.runOnUiThread(() -> {
+                DialogUtil.releaseDialog(mLoadVersionProgressDialog);
+                mLoadVersionProgressDialog=null;
+                if(version==null){
+                    displayFwUpgradeNotAvailableAndFinish();
+                    return;
+                }
+                if(fwType==FirmwareType.BOARD_FW) {
+                    FwVersionBoard boardVersion =(FwVersionBoard) version;
+                    if(checkFwIncompatibility(boardVersion)) {
+                        displayVersion(boardVersion);
+                        startExternalFwUpgrade();
                     }
                 }
             });
             console.setLicenseConsoleListener(null);
         }
-
     };
 
     /**
@@ -212,15 +205,15 @@ public class FwUpgradeActivity extends ActivityWithNode {
     }
 
     private  void initFwVersion(){
-        FwUpgradeConsole console = FwUpgradeConsole.getFwUpgradeConsole(mNode);
+        FwVersionConsole console = FwVersionConsole.getFwVersionConsole(mNode);
         if(console !=null) {
             mLoadVersionProgressDialog = new ProgressDialog(this);
             mLoadVersionProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             mLoadVersionProgressDialog.setTitle(R.string.fwUpgrade_loading);
             mLoadVersionProgressDialog.setMessage(getString(R.string.fwUpgrade_loadFwVersion));
 
-            console.setLicenseConsoleListener(mConsoleListener);
-            console.readVersion(FwUpgradeConsole.BOARD_FW);
+            console.setLicenseConsoleListener(mVersionConsoleListener);
+            console.readVersion(FirmwareType.BOARD_FW);
             mLoadVersionProgressDialog.show();
         }else{
             displayNotSupportedAndFinish();
@@ -233,19 +226,16 @@ public class FwUpgradeActivity extends ActivityWithNode {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fw_upgrade);
         mRootView = findViewById(R.id.activityFwRootView);
-        mVersionBoardText = (TextView) findViewById(R.id.fwVersionValue);
-        mBoardTypeText = (TextView) findViewById(R.id.boardTypeValue);
-        mFwBoardName =(TextView) findViewById(R.id.fwName);
-        mFinalMessage = (TextView) findViewById(R.id.upgradeFinishMessage);
+        mVersionBoardText = findViewById(R.id.fwVersionValue);
+        mBoardTypeText = findViewById(R.id.boardTypeValue);
+        mFwBoardName = findViewById(R.id.fwName);
+        mFinalMessage =  findViewById(R.id.upgradeFinishMessage);
 
-        FloatingActionButton uploadButton = (FloatingActionButton) findViewById(R.id.startUpgradeButton);
+        FloatingActionButton uploadButton = findViewById(R.id.startUpgradeButton);
         if( uploadButton !=null) {
-            uploadButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                if(checkReadSDPermission())
-                    startFwUpgrade();
-                }
+            uploadButton.setOnClickListener(view -> {
+            if(checkReadSDPermission())
+                startFwUpgrade();
             });
 
         }
@@ -353,16 +343,12 @@ public class FwUpgradeActivity extends ActivityWithNode {
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //onClick
                 Snackbar.make(mRootView, R.string.FwUpgrade_readSDRationale,
                         Snackbar.LENGTH_INDEFINITE)
-                        .setAction(android.R.string.ok, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                ActivityCompat.requestPermissions(FwUpgradeActivity.this,
-                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                        RESULT_READ_ACCESS);
-                            }//onClick
-                        }).show();
+                        .setAction(android.R.string.ok, view -> ActivityCompat.requestPermissions(FwUpgradeActivity.this,
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                RESULT_READ_ACCESS)).show();
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,

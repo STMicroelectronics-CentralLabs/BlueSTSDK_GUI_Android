@@ -338,16 +338,10 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
             console.setLicenseConsoleListener(this);
             mBroadcastManager.sendBroadcast(getFwUpgradeStartIntent());
             mNotificationManager.notify(NOTIFICATION_ID, mNotification.build());
-            console.loadFw(FwUpgradeConsole.BOARD_FW, new FwFileDescriptor(getContentResolver(),
+            console.loadFw(FirmwareType.BOARD_FW, new FwFileDescriptor(getContentResolver(),
                     file));
         }//if console
     }
 
 
-    @Override
-    public void onVersionRead(final FwUpgradeConsole console,
-                              @FwUpgradeConsole.FirmwareType final int fwType,
-                              final FwVersion version) {
-        //not used
-    }
 }
