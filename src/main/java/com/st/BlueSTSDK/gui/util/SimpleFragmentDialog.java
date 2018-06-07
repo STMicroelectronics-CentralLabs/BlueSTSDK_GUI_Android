@@ -38,6 +38,7 @@ package com.st.BlueSTSDK.gui.util;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -57,6 +58,8 @@ public class SimpleFragmentDialog extends DialogFragment {
         return frag;
     }
 
+    private DialogInterface.OnClickListener mClickListener = null;
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -64,10 +67,19 @@ public class SimpleFragmentDialog extends DialogFragment {
         return new AlertDialog.Builder(getActivity())
                 .setMessage(messageId)
                 .setPositiveButton(android.R.string.ok,
-                        (dialog, whichButton) -> dialog.dismiss()
+                        (dialog, whichButton) ->{
+                            if(mClickListener!=null)
+                                mClickListener.onClick(dialog,whichButton);
+                        }
                 )
                 .setCancelable(false)
                 .create();
+
+    }
+
+
+    public void setOnclickLstener(DialogInterface.OnClickListener clickListener){
+        mClickListener = clickListener;
     }
 
 }

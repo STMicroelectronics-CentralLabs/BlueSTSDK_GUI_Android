@@ -93,12 +93,10 @@ public class AlertAndFinishDialog extends DialogFragment {
                 .setIcon(R.drawable.ic_warning_24dp)
                 .setCancelable(false)
                 .setNeutralButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.dismiss();
-                                actvity.keepConnectionOpen(keepConnectionOpen,false);
-                                actvity.finish();
-                            }
+                        (dialog, id) -> {
+                            dialog.dismiss();
+                            actvity.keepConnectionOpen(keepConnectionOpen,false);
+                            actvity.finish();
                         }).create();
     }
 

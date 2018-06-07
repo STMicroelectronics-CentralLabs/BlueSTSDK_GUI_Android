@@ -35,69 +35,63 @@
  * OF SUCH DAMAGE.
  */
 
-package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
-import android.content.Context;
-import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
+package com.st.BlueSTSDK.gui.util.InputChecker;
 
-import android.support.test.runner.AndroidJUnit4;
-
-import com.st.BlueSTSDK.gui.R;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.util.ArrayList;
-
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.*;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
+import android.support.annotation.StringRes;
+import android.support.design.widget.TextInputLayout;
+import android.text.Editable;
+import android.text.TextWatcher;
 
 
-@RunWith(AndroidJUnit4.class)
-public class ThirdPartyLibLicenseTest {
+/**
+ * Class used to check that a TextInputLayout contains a valid value,
+ * if not an error is shown
+ */
+public abstract class InputChecker implements TextWatcher {
 
-    private static ArrayList<LibLicense> LIBS = new ArrayList<>();
-    static {
-        LIBS.add(new LibLicense("Lib1", R.raw.test_licese ));
-        LIBS.add(new LibLicense("Lib2", 0));
+    private TextInputLayout mTextInputLayout;
+    private String mErrorMsg;
+
+    public InputChecker(TextInputLayout textInputLayout, @StringRes int errorMessageId){
+        mTextInputLayout = textInputLayout;
+        mErrorMsg = textInputLayout.getContext().getString(errorMessageId);
     }
 
-
-    @Rule
-    public ActivityTestRule<LibLicenseActivity> mActivityTestRule = new ActivityTestRule<>(LibLicenseActivity.class,true,false);
-
-    @Before
-    public void startActivity(){
-        Context targetContext = InstrumentationRegistry.getInstrumentation()
-                .getTargetContext();
-        Intent startIntent = LibLicenseActivity.getStartLibLicenseActivityIntent(targetContext,LIBS);
-
-        mActivityTestRule.launchActivity(startIntent);
-    }
-
-
-
-    @Test
-    public void aListWithAllTheLicenseIsDisplayed(){
-        for(LibLicense lib : LIBS) {
-            onView(withId(R.id.libLicense_libsList))
-                    .check(matches(hasDescendant(withText(lib.name))));
+    @Override
+    public void afterTextChanged(Editable editable) {
+        String input = editable.toString();
+        if(validate(input)){
+            hideErrorMessage();
+        }else{
+            showErrorMessage();
         }
     }
 
-    @Test
-    public void whenAnItemIsSelectedTheDetailsAreShown(){
-        LibLicense lib = LIBS.get(0);
-        onView(allOf(withId(R.id.libLicense_itemName),withText(lib.name))).perform(click());
-        onView(withId(R.id.libLicense_detailsName)).check(matches(withText(lib.name)));
-        onView(withId(R.id.libLicense_detailsLic)).check(matches(withText(containsString("license content"))));
+    private void showErrorMessage(){
+        mTextInputLayout.setErrorEnabled(true);
+        mTextInputLayout.setError(mErrorMsg);
     }
+
+    private void hideErrorMessage(){
+        mTextInputLayout.setError(null);
+        mTextInputLayout.setErrorEnabled(false);
+    }
+
+
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+    /**
+     * vaidate the user input
+     * @param input user input
+     * @return true if the string is correct, false otherwise
+     */
+    protected abstract boolean validate(String input);
 
 }

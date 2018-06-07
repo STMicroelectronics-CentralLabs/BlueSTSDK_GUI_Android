@@ -51,7 +51,6 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
@@ -72,7 +71,6 @@ public class NodeConnectionService extends Service {
     private static final String CONNECTION_PARAM_ARG = NodeConnectionService.class.getName() + ".CONNECTION_PARAM_ARG";
 
     private static final int STOP_SERVICE = 1;
-    private static final int NOTIFICATION_ID = 1;
     private static final String CONNECTION_NOTIFICATION_CHANNEL = "ConnectionNotification";
 
     @Nullable

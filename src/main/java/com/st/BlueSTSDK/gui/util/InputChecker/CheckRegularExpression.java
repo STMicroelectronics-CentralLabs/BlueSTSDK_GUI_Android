@@ -35,69 +35,37 @@
  * OF SUCH DAMAGE.
  */
 
-package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
-import android.content.Context;
-import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
+package com.st.BlueSTSDK.gui.util.InputChecker;
 
-import android.support.test.runner.AndroidJUnit4;
+import android.support.annotation.StringRes;
+import android.support.design.widget.TextInputLayout;
 
-import com.st.BlueSTSDK.gui.R;
+import java.util.regex.Pattern;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+/**
+ * Check that an user input match a pattern
+ */
+public class CheckRegularExpression extends InputChecker {
 
-import java.util.ArrayList;
+    /**
+     * pattern to match
+     */
+    private Pattern mRegExp;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.*;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-
-
-@RunWith(AndroidJUnit4.class)
-public class ThirdPartyLibLicenseTest {
-
-    private static ArrayList<LibLicense> LIBS = new ArrayList<>();
-    static {
-        LIBS.add(new LibLicense("Lib1", R.raw.test_licese ));
-        LIBS.add(new LibLicense("Lib2", 0));
+    /**
+     * check that the user input match a pattern
+     * @param textInputLayout layout containing the text view
+     * @param errorMessageId error to display if the input do not match the  pattern
+     * @param regExp pattern that the input must match
+      */
+    public CheckRegularExpression(TextInputLayout textInputLayout, @StringRes int errorMessageId,
+                                  Pattern regExp){
+        super(textInputLayout,errorMessageId);
+        mRegExp = regExp;
     }
 
-
-    @Rule
-    public ActivityTestRule<LibLicenseActivity> mActivityTestRule = new ActivityTestRule<>(LibLicenseActivity.class,true,false);
-
-    @Before
-    public void startActivity(){
-        Context targetContext = InstrumentationRegistry.getInstrumentation()
-                .getTargetContext();
-        Intent startIntent = LibLicenseActivity.getStartLibLicenseActivityIntent(targetContext,LIBS);
-
-        mActivityTestRule.launchActivity(startIntent);
+    @Override
+    protected boolean validate(String input) {
+        return mRegExp.matcher(input).matches();
     }
-
-
-
-    @Test
-    public void aListWithAllTheLicenseIsDisplayed(){
-        for(LibLicense lib : LIBS) {
-            onView(withId(R.id.libLicense_libsList))
-                    .check(matches(hasDescendant(withText(lib.name))));
-        }
-    }
-
-    @Test
-    public void whenAnItemIsSelectedTheDetailsAreShown(){
-        LibLicense lib = LIBS.get(0);
-        onView(allOf(withId(R.id.libLicense_itemName),withText(lib.name))).perform(click());
-        onView(withId(R.id.libLicense_detailsName)).check(matches(withText(lib.name)));
-        onView(withId(R.id.libLicense_detailsLic)).check(matches(withText(containsString("license content"))));
-    }
-
 }

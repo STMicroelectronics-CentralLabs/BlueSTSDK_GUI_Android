@@ -35,69 +35,54 @@
  * OF SUCH DAMAGE.
  */
 
-package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
-import android.content.Context;
-import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
+package com.st.BlueSTSDK.gui.util.InputChecker;
 
-import android.support.test.runner.AndroidJUnit4;
+import android.support.annotation.StringRes;
+import android.support.design.widget.TextInputLayout;
 
-import com.st.BlueSTSDK.gui.R;
+/**
+ * check that the user input is a number and is included in a range [min,max]
+ */
+public class CheckNumberRange extends InputChecker {
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+    /* min accepted value*/
+    private long mMin;
 
-import java.util.ArrayList;
+    /* max accepted value*/
+    private long mMax;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.*;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
+    /**
+     * base used to convert the string to number
+     */
+    private int mRadix;
 
-
-@RunWith(AndroidJUnit4.class)
-public class ThirdPartyLibLicenseTest {
-
-    private static ArrayList<LibLicense> LIBS = new ArrayList<>();
-    static {
-        LIBS.add(new LibLicense("Lib1", R.raw.test_licese ));
-        LIBS.add(new LibLicense("Lib2", 0));
+    public CheckNumberRange(TextInputLayout textInputLayout, @StringRes int errorMessageId,
+                            long min, long max){
+        this(textInputLayout,errorMessageId,min,max,10);
     }
 
-
-    @Rule
-    public ActivityTestRule<LibLicenseActivity> mActivityTestRule = new ActivityTestRule<>(LibLicenseActivity.class,true,false);
-
-    @Before
-    public void startActivity(){
-        Context targetContext = InstrumentationRegistry.getInstrumentation()
-                .getTargetContext();
-        Intent startIntent = LibLicenseActivity.getStartLibLicenseActivityIntent(targetContext,LIBS);
-
-        mActivityTestRule.launchActivity(startIntent);
+    /**
+     * check that the user input is a nmber inside a specific range
+     * @param textInputLayout layout containing the textView
+     * @param errorMessageId error to display if the user input is wrong
+     * @param min min accepted value
+     * @param max max accepted value
+     */
+    public CheckNumberRange(TextInputLayout textInputLayout, @StringRes int errorMessageId,
+                            long min, long max, int radix) {
+        super(textInputLayout, errorMessageId);
+        mMin = min;
+        mMax = max;
+        mRadix = radix;
     }
 
-
-
-    @Test
-    public void aListWithAllTheLicenseIsDisplayed(){
-        for(LibLicense lib : LIBS) {
-            onView(withId(R.id.libLicense_libsList))
-                    .check(matches(hasDescendant(withText(lib.name))));
+    @Override
+    protected boolean validate(String input) {
+        try{
+            long value = Long.valueOf(input,mRadix);
+            return value>=mMin && value<=mMax;
+        }catch (NumberFormatException e){
+            return false;
         }
     }
-
-    @Test
-    public void whenAnItemIsSelectedTheDetailsAreShown(){
-        LibLicense lib = LIBS.get(0);
-        onView(allOf(withId(R.id.libLicense_itemName),withText(lib.name))).perform(click());
-        onView(withId(R.id.libLicense_detailsName)).check(matches(withText(lib.name)));
-        onView(withId(R.id.libLicense_detailsLic)).check(matches(withText(containsString("license content"))));
-    }
-
 }
