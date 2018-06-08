@@ -381,7 +381,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
                     if(!startExternalFwUpgrade()) //if we already have a fw to upload
                         startFwUpgrade(); // ask to the user
                 } else {
-                    Snackbar.make(mRootView, "Impossible read Firmware files",
+                    Snackbar.make(mRootView, R.string.FwUpgrade_permissionDenied,
                             Snackbar.LENGTH_SHORT).show();
 
                 }//if-else

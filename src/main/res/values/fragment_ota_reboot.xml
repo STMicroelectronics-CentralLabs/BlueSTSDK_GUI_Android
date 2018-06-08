@@ -11,4 +11,6 @@
     <string name="otaReboot_sectorOutOfRange">Sector out of range</string>
     <string name="otaReboot_lengthOutOfRange">Length out of range</string>
     <string name="otaReboot_rebootDialog">The board is resetting, please switch off the radio before reconnect</string>
+    <string name="otaReboot_firmware">Firmware:</string>
+    <string name="otaReboot_selectFileButton">select file</string>
 </resources>
