@@ -351,7 +351,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
                 != PackageManager.PERMISSION_GRANTED) {
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 //onClick
                 Snackbar.make(mRootView, R.string.FwUpgrade_readSDRationale,
                         Snackbar.LENGTH_INDEFINITE)

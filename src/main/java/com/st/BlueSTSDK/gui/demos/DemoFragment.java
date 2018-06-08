@@ -37,10 +37,10 @@
 package com.st.BlueSTSDK.gui.demos;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
 import com.st.BlueSTSDK.Node;

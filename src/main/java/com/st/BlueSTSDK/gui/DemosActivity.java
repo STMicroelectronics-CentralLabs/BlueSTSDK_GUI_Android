@@ -36,8 +36,6 @@
  */
 package com.st.BlueSTSDK.gui;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,7 +45,9 @@ import android.preference.PreferenceManager;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -305,7 +305,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             return;
 
         mPager.addOnPageChangeListener(mUpdateActivityTitle);
-        final DemosTabAdapter adapter=new DemosTabAdapter(node,getAllDemos(), getFragmentManager());
+        final DemosTabAdapter adapter=new DemosTabAdapter(node,getAllDemos(), getSupportFragmentManager());
         mPager.setAdapter(adapter);
         mUpdateActivityTitle.onPageSelected(mPager.getCurrentItem());
         int nDemo = adapter.getCount();
