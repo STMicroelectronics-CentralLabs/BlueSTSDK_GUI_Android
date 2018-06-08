@@ -109,13 +109,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.st.BlueSTSDK.gui.AboutActivity" />
         </activity>
-        <activity android:name=".thirdPartyLibLicense.LibLicenseDetailsActivity"
+        <activity
+            android:name=".thirdPartyLibLicense.LibLicenseDetailsActivity"
             android:label="Details"
             android:parentActivityName=".thirdPartyLibLicense.LibLicenseActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicenseActivity" />
         </activity>
+        <activity
+            android:name=".fwUpgrade.stm32wb.FwUpgradeSTM32WBActivity"
+            android:label="@string/title_activity_fw_upgrade_stm32_wb"></activity>
     </application>
 
 </manifest>

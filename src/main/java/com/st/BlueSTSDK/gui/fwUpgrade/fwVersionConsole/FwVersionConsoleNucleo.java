@@ -206,8 +206,8 @@ public class FwVersionConsoleNucleo extends FwVersionConsole {
         }//synchronized
     }
 
-    @Override
-    public boolean isWaitingAnswer() {
+
+    private boolean isWaitingAnswer() {
         return mCurrentListener != null;
     }
 

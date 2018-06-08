@@ -47,6 +47,7 @@ import android.view.MenuItem;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.ConnectionOption;
 import com.st.BlueSTSDK.gui.util.ConnectProgressDialog;
 
 /**
@@ -61,11 +62,21 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
     private final static String KEEP_CONNECTION_OPEN = ActivityWithNode.class.getCanonicalName() +
             ".KEEP_CONNECTION_OPEN";
 
+    private final static String CONNECTION_OPTIONS = ActivityWithNode.class.getCanonicalName() + "" +
+            ".CONNECTION_OPTIONS";
+
+
     private boolean mKeepConnectionOpen;
 
     private ConnectProgressDialog mConnectionProgressDialog;
 
     protected Node mNode;
+    private ConnectionOption mConnecitonOption;
+
+    protected static Intent getStartIntent(Context c, @NonNull Class activity, @NonNull Node
+            node,boolean keepConnectionOpen){
+        return getStartIntent(c,activity,node,keepConnectionOpen,null);
+    }
 
     /**
      * create an intent for start the activity that will log the information from the node
@@ -76,10 +87,12 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
      * @return intent for start this activity
      */
     protected static Intent getStartIntent(Context c, @NonNull Class activity, @NonNull Node
-            node,boolean keepConnectionOpen) {
+            node,boolean keepConnectionOpen,@Nullable ConnectionOption option) {
         Intent i = new Intent(c, activity);
         i.putExtra(NODE_TAG, node.getTag());
         i.putExtra(KEEP_CONNECTION_OPEN, keepConnectionOpen);
+        if(option!=null)
+            i.putExtra(CONNECTION_OPTIONS,option);
         return i;
     }
 
@@ -93,6 +106,7 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
         String nodeTag = i.getStringExtra(NODE_TAG);
         mNode = Manager.getSharedInstance().getNodeWithTag(nodeTag);
         mKeepConnectionOpen = i.getBooleanExtra(KEEP_CONNECTION_OPEN,false);
+        mConnecitonOption = i.getParcelableExtra(CONNECTION_OPTIONS);
         mConnectionProgressDialog = new ConnectProgressDialog(this,"");
 
     }//onCreate
@@ -121,7 +135,7 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
         mConnectionProgressDialog.setState(mNode.getState(), Node.State.Init);
         mNode.addNodeStateListener(mConnectionProgressDialog);
         if(!mNode.isConnected()){
-            NodeConnectionService.connect(this,mNode);
+            NodeConnectionService.connect(this,mNode,mConnecitonOption);
         }
     }
 

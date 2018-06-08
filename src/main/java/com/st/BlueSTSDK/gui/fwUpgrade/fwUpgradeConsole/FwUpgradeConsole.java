@@ -43,6 +43,7 @@ import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
+import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.FwUpgradeConsoleSTM32;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -59,23 +60,23 @@ public abstract class FwUpgradeConsole {
      * @return null if isn't possible upload the firmware in the node, or a class for do it
      */
     static public @Nullable FwUpgradeConsole getFwUpgradeConsole(Node node){
-        Debug debug = node.getDebug();
-        if(debug==null)
-            return null;
+        FwUpgradeConsoleSTM32 stm32wbConsole = FwUpgradeConsoleSTM32.buildForNode(node);
+        if( stm32wbConsole!=null)
+            return stm32wbConsole;
 
-        switch (node.getType()) {
-            case NUCLEO:
-            case SENSOR_TILE:
-            case BLUE_COIN:
-                return new FwUpgradeConsoleNucleo(debug);
+        Debug debug = node.getDebug();
+
+        if(debug !=null) {
+            switch (node.getType()) {
+                case NUCLEO:
+                case SENSOR_TILE:
+                case BLUE_COIN:
+                    return new FwUpgradeConsoleNucleo(debug);
+            }
         }
         return  null;
     }
 
-    /**
-     * console where send the command
-     */
-    protected Debug mConsole;
 
     /**
      * object where notify the command response
@@ -84,19 +85,11 @@ public abstract class FwUpgradeConsole {
 
     /**
      *
-     * @param console console where send the command
      * @param callback object where notify the command answer
      */
-    protected FwUpgradeConsole(Debug console, FwUpgradeCallback callback) {
-        mConsole = console;
+    protected FwUpgradeConsole(FwUpgradeCallback callback) {
         mCallback = callback;
     }
-
-    /**
-     * @return true if the class is already executing a command
-     */
-    abstract public boolean isWaitingAnswer();
-
 
     /**
      * upload the file into the node

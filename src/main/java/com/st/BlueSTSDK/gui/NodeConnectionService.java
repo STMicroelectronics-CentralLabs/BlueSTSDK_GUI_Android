@@ -85,7 +85,7 @@ public class NodeConnectionService extends Service {
      * @param n node to connect
      */
     static public void connect(Context c, Node n){
-        connect(c,n,ConnectionOption.builder().build());
+        connect(c,n,null);
     }
 
     /**
@@ -104,12 +104,14 @@ public class NodeConnectionService extends Service {
      * start the service asking to connect with the node
      * @param c context used for start the service
      * @param n node to connect
-     * @param option connection options
+     * @param option connection options, if no parameters present the default one will be used
      */
-    static public void connect(Context c, Node n, ConnectionOption option ){
+    static public void connect(Context c, Node n,@Nullable ConnectionOption option ){
         Intent i = new Intent(c,NodeConnectionService.class);
         i.setAction(CONNECT_ACTION);
         i.putExtra(NODE_TAG_ARG,n.getTag());
+        if(option==null)
+            option = ConnectionOption.builder().build();
         i.putExtra(CONNECTION_PARAM_ARG,option);
         c.startService(i);
     }

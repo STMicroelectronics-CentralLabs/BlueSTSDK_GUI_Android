@@ -57,7 +57,7 @@ android {
         }
     }
 
-    sourceSets{
+    sourceSets {
         all {
             res.srcDirs += ['st_images']
         }
@@ -72,6 +72,7 @@ android {
 
 dependencies {
 
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     testImplementation "junit:junit:$rootProject.junitVersion"
     testImplementation "org.mockito:mockito-core:$rootProject.mockitoVersion"
 

@@ -8,6 +8,7 @@ import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
+import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.FwUpgradeConsoleSTM32;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -22,6 +23,10 @@ public abstract  class FwVersionConsole {
      */
     static public @Nullable
     FwVersionConsole getFwVersionConsole(Node node) {
+        FwVersionConsole stm32wbConsole = FwVersionConsoleSTM32WB.buildForNode(node);
+        if( stm32wbConsole!=null)
+            return stm32wbConsole;
+
         Debug debug = node.getDebug();
         if (debug == null)
             return null;
@@ -46,11 +51,6 @@ public abstract  class FwVersionConsole {
     protected FwVersionConsole(FwVersionCallback callback) {
         mCallback = callback;
     }
-
-    /**
-     * @return true if the class is already executing a command
-     */
-    abstract public boolean isWaitingAnswer();
 
     /**
      * ask to the node the firmware version, the result will be notify using the method:

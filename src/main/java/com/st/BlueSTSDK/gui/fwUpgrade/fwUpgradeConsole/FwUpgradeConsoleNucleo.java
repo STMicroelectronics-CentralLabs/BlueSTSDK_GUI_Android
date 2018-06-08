@@ -40,14 +40,10 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.st.BlueSTSDK.Debug;
-import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.Utils.NumberConversion;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
-import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.STM32Crc32;
-import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBle;
-import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
 
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
@@ -104,16 +100,10 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      */
     private StringBuilder mBuffer;
 
-
-    private static boolean isCompleteLine(StringBuilder buffer) {
-        if(buffer.length()>2){
-            String endLine = buffer.substring(buffer.length()-2);
-            return endLine.equals("\r\n") || endLine.equals("\n\r");
-        }
-
-        return false;
-    }
-
+    /**
+     * console where send the command
+     */
+    private Debug mConsole;
 
     /**
      * class that manage the file upload
@@ -172,12 +162,9 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
          * if the timeout is rise, fire an error of type
          * {@link FwUpgradeConsole.FwUpgradeCallback#ERROR_TRANSMISSION}
          */
-        private Runnable onTimeout = new Runnable() {
-            @Override
-            public void run() {
-                onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
-                sNFail++;
-            }
+        private Runnable onTimeout = () -> {
+            onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
+            sNFail++;
         };
 
 
@@ -388,7 +375,8 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      * @param callback object where notify the command answer
      */
     FwUpgradeConsoleNucleo(Debug console, FwUpgradeConsole.FwUpgradeCallback callback) {
-        super(console,callback);
+        super(callback);
+        mConsole = console;
         mTimeout = new Handler(Looper.getMainLooper());
         mBuffer = new StringBuilder();
 
@@ -408,8 +396,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         }//synchronized
     }
 
-    @Override
-    public boolean isWaitingAnswer() {
+    private boolean isWaitingAnswer() {
         return mCurrentListener != null;
     }
 

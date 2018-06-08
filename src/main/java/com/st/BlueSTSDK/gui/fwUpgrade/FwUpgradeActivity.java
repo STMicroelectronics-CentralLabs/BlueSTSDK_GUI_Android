@@ -55,6 +55,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.ConnectionOption;
 import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
 import com.st.BlueSTSDK.gui.R;
@@ -93,6 +94,11 @@ public class FwUpgradeActivity extends ActivityWithNode {
                 keepTheConnectionOpen);
     }
 
+    public static Intent getStartIntent(Context c, Node node, boolean keepTheConnectionOpen, @Nullable ConnectionOption option) {
+        return ActivityWithNode.getStartIntent(c,FwUpgradeActivity.class,node,
+                keepTheConnectionOpen,option);
+    }
+
     /**
      * crate the start intent for this activity
      * @param c context to use
@@ -117,7 +123,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
 
     private Node.NodeStateListener mOnConnected = (node, newState, prevState) -> {
         if(newState==Node.State.Connected){
-            initFwVersion();
+            FwUpgradeActivity.this.runOnUiThread(this::initFwVersion);
         }
     };
 
@@ -213,8 +219,8 @@ public class FwUpgradeActivity extends ActivityWithNode {
             mLoadVersionProgressDialog.setMessage(getString(R.string.fwUpgrade_loadFwVersion));
 
             console.setLicenseConsoleListener(mVersionConsoleListener);
-            console.readVersion(FirmwareType.BOARD_FW);
             mLoadVersionProgressDialog.show();
+            console.readVersion(FirmwareType.BOARD_FW);
         }else{
             displayNotSupportedAndFinish();
         }
@@ -240,13 +246,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
 
         }
 
-        if(savedInstanceState==null) {
-            if (mNode.isConnected()) {
-                initFwVersion();
-            } else {
-                mNode.addNodeStateListener(mOnConnected);
-            }
-        }else{
+        if(savedInstanceState!=null) {
             mVersion= savedInstanceState.getParcelable(VERSION);
             if(mVersion!=null)
                 displayVersion(mVersion);
@@ -312,6 +312,15 @@ public class FwUpgradeActivity extends ActivityWithNode {
         // Register mMessageReceiver to receive messages.
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 FwUpgradeService.getServiceActionFilter());
+
+        if(mVersion==null){
+            if (mNode.isConnected()) {
+                initFwVersion();
+            } else {
+                mNode.addNodeStateListener(mOnConnected);
+            }
+        }
+
     }
 
     private void startFwUpgrade(){

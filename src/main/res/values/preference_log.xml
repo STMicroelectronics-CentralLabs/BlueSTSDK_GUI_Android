@@ -59,10 +59,6 @@
     <string name="pref_logClearDone">Log files removed</string>
     <string name="pref_logClear_summary">Remove previous logs</string>
 
-    <string name="action_settings">Settings</string>
-    <string name="title_activity_splash_screen" translatable="false">Splash_screenActivity</string>
     <string name="pref_logExportSession">Export Logs</string>
     <string name="pref_logExportSession_summary">Select and Export Logs</string>
-
-
 </resources>
