@@ -103,7 +103,7 @@ public class AboutActivity extends AppCompatActivity {
 
     // set the text view with the app version
     private void setUpAppVersion(){
-        TextView tvVersion = (TextView) findViewById(R.id.abaout_appVersion);
+        TextView tvVersion = findViewById(R.id.abaout_appVersion);
         try {
             Context appContext = getApplicationContext();
             PackageInfo pInfo = appContext.getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -115,7 +115,7 @@ public class AboutActivity extends AppCompatActivity {
 
     // set the text view with the app name
     private void setUpAppName(){
-        TextView tvAppName = (TextView) findViewById(R.id.about_appName);
+        TextView tvAppName = findViewById(R.id.about_appName);
         try {
             Context appContext = getApplicationContext();
             PackageInfo pInfo = appContext.getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -130,7 +130,7 @@ public class AboutActivity extends AppCompatActivity {
         if(aboutPageUrl==null)
             return;
 
-        WebView browser = (WebView) findViewById(R.id.about_webpage);
+        WebView browser = findViewById(R.id.about_webpage);
         browser.setVerticalScrollBarEnabled(false);
         browser.loadUrl(aboutPageUrl);
     }

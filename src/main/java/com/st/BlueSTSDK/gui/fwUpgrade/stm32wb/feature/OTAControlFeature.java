@@ -1,11 +1,15 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature;
 
 
+import android.util.Log;
+
 import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.NumberConversion;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
+
+import java.util.Arrays;
 
 public class OTAControlFeature extends Feature {
 
@@ -28,13 +32,14 @@ public class OTAControlFeature extends Feature {
     }
 
     public void startUpload(@FirmwareType int type, int address){
-        byte command[] = NumberConversion.LittleEndian.uint32ToBytes(address);
+        byte command[] = NumberConversion.BigEndian.uint32ToBytes(address);
         command[0] = type == FirmwareType.BLE_FW ? START_M0_COMMAND : START_M4_COMMAND;
+        Log.d("startUpload", "startUpload: "+ Arrays.toString(command));
         writeData(command);
     }
 
-    public void uploadFinished(){
-        writeData(new byte[]{UPLOAD_FINISHED_COMMAND});
+    public void uploadFinished(Runnable onMessageWrite){
+        writeData(new byte[]{UPLOAD_FINISHED_COMMAND},onMessageWrite);
     }
 
     public void cancelUpload(){

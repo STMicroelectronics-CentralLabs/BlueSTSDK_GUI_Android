@@ -1,7 +1,5 @@
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment"
-    android:name="com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.FwUpgradeSTM32WBActivityFragment"
+    android:id="@+id/otaSTM32_content"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:layout="@layout/fragment_fw_upgrade_stm32_wb" />
+    android:layout_height="match_parent" />

@@ -1,13 +1,12 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.stm32wb;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
-import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
-import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
 import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature.OTABoardWillRebootFeature;
 import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature.OTAControlFeature;
 import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature.OTAFileUpload;
@@ -55,12 +54,22 @@ public class FwUpgradeConsoleSTM32 extends FwUpgradeConsole {
         mReset.getParentNode().enableNotification(mReset);
         mControl.startUpload(type,0x7000);
         try {
-            mUpload.upload(fwFile.openFile());
-            Node n = mControl.getParentNode();
-            while (!n.writeQueueIsEmpty()){
 
-            }
-            mControl.uploadFinished();
+            Runnable onProgress = new Runnable() {
+                    private long sendData = fwFile.getLength();
+                    @Override
+                    public void run() {
+                        sendData-=OTAFileUpload.CHUNK_LENGTH;
+                        Log.d("OnProgress", "run: "+sendData);
+                        mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleSTM32.this,fwFile,sendData);
+                        if(sendData<=0){
+                            mControl.uploadFinished(() -> mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32.this,fwFile));
+                        }
+                    }
+            };
+
+            mUpload.upload(fwFile.openFile(),onProgress);
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             mControl.cancelUpload();

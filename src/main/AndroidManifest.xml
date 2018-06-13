@@ -60,27 +60,6 @@
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.Settings" />
         <activity
-            android:name="com.st.BlueMS.licenseManager.LicenseManagerActivity"
-            android:label="@string/licenseManager_statusActivityName"
-            android:launchMode="singleTop" />
-        <activity
-            android:name="com.st.BlueMS.licenseManager.RequestLicenseActivity"
-            android:label="@string/title_activity_approve_license"
-            android:windowSoftInputMode="adjustResize">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.st.BlueMS.licenseManager.LicenseManagerActivity" />
-        </activity>
-        <activity
-            android:name="com.st.BlueMS.licenseManager.LoadLicenseActivity"
-            android:label="@string/licenseManager_loadActivityName"
-            android:parentActivityName="com.st.BlueMS.licenseManager.LicenseManagerActivity"
-            android:windowSoftInputMode="adjustResize">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.st.BlueMS.licenseManager.LicenseManagerActivity" />
-        </activity>
-        <activity
             android:name=".fwUpgrade.FwUpgradeActivity"
             android:label="@string/title_activity_fw_upgrade" />
 
@@ -91,15 +70,6 @@
             android:name=".NodeConnectionService"
             android:enabled="true"
             android:exported="false" />
-
-        <activity
-            android:name=".privacyPolicy.PrivacyPolicyActivity"
-            android:label="@string/title_activity_privacy_policy"
-            android:parentActivityName=".AboutActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.st.BlueSTSDK.gui.AboutActivity" />
-        </activity>
         <activity
             android:name=".thirdPartyLibLicense.LibLicenseActivity"
             android:label="License"
@@ -119,7 +89,7 @@
         </activity>
         <activity
             android:name=".fwUpgrade.stm32wb.FwUpgradeSTM32WBActivity"
-            android:label="@string/title_activity_fw_upgrade_stm32_wb"></activity>
+            android:label="@string/title_activity_fw_upgrade_stm32_wb"/>
     </application>
 
 </manifest>

@@ -9,7 +9,7 @@ import java.io.InputStream;
 
 public class OTAFileUpload extends Feature {
 
-    private static final int MESSAGE_LENGTH = 20;
+    public static final int CHUNK_LENGTH = 20;
     private static final String FEATURE_NAME = "OTA File Upload";
     private static final Field[] DATA_DESC = new Field[0];
 
@@ -23,13 +23,13 @@ public class OTAFileUpload extends Feature {
     }
 
 
-    public void upload(InputStream file) throws IOException {
-        byte buffer[] = new byte[MESSAGE_LENGTH];
+    public void upload(InputStream file , Runnable onUpload) throws IOException {
+        byte buffer[] = new byte[CHUNK_LENGTH];
         int nReadByte;
         while ( (nReadByte = file.read(buffer))>0){
             //todo what if nReadByte!=20?
-            writeData(buffer);
-            buffer = new byte[MESSAGE_LENGTH];
+            writeData(buffer,onUpload);
+            buffer = new byte[CHUNK_LENGTH];
         }
     }
 

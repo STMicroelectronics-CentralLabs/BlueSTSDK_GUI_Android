@@ -1,7 +1,5 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature;
 
-import android.support.annotation.NonNull;
-
 import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
@@ -21,8 +19,8 @@ public class RebootOTAModeFeature extends Feature {
         super(FEATURE_NAME, n, DATA_DESC);
     }
 
-    public void rebootToFlash(short sectorOffset,short numSector){
-        writeData(new byte[]{REBOOT_OTA_MODE,(byte) sectorOffset,(byte)numSector});
+    public void rebootToFlash(short sectorOffset,short numSector, Runnable onCommandSent){
+        writeData(new byte[]{REBOOT_OTA_MODE,(byte) sectorOffset,(byte)numSector},onCommandSent);
     }
 
 

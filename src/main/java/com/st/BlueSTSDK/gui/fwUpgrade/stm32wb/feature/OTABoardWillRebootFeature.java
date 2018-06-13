@@ -1,10 +1,11 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature;
 
 import com.st.BlueSTSDK.Feature;
+import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
 
-public class OTABoardWillRebootFeature extends Feature {
+public class OTABoardWillRebootFeature extends DeviceTimestampFeature {
     private static final String FEATURE_NAME = "OTA Will Reboot";
 
     public OTABoardWillRebootFeature(Node n){

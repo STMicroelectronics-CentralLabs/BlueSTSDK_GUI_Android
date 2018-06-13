@@ -34,7 +34,8 @@ public class StartOtaRebootPresenter implements StartOtaConfigContract.Presenter
     @Override
     public void onConnectionResetWarningDismiss() {
        // Log.d("presenter","Sector: "+mView.getSectorToDelete()+" nSector: "+mView.getNSectorToDelete());
-        mRebootFeature.rebootToFlash(mView.getSectorToDelete(),mView.getNSectorToDelete());
-        mView.performFileUpload(null);
+        mRebootFeature.rebootToFlash(mView.getSectorToDelete(), mView.getNSectorToDelete(),
+                () -> mView.performFileUpload(null));
+
     }
 }

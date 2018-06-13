@@ -51,6 +51,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
@@ -97,6 +98,7 @@ public class NodeConnectionService extends Service {
      */
     @Deprecated
     static public void connect(Context c, Node n, boolean resetCache ){
+        Log.d("Service","connect" + n.getName());
         connect(c,n,ConnectionOption.builder().resetCache(resetCache).build());
     }
 
@@ -135,6 +137,7 @@ public class NodeConnectionService extends Service {
      * @param n node to disconnect
      */
     static public void disconnect(Context c, Node n){
+        Log.d("Service","disconnect" + n.getName());
         c.startService(buildDisconnectIntent(c,n));
     }
 
