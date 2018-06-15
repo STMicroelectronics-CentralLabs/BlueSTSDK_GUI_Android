@@ -43,7 +43,7 @@ public class FwUpgradeConsoleSTM32 extends FwUpgradeConsole {
 
 
     @Override
-    public boolean loadFw(@FirmwareType int type, FwFileDescriptor fwFile) {
+    public boolean loadFw(@FirmwareType int type, FwFileDescriptor fwFile,long startAddress) {
         mReset.addFeatureListener((f, sample) -> {
             if(OTABoardWillRebootFeature.boardIsRebooting(sample))
                 mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32.this,fwFile);
@@ -52,7 +52,7 @@ public class FwUpgradeConsoleSTM32 extends FwUpgradeConsole {
             mReset.getParentNode().disableNotification(mReset);
         });
         mReset.getParentNode().enableNotification(mReset);
-        mControl.startUpload(type,0x7000);
+        mControl.startUpload(type,startAddress);
         try {
 
             Runnable onProgress = new Runnable() {

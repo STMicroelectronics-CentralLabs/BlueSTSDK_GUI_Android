@@ -169,7 +169,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
         Intent intent = getIntent();
         if(intent.hasExtra(EXTRA_FW_TO_LOAD) && checkReadSDPermission()){
             Uri fwLocation = intent.getParcelableExtra(EXTRA_FW_TO_LOAD);
-            FwUpgradeService.startUploadService(this,getNode(),fwLocation);
+            FwUpgradeService.startUploadService(this,getNode(),fwLocation,null);
             return true;
         }//if
         return false;
@@ -335,7 +335,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
             if(requestCode==CHOOSE_BOARD_FILE_REQUESTCODE) {
                 Uri file = data.getData();
                 if(file!=null)
-                    FwUpgradeService.startUploadService(this,getNode(),file);
+                    FwUpgradeService.startUploadService(this,getNode(),file,null);
             }
         }
 

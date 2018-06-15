@@ -95,9 +95,14 @@ public abstract class FwUpgradeConsole {
      * upload the file into the node
      * @param type type of firmware that we are going to upload
      * @param fwFile file path
+     * @param startingAddress memory address where load the firmware file
      * @return true if the command is correctly start
      */
-    abstract public boolean loadFw(@FirmwareType int type, FwFileDescriptor fwFile);
+    abstract public boolean loadFw(@FirmwareType int type, FwFileDescriptor fwFile, long startingAddress);
+
+    public boolean loadFw(@FirmwareType int type, FwFileDescriptor fwFile){
+        return loadFw(type,fwFile,0);
+    }
 
     /**
      * change the object where notify the commands answer

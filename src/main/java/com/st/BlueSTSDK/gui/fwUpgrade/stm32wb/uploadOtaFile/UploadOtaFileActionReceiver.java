@@ -17,6 +17,7 @@ public class UploadOtaFileActionReceiver extends BroadcastReceiver {
 
     public UploadOtaFileActionReceiver(ProgressBar progressBar, TextView textView) {
         mProgressBar = progressBar;
+        mProgressBar.setMax(0);
         mTextView = textView;
     }
 
@@ -48,6 +49,10 @@ public class UploadOtaFileActionReceiver extends BroadcastReceiver {
     }
 
     protected void onUpgradeUploadStatus(long uploadBytes, long totalBytes){
+        if(mProgressBar.getMax()==0){
+            mProgressBar.setMax((int)totalBytes);
+        }
+        mProgressBar.setProgress((int)uploadBytes);
         mTextView.setText("Upload running: "+uploadBytes);
     }
 

@@ -201,19 +201,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      */
     private boolean mShowDebugConsole = false;
 
-    /**
-     * this listener will automatically remove itself after the first connection
-     */
-    private Node.NodeStateListener mUpdateMenuWhenConnect = new Node.NodeStateListener() {
-        @Override
-        public void onStateChange(Node node, Node.State newState, Node.State prevState) {
-            node.removeNodeStateListener(this);
-            if(newState==Node.State.Connected){
-                DemosActivity.this.runOnUiThread(DemosActivity.this::invalidateOptionsMenu);
-            }
-        }
-    };
-
 
     /**
      * return true if we have to show the help screen, the first time that we show this activity
@@ -326,10 +313,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             mDrawerToggle.syncState();
             mHelpView.setVisibility(View.GONE);
         }
-
-        if(!node.isConnected()){
-            node.addNodeStateListener(mUpdateMenuWhenConnect);
-        }
     }
 
     @Override
@@ -339,6 +322,25 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         mPager.setCurrentItem(savedInstanceState.getInt(CURRENT_DEMO, 0));
     }
 
+
+    /*
+     * this listener will run only the first time we connect, and remove himself when the node
+     * connects
+     */
+    private Node.NodeStateListener mBuildDemoAdapterOnConnection = new Node.NodeStateListener() {
+        @Override
+        public void onStateChange(final Node node, Node.State newState, Node.State
+                prevState) {
+            if(newState==Node.State.Connected) {
+                runOnUiThread(() -> {
+                    invalidateOptionsMenu();
+                    buildDemoAdapter(node);
+                    showConsoleOutput(mShowDebugConsole);
+                });
+                node.removeNodeStateListener(this);
+            }//if
+        }
+    };
 
     @Override
     protected void onResume() {
@@ -354,20 +356,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         mNode.addNodeStateListener(mConnectionProgressDialog);
 
         if(!mNode.isConnected()){
-            mNode.addNodeStateListener(new Node.NodeStateListener() {
-                @Override
-                public void onStateChange(final Node node, Node.State newState, Node.State
-                        prevState) {
-                    if(newState==Node.State.Connected) {
-                        runOnUiThread(() -> {
-                            invalidateOptionsMenu();
-                            buildDemoAdapter(node);
-                            showConsoleOutput(mShowDebugConsole);
-                        });
-                        node.removeNodeStateListener(this);
-                    }//if
-                }
-            });
+            mNode.addNodeStateListener(mBuildDemoAdapterOnConnection);
             NodeConnectionService.connect(this,mNode, mConnectionOption);
         }else{
             buildDemoAdapter(mNode);
@@ -379,6 +368,8 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     protected void onPause() {
         if(mNode!=null) {
             mNode.removeNodeStateListener(mConnectionProgressDialog);
+            //remove the listener in case we go on pause before finish the connection
+            mNode.removeNodeStateListener(mBuildDemoAdapterOnConnection);
             if (mShowDebugConsole) {
                 Debug debug = mNode.getDebug();
                 //remove the listener

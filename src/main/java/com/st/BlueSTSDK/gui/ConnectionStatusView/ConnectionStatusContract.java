@@ -35,44 +35,17 @@
  * OF SUCH DAMAGE.
  */
 
-package com.st.BlueSTSDK.gui.util.InputChecker;
+package com.st.BlueSTSDK.gui.ConnectionStatusView;
 
-import android.support.annotation.StringRes;
-import android.support.design.widget.TextInputLayout;
+import com.st.BlueSTSDK.Node;
 
-/**
- * check that the user input is a number and is included in a range [min,max]
- */
-public class CheckNumberRange extends InputChecker {
+public class ConnectionStatusContract {
 
-    /* min accepted value*/
-    private long mMin;
-
-    /* max accepted value*/
-    private long mMax;
-
-
-    /**
-     * check that the user input is a nmber inside a specific range
-     * @param textInputLayout layout containing the textView
-     * @param errorMessageId error to display if the user input is wrong
-     * @param min min accepted value
-     * @param max max accepted value
-     */
-    public CheckNumberRange(TextInputLayout textInputLayout, @StringRes int errorMessageId,
-                            long min, long max) {
-        super(textInputLayout, errorMessageId);
-        mMin = min;
-        mMax = max;
-    }
-
-    @Override
-    protected boolean validate(String input) {
-        try{
-            long value = Long.decode(input);
-            return value>=mMin && value<=mMax;
-        }catch (NumberFormatException e){
-            return false;
-        }
+    public interface View{
+        void showConnecting(String nodeName);
+        void showConnected();
+        void showDeadNodeError(String nodeName);
+        void showLostNodeError(String nodeName);
+        void showUnreachableNodeError(String nodeName);
     }
 }

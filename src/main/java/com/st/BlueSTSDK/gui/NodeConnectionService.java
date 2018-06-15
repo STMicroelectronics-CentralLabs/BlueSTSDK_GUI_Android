@@ -137,7 +137,6 @@ public class NodeConnectionService extends Service {
      * @param n node to disconnect
      */
     static public void disconnect(Context c, Node n){
-        Log.d("Service","disconnect" + n.getName());
         c.startService(buildDisconnectIntent(c,n));
     }
 
@@ -159,8 +158,10 @@ public class NodeConnectionService extends Service {
             newState == Node.State.Lost ) &&
                 mConnectedNodes.contains(node)) {
                 // if the autoConnect if on the system will connect automatically
-                if(!option.enableAutoConnect())
-                    node.connect(NodeConnectionService.this,option);
+                if(!option.enableAutoConnect()) {
+                    Log.d("NodeConnectionService","re connect" + node.getTag());
+                    node.connect(NodeConnectionService.this, option);
+                }
         }
     };
 
@@ -280,6 +281,7 @@ public class NodeConnectionService extends Service {
      */
     private void connect(int startId,Intent intent) {
         String tag = intent.getStringExtra(NODE_TAG_ARG);
+        Log.d("NodeConnectionService","connect " + tag);
         ConnectionOption options = intent.getParcelableExtra(CONNECTION_PARAM_ARG);
         Node n = Manager.getSharedInstance().getNodeWithTag(tag);
         if(n!=null)
@@ -323,6 +325,8 @@ public class NodeConnectionService extends Service {
      */
     private void disconnect(Intent intent) {
         String tag = intent.getStringExtra(NODE_TAG_ARG);
+        Log.d("NodeConnectionService","disconnect" + tag);
+
         Node n = findConnectedNodeWithTag(tag);
         if(n==null){
             if(mConnectedNodes.size()==0){

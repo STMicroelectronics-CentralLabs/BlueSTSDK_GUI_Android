@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="otaUpload_invalidHex">Invalid Hex number</string>
+    <string name="otaUpload_invalidMemoryAddress">Invalid memory address</string>
+    <string name="otaUpload_address">Address</string>
+
+</resources>

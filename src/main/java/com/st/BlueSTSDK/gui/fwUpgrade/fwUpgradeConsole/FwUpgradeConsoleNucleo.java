@@ -401,8 +401,15 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
     }
 
 
+    /**
+     *
+     * @param fwType
+     * @param fwFile file path
+     * @param startingAddress not used the firmware will always be loaded in the address 0x0804000
+     * @return true if the upload starts correctly
+     */
     @Override
-    public boolean loadFw(@FirmwareType int fwType,final FwFileDescriptor fwFile) {
+    public boolean loadFw(@FirmwareType int fwType,final FwFileDescriptor fwFile, long startingAddress) {
         if (isWaitingAnswer())
             return false;
 

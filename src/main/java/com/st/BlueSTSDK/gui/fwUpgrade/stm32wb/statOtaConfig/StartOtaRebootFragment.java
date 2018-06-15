@@ -159,7 +159,13 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
     @Override
     public void performFileUpload(@Nullable Uri file) {
         NodeConnectionService.disconnect(requireContext(),getNode());
-        startActivity(FwUpgradeSTM32WBActivity.getStartIntent(requireContext(),null,mSelectedFw));
+        long address = sectorToAddress(getSectorToDelete());
+        startActivity(FwUpgradeSTM32WBActivity.getStartIntent(requireContext(),null,
+                mSelectedFw,address));
+    }
+
+    private long sectorToAddress(short sectorToDelete) {
+        return sectorToDelete*0x1000;
     }
 
     private void onFileSelected(@Nullable Uri fwFile){

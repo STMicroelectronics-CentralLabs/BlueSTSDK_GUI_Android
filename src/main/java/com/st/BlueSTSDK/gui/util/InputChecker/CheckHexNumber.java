@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class CheckHexNumber extends CheckRegularExpression {
 
-    private static final Pattern HEX_PATTERN = Pattern.compile("(0[xX])?[0-9a-fA-F]+");
+    private static final Pattern HEX_PATTERN = Pattern.compile("(0[xX])[0-9a-fA-F]+");
 
     /**
      * check that the user input match a pattern

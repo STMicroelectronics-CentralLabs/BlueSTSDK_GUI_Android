@@ -31,7 +31,7 @@ public class OTAControlFeature extends Feature {
         super(FEATURE_NAME, n, DATA_DESC);
     }
 
-    public void startUpload(@FirmwareType int type, int address){
+    public void startUpload(@FirmwareType int type, long address){
         byte command[] = NumberConversion.BigEndian.uint32ToBytes(address);
         command[0] = type == FirmwareType.BLE_FW ? START_M0_COMMAND : START_M4_COMMAND;
         Log.d("startUpload", "startUpload: "+ Arrays.toString(command));
