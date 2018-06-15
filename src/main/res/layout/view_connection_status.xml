@@ -35,32 +35,45 @@
   ~ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
   ~ OF SUCH DAMAGE.
   -->
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+    android:layout_marginStart="@dimen/activity_horizontal_margin"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
     android:id="@+id/conStatus_layout">
 
-    <ProgressBar
-        android:id="@+id/conStatus_progressBar"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:visibility="gone" />
-    <TextView
-        android:id="@+id/conStatus_errorText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:text="Error!"
-        android:textAlignment="center"
-        android:visibility="gone"/>
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/conStatus_satusText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:text="Node status"
-        android:textAlignment="center" />
-</LinearLayout>
+        <ProgressBar
+            android:id="@+id/conStatus_progressBar"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"/>
+
+        <TextView
+            android:id="@+id/conStatus_errorText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="?attr/colorError"
+            android:visibility="gone"
+            tools:text="Error!"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/conStatus_satusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            tools:text="Node status" />
+    </LinearLayout>
+</FrameLayout>

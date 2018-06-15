@@ -8,7 +8,7 @@
     <com.st.BlueSTSDK.gui.ConnectionStatusView.ConnectionStatusView
         android:id="@+id/otaStm32_connectionStatus"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"/>
     <FrameLayout
         android:id="@+id/otaSTM32_content"
         android:layout_width="match_parent"

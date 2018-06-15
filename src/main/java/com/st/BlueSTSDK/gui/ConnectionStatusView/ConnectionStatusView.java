@@ -44,13 +44,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.st.BlueSTSDK.gui.R;
 
-public class ConnectionStatusView extends LinearLayout implements ConnectionStatusContract.View{
+public class ConnectionStatusView extends FrameLayout implements ConnectionStatusContract.View{
     public ConnectionStatusView(Context context) {
         super(context);
         init();
