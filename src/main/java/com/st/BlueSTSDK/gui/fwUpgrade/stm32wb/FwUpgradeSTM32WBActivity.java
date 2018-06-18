@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +29,9 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
     private static final String FILE_PARAM = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".FILE_PARAM";
     private static final String ADDRESS_PARAM = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".ADDRESS_PARAM";
 
+    private static final String SEARCH_NODE_TAG = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".SEARCH_NODE_TAG";
+    private static final String UPLOAD_NODE_TAG = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".UPLOAD_NODE_TAG";
+
     public static Intent getStartIntent(@NonNull Context context, @Nullable Node node, @Nullable Uri file,
                                         @Nullable Long address){
         Intent fwUpgradeActivity = new Intent(context, FwUpgradeSTM32WBActivity.class);
@@ -47,6 +51,14 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
     private Node mNode;
     private ConnectionStatusView mConnectionStatus;
 
+    private static @NonNull String getNodeTag(Intent startIntent, Bundle salvedIntansceState){
+        if(startIntent.hasExtra(NODE_PARAM)){
+            return startIntent.getStringExtra(NODE_PARAM);
+        }else{
+            return salvedIntansceState.getString(NODE_PARAM);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,29 +69,46 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
         Intent startIntent = getIntent();
         if(!startIntent.hasExtra(NODE_PARAM)){
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.otaSTM32_content,new SearchOtaNodeFragment(),"searchNode")
+                    .add(R.id.otaSTM32_content,new SearchOtaNodeFragment(),SEARCH_NODE_TAG)
                     .commit();
         }else{
-            Node n = Manager.getSharedInstance().getNodeWithTag(startIntent.getStringExtra(NODE_PARAM));
-            onOtaNodeFound(n);
+            Node n = Manager.getSharedInstance().getNodeWithTag(getNodeTag(startIntent,savedInstanceState));
+            if(n==null){ //the node disapier
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.otaSTM32_content,new SearchOtaNodeFragment(),SEARCH_NODE_TAG)
+                        .commit();
+            }else {
+                onOtaNodeFound(n);
+            }
         }
 
     }
 
     private void showUploadFileFragment(@NonNull Node node){
         Intent startIntent = getIntent();
+        FragmentManager fm = getSupportFragmentManager();
+        //load the upload fragment if need
+        if(fm.findFragmentByTag(UPLOAD_NODE_TAG)==null) {
+            Uri file = startIntent.getParcelableExtra(FILE_PARAM);
+            Long address = startIntent.hasExtra(ADDRESS_PARAM) ?
+                    startIntent.getLongExtra(ADDRESS_PARAM, 0) : null;
+            UploadOtaFileFragment fragment = UploadOtaFileFragment.build(node, file, address);
 
-        Uri file = startIntent.getParcelableExtra(FILE_PARAM);
-        Long address = startIntent.hasExtra(ADDRESS_PARAM) ?
-                startIntent.getLongExtra(ADDRESS_PARAM,0) : null;
-        UploadOtaFileFragment fragment = UploadOtaFileFragment.build(node,file,address);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            if (getSupportFragmentManager().findFragmentByTag(SEARCH_NODE_TAG) != null)
+                transaction.replace(R.id.otaSTM32_content, fragment);
+            else
+                transaction.add(R.id.otaSTM32_content, fragment, UPLOAD_NODE_TAG);
+            transaction.commit();
+        }
+    }
 
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if(getSupportFragmentManager().findFragmentByTag("searchNode")!=null)
-            transaction.replace(R.id.otaSTM32_content,fragment);
-        else
-            transaction.replace(R.id.otaSTM32_content,fragment);
-        transaction.commit();
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(mNode!=null){
+            outState.putString(NODE_PARAM,mNode.getTag());
+        }
     }
 
     @Override

@@ -79,6 +79,14 @@
             app:layout_constraintEnd_toEndOf="@+id/otaUpload_uploadProgress"
             app:layout_constraintStart_toStartOf="@+id/otaUpload_uploadProgress"
             app:layout_constraintTop_toBottomOf="@+id/otaUpload_uploadProgress" />
+
+        <android.support.constraint.Group
+            android:id="@+id/otaUpload_uploadProgressGroup"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="otaUpload_uploadMessage,otaUpload_uploadProgress" />
     </android.support.constraint.ConstraintLayout>
 
     <android.support.design.widget.FloatingActionButton

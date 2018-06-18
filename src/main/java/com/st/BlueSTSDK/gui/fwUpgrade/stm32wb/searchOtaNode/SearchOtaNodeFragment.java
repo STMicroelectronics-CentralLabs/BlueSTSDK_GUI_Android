@@ -3,16 +3,17 @@ package com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.searchOtaNode;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.R;
+import com.st.BlueSTSDK.gui.util.FragmentUtil;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,17 +29,15 @@ public class SearchOtaNodeFragment extends Fragment implements SearchOtaNodeCont
         // Required empty public constructor
     }
 
-    private ProgressBar mProgress;
     private TextView mMessage;
     private SearchOtaNodeContract.Presenter mPresenter;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_search_ota_node, container, false);
         mMessage = root.findViewById(R.id.otaSearch_message);
-        mProgress = root.findViewById(R.id.otaSearch_progress);
         return root;
     }
 
@@ -73,20 +72,25 @@ public class SearchOtaNodeFragment extends Fragment implements SearchOtaNodeCont
         mPresenter.stopScan();
     }
 
-    @Override
-    public void startScan() {
-        getActivity().runOnUiThread(() -> mMessage.setText("scan started"));
+
+    private void changeMessageText(@StringRes int message){
+        FragmentUtil.runOnUiThread(this,()-> mMessage.setText(message));
     }
 
     @Override
-    public void foundNode(Node node) {
-        getActivity().runOnUiThread(() -> mMessage.setText("node Found"));
+    public void startScan() {
+       changeMessageText(R.string.otaSearch_scanStart);
+    }
+
+    @Override
+    public void foundNode(@NonNull Node node) {
+        changeMessageText(R.string.otaSearch_nodeFound);
         mListener.onOtaNodeFound(node);
     }
 
     @Override
     public void nodeNodeFound() {
-        getActivity().runOnUiThread(() -> mMessage.setText("node not found"));
+        changeMessageText(R.string.otaSearch_nodeNotFound);
     }
 
     /**

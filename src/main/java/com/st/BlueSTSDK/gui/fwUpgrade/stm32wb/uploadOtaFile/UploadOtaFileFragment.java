@@ -62,6 +62,7 @@ public class UploadOtaFileFragment extends Fragment {
     private TextView mUploadMessage;
     private Uri mSelectedFw;
     private TextView mAddressText;
+    private View mProgressViewGroup;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -70,7 +71,7 @@ public class UploadOtaFileFragment extends Fragment {
         mRootView =  inflater.inflate(R.layout.fragment_upload_ota_file, container, false);
 
         mFileNameText = mRootView.findViewById(R.id.otaUpload_selectFileName);
-
+        mProgressViewGroup = mRootView.findViewById(R.id.otaUpload_uploadProgressGroup);
         mUploadProgress = mRootView.findViewById(R.id.otaUpload_uploadProgress);
         mUploadMessage = mRootView.findViewById(R.id.otaUpload_uploadMessage);
         mAddressText = mRootView.findViewById(R.id.otaUpload_addressText);
@@ -152,6 +153,7 @@ public class UploadOtaFileFragment extends Fragment {
 
     private void startUploadFile(@NonNull Uri selectedFile,long address) {
         FwUpgradeService.startUploadService(requireContext(),mNode,selectedFile,address);
+        mProgressViewGroup.setVisibility(View.VISIBLE);
     }
 
     private void setupSelectFileButton(View button) {

@@ -40,6 +40,10 @@
     android:layout_height="match_parent"
     android:id="@+id/mainDemoLayout"
     android:fitsSystemWindows="true">
+    <com.st.BlueSTSDK.gui.ConnectionStatusView.ConnectionStatusView
+        android:id="@+id/demoConnectionStatus"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
     <android.support.v4.widget.DrawerLayout
         android:fitsSystemWindows="true"
         android:layout_width="match_parent"
