@@ -69,11 +69,12 @@ import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.ConnectionOption;
 import com.st.BlueSTSDK.Utils.LogFeatureActivity;
+import com.st.BlueSTSDK.gui.ConnectionStatusView.ConnectionStatusController;
+import com.st.BlueSTSDK.gui.ConnectionStatusView.ConnectionStatusView;
 import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.BlueSTSDK.gui.demos.DemoFragment;
 import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeActivity;
 import com.st.BlueSTSDK.gui.preferences.LogPreferenceFragment;
-import com.st.BlueSTSDK.gui.util.ConnectProgressDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -190,8 +191,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
     private View mHelpView;
 
-    private ConnectProgressDialog mConnectionProgressDialog;
-
+    private ConnectionStatusView mConnectionView;
     private boolean mKeepConnectionOpen;
     private Node mNode;
     private ConnectionOption mConnectionOption;
@@ -222,12 +222,12 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mConnectionProgressDialog = new ConnectProgressDialog(this,"");
-
         //set default settings for the logging
         PreferenceManager.setDefaultValues(this, R.xml.pref_logging, false);
 
         setContentView(R.layout.activity_demos);
+
+        mConnectionView = findViewById(R.id.demoConnectionStatus);
 
         mDrawerLayout = findViewById(R.id.demoDrawerLayout);
         mNavigationTab = findViewById(R.id.demoNavigationView);
@@ -351,9 +351,8 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             return;
         }
         keepConnectionOpen(true,true);
-        mConnectionProgressDialog.setNodeName(mNode.getName());
-        mConnectionProgressDialog.setState(mNode.getState(), Node.State.Init);
-        mNode.addNodeStateListener(mConnectionProgressDialog);
+        ConnectionStatusController mConnectionStatusController = new ConnectionStatusController(mConnectionView, mNode);
+        getLifecycle().addObserver(mConnectionStatusController);
 
         if(!mNode.isConnected()){
             mNode.addNodeStateListener(mBuildDemoAdapterOnConnection);
@@ -367,7 +366,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     @Override
     protected void onPause() {
         if(mNode!=null) {
-            mNode.removeNodeStateListener(mConnectionProgressDialog);
             //remove the listener in case we go on pause before finish the connection
             mNode.removeNodeStateListener(mBuildDemoAdapterOnConnection);
             if (mShowDebugConsole) {

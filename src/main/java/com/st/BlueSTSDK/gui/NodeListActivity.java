@@ -69,12 +69,8 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         public void onDiscoveryChange(Manager m, boolean enabled) {
             Log.d(TAG, "onDiscoveryChange " + enabled);
             if (!enabled)
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        stopNodeDiscovery();
-                    }//run
-                });
+                //run
+                runOnUiThread(() -> stopNodeDiscovery());
         }//onDiscoveryChange
 
         /**
@@ -86,12 +82,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         @Override
         public void onNodeDiscovered(Manager m, Node node) {
             Log.d(TAG, "onNodeDiscovered " + node.getTag());
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mSwipeLayout.setRefreshing(false);
-                }
-            });
+            runOnUiThread(() -> mSwipeLayout.setRefreshing(false));
         }//onNodeDiscovered
     };
 
@@ -145,8 +136,6 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
 
     /**
      * set the manager and and ask to draw the menu
-     *
-     * @param savedInstanceState
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,7 +150,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         setContentView(R.layout.activity_node_list);
 
         // Set the adapter
-        RecyclerView recyclerView = (RecyclerView) findViewById(android.R.id.list);
+        RecyclerView recyclerView = findViewById(android.R.id.list);
         recyclerView.setAdapter(mAdapter);
         int nCol =getResources().getInteger(R.integer.nNodeListColum);
         if(nCol!=1){
@@ -170,15 +159,12 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
 
         //recyclerView.addItemDecoration(new BorderItemDecoration(this));
 
-        mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id
-                .swiperRefreshDeviceList);
+        mSwipeLayout = findViewById(R.id.swiperRefreshDeviceList);
 
-        mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                resetNodeList();
-                startNodeDiscovery();
-            }//onRefresh
+        //onRefresh
+        mSwipeLayout.setOnRefreshListener(() -> {
+            resetNodeList();
+            startNodeDiscovery();
         });
 
         //set refreshing color
@@ -186,7 +172,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
                 R.color.swipeColor_3, R.color.swipeColor_4);
 
         mSwipeLayout.setSize(SwipeRefreshLayout.DEFAULT);
-        mStartStopButton = (FloatingActionButton) findViewById(R.id.fab);
+        mStartStopButton = findViewById(R.id.fab);
         if(mStartStopButton!=null)
             mStartStopButton.setOnClickListener(this);
 
@@ -291,12 +277,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
     }
 
     public static void setRefreshing(final SwipeRefreshLayout swipeRefreshLayout, final boolean isRefreshing) {
-        swipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                swipeRefreshLayout.setRefreshing(isRefreshing);
-            }
-        });
+        swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(isRefreshing));
     }
 
     public void onClick(View view) {

@@ -47,7 +47,6 @@ import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -159,32 +158,30 @@ public class DebugConsoleActivity extends ActivityWithNode {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_debug_console);
-        mConsoleView = (ScrollView)  findViewById(R.id.consoleView);
-        mConsole =(TextView) findViewById(R.id.deviceConsole);
-        mUserInput = (EditText) findViewById(R.id.inputText);
+        mConsoleView = findViewById(R.id.consoleView);
+        mConsole = findViewById(R.id.deviceConsole);
+        mUserInput =  findViewById(R.id.inputText);
 
-        /**
+        /*
          * when the user click on send we remove the text that it send
          */
-        mUserInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_SEND) {
+        //onEditorAction
+        mUserInput.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
 
-                    String toSend = v.getText().toString();
-                    v.setText(""); //reset the string
-                    if (!toSend.isEmpty())
-                        if (!sendMessage(toSend + "\n")) {
-                            mToSent = null;
-                            mNextPartToSent = -1;
-                            //Notify.message(DebugConsoleActivity.this, "Error on write message");
-                        }
+                String toSend = v.getText().toString();
+                v.setText(""); //reset the string
+                if (!toSend.isEmpty())
+                    if (!sendMessage(toSend + "\n")) {
+                        mToSent = null;
+                        mNextPartToSent = -1;
+                        //Notify.message(DebugConsoleActivity.this, "Error on write message");
+                    }
 
-                    handled = true;
-                }
-                return handled;
-            }//onEditorAction
+                handled = true;
+            }
+            return handled;
         });
 
     }
@@ -212,22 +209,9 @@ public class DebugConsoleActivity extends ActivityWithNode {
         return bRet;
     }
 
-
     private void resetMessageToSend(){
         mToSent = null;
         mNextPartToSent = -1;
-    }
-
-    private String previousPartSent() {
-        String strRet = "";
-        int prevPart = mNextPartToSent -1;
-        int startIndex = prevPart * Debug.MAX_STRING_SIZE_TO_SENT;
-
-        if (prevPart >= 0 && mToSent != null && startIndex < mToSent.length() ) {
-            int endIndex = Math.min(mToSent.length(), (prevPart + 1) * Debug.MAX_STRING_SIZE_TO_SENT);
-            strRet = mToSent.substring(startIndex, endIndex);
-        }
-        return strRet;
     }
 
     /**
@@ -257,16 +241,10 @@ public class DebugConsoleActivity extends ActivityWithNode {
         mDebugService=debugService;
         if(mDebugService!=null) {
             mDebugService.addDebugOutputListener(mDebugListener);
-            DebugConsoleActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mUserInput.setEnabled(true);
-
-                }
-            });
-        }else{
-            //Notify.message(DebugConsoleActivity.this, R.string.DebugNotAvailable);
-        }
+            DebugConsoleActivity.this.runOnUiThread(() -> mUserInput.setEnabled(true));
+        }/*else{
+            Notify.message(DebugConsoleActivity.this, R.string.DebugNotAvailable);
+        }*/
         invalidateOptionsMenu();
     }
 
@@ -397,19 +375,15 @@ public class DebugConsoleActivity extends ActivityWithNode {
 
             displayText.setSpan(new ForegroundColorSpan(getResources().getColor(mTargetConsole.getColorID())), 0, displayText.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            DebugConsoleActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mConsole.append(displayText);
-                    if (mAutoScroll)
-                        mConsoleView.fullScroll(View.FOCUS_DOWN);
-                    mUserInput.requestFocus();
-
-
-                }
+            DebugConsoleActivity.this.runOnUiThread(() -> {
+                mConsole.append(displayText);
+                if (mAutoScroll)
+                    mConsoleView.fullScroll(View.FOCUS_DOWN);
+                mUserInput.requestFocus();
             });
 
         }
+
         @Override
         public void onStdOutReceived(Debug debug, final String message) {
             appendMessage(message, ConsoleType.OUTPUT);
@@ -424,15 +398,14 @@ public class DebugConsoleActivity extends ActivityWithNode {
         public void onStdInSent(Debug debug, String message, boolean writeResult) {
             appendMessage(message, ConsoleType.INPUT);
 
-            if ( !writeResult ) {
+            if (!writeResult) {
                 resetMessageToSend();
-            } else
+            } else {
                 if (!writeNextMessage()) {
                     resetMessageToSend();
-                }
-            }
-        }
+                }//if
+            }//if
+        }//onStdInSent
 
-
-
-}
+    }//UpdateConsole
+}//DebugConsoleActivity
