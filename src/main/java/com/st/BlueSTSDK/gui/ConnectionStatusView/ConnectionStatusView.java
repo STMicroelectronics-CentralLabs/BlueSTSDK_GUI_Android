@@ -73,7 +73,6 @@ public class ConnectionStatusView extends FrameLayout implements ConnectionStatu
         init();
     }
 
-    private ProgressBar mProgressBar;
     private TextView mStatus;
     private TextView mError;
     private Handler mGuiThread;
@@ -82,7 +81,6 @@ public class ConnectionStatusView extends FrameLayout implements ConnectionStatu
     private void init() {
         inflate(getContext(), R.layout.view_connection_status, this);
 
-        mProgressBar = findViewById(R.id.conStatus_progressBar);
         mStatus = findViewById(R.id.conStatus_satusText);
         mError = findViewById(R.id.conStatus_errorText);
         //the object is build by the ui thread
@@ -96,7 +94,6 @@ public class ConnectionStatusView extends FrameLayout implements ConnectionStatu
         mGuiThread.post(() -> {
             mStatus.setText(connectString);
             mStatus.setVisibility(VISIBLE);
-            mProgressBar.setVisibility(VISIBLE);
             setVisibility(VISIBLE);
         });
 
@@ -134,7 +131,6 @@ public class ConnectionStatusView extends FrameLayout implements ConnectionStatu
         mError.setText(message);
         mError.setVisibility(VISIBLE);
         mStatus.setVisibility(GONE);
-        mProgressBar.setVisibility(GONE);
         setVisibility(VISIBLE);
     }
 }

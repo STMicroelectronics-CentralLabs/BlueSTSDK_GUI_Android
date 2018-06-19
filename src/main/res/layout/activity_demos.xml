@@ -40,10 +40,6 @@
     android:layout_height="match_parent"
     android:id="@+id/mainDemoLayout"
     android:fitsSystemWindows="true">
-    <com.st.BlueSTSDK.gui.ConnectionStatusView.ConnectionStatusView
-        android:id="@+id/demoConnectionStatus"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
     <android.support.v4.widget.DrawerLayout
         android:fitsSystemWindows="true"
         android:layout_width="match_parent"
@@ -56,6 +52,10 @@
 
             <android.support.v4.view.ViewPager
                 android:id="@+id/pager"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="8"/>
@@ -127,4 +127,8 @@
             android:src="@drawable/help_show_navigation"
             android:layout_centerVertical="true" android:layout_alignParentStart="true"/>
     </RelativeLayout>
+    <com.st.BlueSTSDK.gui.ConnectionStatusView.ConnectionStatusView
+        android:id="@+id/demoConnectionStatus"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </FrameLayout>
