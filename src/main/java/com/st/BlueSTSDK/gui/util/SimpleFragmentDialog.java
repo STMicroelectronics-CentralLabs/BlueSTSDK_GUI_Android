@@ -40,6 +40,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -49,6 +50,7 @@ import android.support.v7.app.AlertDialog;
  */
 public class SimpleFragmentDialog extends DialogFragment {
     private static final String MESSAGE_ID = "Message_id";
+    private static final String MESSAGE_SRC = "Message_src";
 
     public static SimpleFragmentDialog newInstance(@StringRes int message) {
         SimpleFragmentDialog frag = new SimpleFragmentDialog();
@@ -58,14 +60,31 @@ public class SimpleFragmentDialog extends DialogFragment {
         return frag;
     }
 
+    public static SimpleFragmentDialog newInstance(@NonNull String message) {
+        SimpleFragmentDialog frag = new SimpleFragmentDialog();
+        Bundle args = new Bundle();
+        args.putString(MESSAGE_SRC, message);
+        frag.setArguments(args);
+        return frag;
+    }
+
     private DialogInterface.OnClickListener mClickListener = null;
+
+    private @Nullable String getMessage(){
+        final Bundle args = getArguments();
+        if(args!=null && args.containsKey(MESSAGE_ID))
+            return getString(args.getInt(MESSAGE_ID));
+        if(args!=null && args.containsKey(MESSAGE_SRC))
+            return args.getString(MESSAGE_SRC);
+        return null;
+    }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        int messageId = getArguments().getInt(MESSAGE_ID);
-        return new AlertDialog.Builder(getActivity())
-                .setMessage(messageId)
+        String message = getMessage();
+        return new AlertDialog.Builder(requireContext())
+                .setMessage(message)
                 .setPositiveButton(android.R.string.ok,
                         (dialog, whichButton) ->{
                             if(mClickListener!=null)
@@ -78,7 +97,7 @@ public class SimpleFragmentDialog extends DialogFragment {
     }
 
 
-    public void setOnclickLstener(DialogInterface.OnClickListener clickListener){
+    public void setOnclickListener(DialogInterface.OnClickListener clickListener){
         mClickListener = clickListener;
     }
 

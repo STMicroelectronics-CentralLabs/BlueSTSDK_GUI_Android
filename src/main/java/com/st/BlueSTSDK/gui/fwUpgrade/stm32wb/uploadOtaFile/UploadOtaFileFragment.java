@@ -1,6 +1,7 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.uploadOtaFile;
 
 import android.content.BroadcastReceiver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,9 +25,10 @@ import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeService;
 import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.RequestFileUtil;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckHexNumber;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckNumberRange;
+import com.st.BlueSTSDK.gui.util.SimpleFragmentDialog;
 
 
-public class UploadOtaFileFragment extends Fragment {
+public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActionReceiver.UploadFinishedListener{
 
     private static final String NODE_PARAM = UploadOtaFileFragment.class.getCanonicalName()+".NODE_PARAM";
     private static final String FILE_PARAM = UploadOtaFileFragment.class.getCanonicalName()+".FILE_PARAM";
@@ -46,9 +49,6 @@ public class UploadOtaFileFragment extends Fragment {
         f.setArguments(args);
         return f;
     }
-
-
-    private OnFragmentInteractionListener mListener;
 
     public UploadOtaFileFragment() {
         // Required empty public constructor
@@ -114,7 +114,7 @@ public class UploadOtaFileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mMessageReceiver = new UploadOtaFileActionReceiver(mUploadProgress,mUploadMessage);
+        mMessageReceiver = new UploadOtaFileActionReceiver(mUploadProgress,mUploadMessage,this);
         // Register mMessageReceiver to receive messages.
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(mMessageReceiver,
                 FwUpgradeService.getServiceActionFilter());
@@ -180,42 +180,14 @@ public class UploadOtaFileFragment extends Fragment {
         mRequestFile.onRequestPermissionsResult(requestCode,permissions,grantResults);
     }//onRequestPermissionsResult
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-/*
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-*/
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    public void onUploadFinished(float time_s) {
+        SimpleFragmentDialog dialog = SimpleFragmentDialog.newInstance(getString(R.string.otaUpload_finished,time_s));
+        dialog.setOnclickListener((dialog1, which) -> {
+            //UploadOtaFileFragment.this
+            NavUtils.navigateUpTo(requireActivity(),NavUtils.getParentActivityIntent(requireActivity()));
+        });
+        dialog.show(getFragmentManager(),"finisDialog");
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 }

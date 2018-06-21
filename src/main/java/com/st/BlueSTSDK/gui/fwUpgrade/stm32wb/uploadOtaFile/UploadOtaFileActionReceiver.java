@@ -3,27 +3,40 @@ package com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.uploadOtaFile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+import android.content.res.Resources;
+import android.support.annotation.NonNull;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeService;
 
 
 public class UploadOtaFileActionReceiver extends BroadcastReceiver {
 
+
+    public interface UploadFinishedListener{
+        void onUploadFinished(float time_s);
+    }
+
     private final ProgressBar mProgressBar;
     private final TextView mTextView;
+    private final Resources mRes;
+    private final UploadFinishedListener mListener;
 
-    public UploadOtaFileActionReceiver(ProgressBar progressBar, TextView textView) {
+    public UploadOtaFileActionReceiver(@NonNull ProgressBar progressBar, @NonNull TextView textView,
+                                       @NonNull UploadFinishedListener listener) {
         mProgressBar = progressBar;
         mProgressBar.setMax(0);
         mTextView = textView;
+        mRes = mTextView.getContext().getResources();
+        mListener =listener;
     }
 
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
-        Log.d("UploadOtaFileActionReceiver", "onReceive: "+action);
+        if(action==null)
+            return;
         if(action.equals(FwUpgradeService.FW_UPLOAD_STARTED_ACTION))
             onUploadStarted();
         if(action.equals(FwUpgradeService.FW_UPLOAD_STATUS_UPGRADE_ACTION)){
@@ -44,8 +57,7 @@ public class UploadOtaFileActionReceiver extends BroadcastReceiver {
     }
 
     protected void onUploadStarted() {
-        mTextView.setText("Upload Start");
-
+        mTextView.setText(R.string.otaUpload_start);
     }
 
     protected void onUpgradeUploadStatus(long uploadBytes, long totalBytes){
@@ -53,15 +65,16 @@ public class UploadOtaFileActionReceiver extends BroadcastReceiver {
             mProgressBar.setMax((int)totalBytes);
         }
         mProgressBar.setProgress((int)uploadBytes);
-        mTextView.setText("Upload running: "+uploadBytes);
+
+        mTextView.setText(mRes.getString(R.string.otaUpload_status,uploadBytes));
     }
 
     protected void onUploadFinished(float timeS) {
-        mTextView.setText("Upload end");
+        mListener.onUploadFinished(timeS);
     }
 
     protected void onUploadError(String msg){
-        mTextView.setText("Upload Error:"+msg);
+        mTextView.setText(mRes.getString(R.string.otaUpload_error,msg));
     }
 
 }

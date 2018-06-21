@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.NodeConnectionService;
+
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.BlueSTSDK.gui.demos.DemoFragment;
@@ -26,7 +27,12 @@ import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature.RebootOTAModeFeature;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckNumberRange;
 import com.st.BlueSTSDK.gui.util.SimpleFragmentDialog;
 
-@DemoDescriptionAnnotation(name="Firmware Upgrade", requareAll = {RebootOTAModeFeature.class})
+
+@DemoDescriptionAnnotation(name="Firmware Upgrade",
+        requareAll = {RebootOTAModeFeature.class}
+        //inside a lib the R file is not final so you can not set the icon, to do it extend this
+        //this class in the main application an set a new annotation
+        )
 public class StartOtaRebootFragment extends DemoFragment implements StartOtaConfigContract.View {
 
     private static final byte MIN_DELETABLE_SECTOR = 7;
@@ -48,7 +54,6 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
 
     private StartOtaConfigContract.Presenter mPresenter;
     private RequestFileUtil mRequestFileUtil;
-    private View mRootView;
     private CompoundButton mApplicationMemory;
     private CompoundButton mBleMemory;
     private CompoundButton mCustomMemory;
@@ -64,7 +69,7 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        mRootView =  inflater.inflate(R.layout.fragment_ota_reboot, container, false);
+        View mRootView = inflater.inflate(R.layout.fragment_ota_reboot, container, false);
 
         mApplicationMemory = mRootView.findViewById(R.id.otaReboot_appMemory);
         mBleMemory = mRootView.findViewById(R.id.otaReboot_bleMemory);
@@ -80,8 +85,8 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
         setUpCustomMemorySelection();
         setUpSelectFileButton(mRootView.findViewById(R.id.otaReboot_selectFileButton));
         setUpFab(mRootView);
-        mRequestFileUtil = new RequestFileUtil(this,mRootView);
-        return  mRootView;
+        mRequestFileUtil = new RequestFileUtil(this, mRootView);
+        return mRootView;
     }
 
     private void setUpLengthInputChecker(TextInputLayout lengthTextLayout) {
@@ -146,7 +151,7 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
     public void showConnectionResetWarningDialog() {
         SimpleFragmentDialog dialog = SimpleFragmentDialog.newInstance(R.string.otaReboot_rebootDialog);
 
-        dialog.setOnclickLstener((dialog1, which) -> mPresenter.onConnectionResetWarningDismiss());
+        dialog.setOnclickListener((dialog1, which) -> mPresenter.onConnectionResetWarningDismiss());
 
         dialog.show(getChildFragmentManager(),DIALOG_TAG);
     }
