@@ -1,17 +1,13 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
 
 
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
-import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.FwUpgradeConsoleSTM32;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.FwVersionConsoleSTM32WB;
 
 public abstract  class FwVersionConsole {
 

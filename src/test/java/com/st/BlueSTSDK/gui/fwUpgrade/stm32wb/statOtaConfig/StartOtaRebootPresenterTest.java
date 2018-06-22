@@ -5,9 +5,13 @@ import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature.RebootOTAModeFeature;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,6 +26,9 @@ public class StartOtaRebootPresenterTest {
     @Mock
     private RebootOTAModeFeature mFeature;
 
+    @Captor
+    private ArgumentCaptor<Runnable> onRebootSend;
+
     private StartOtaRebootPresenter mPresenter;
 
     @Before
@@ -34,23 +41,23 @@ public class StartOtaRebootPresenterTest {
     }
 
     @Test
-    public void whenRebootPressedADialogIsShown(){
+    public void whenRebootIsPressedTheCommand(){
         mPresenter.onRebootPressed();
-        verify(mView).showConnectionResetWarningDialog();
-    }
-
-
-    @Test
-    public void whenDialogIsDismissTheSectorAreRetrived(){
-        mPresenter.onConnectionResetWarningDismiss();
         verify(mView).getNSectorToDelete();
         verify(mView).getSectorToDelete();
+
+        verify(mFeature).rebootToFlash(eq(SECTOR_TO_DELETE),eq(NUM_SECTOR_TO_DELETE),any());
     }
 
     @Test
-    public void whenDialogIsDismissTheRebootIsCalled(){
-        mPresenter.onConnectionResetWarningDismiss();
-        verify(mFeature).rebootToFlash(SECTOR_TO_DELETE,NUM_SECTOR_TO_DELETE);
+    public void whenRebootIsPressedTheStartUploadIsCalled(){
+        mPresenter.onRebootPressed();
+
+        verify(mFeature).rebootToFlash(eq(SECTOR_TO_DELETE),eq(NUM_SECTOR_TO_DELETE),onRebootSend.capture());
+
+        onRebootSend.getValue().run();
+
+        verify(mView).performFileUpload();
     }
 
 }

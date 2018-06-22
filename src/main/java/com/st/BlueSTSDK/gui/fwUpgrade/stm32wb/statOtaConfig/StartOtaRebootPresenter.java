@@ -18,7 +18,8 @@ public class StartOtaRebootPresenter implements StartOtaConfigContract.Presenter
 
     @Override
     public void onRebootPressed() {
-        mView.showConnectionResetWarningDialog();
+        mRebootFeature.rebootToFlash(mView.getSectorToDelete(), mView.getNSectorToDelete(),
+                () -> mView.performFileUpload());
     }
 
     @Override
@@ -26,16 +27,5 @@ public class StartOtaRebootPresenter implements StartOtaConfigContract.Presenter
         mView.openFileSelector();
     }
 
-    @Override
-    public void onFileSelected(@Nullable Uri file) {
-        mView.performFileUpload(file);
-    }
 
-    @Override
-    public void onConnectionResetWarningDismiss() {
-       // Log.d("presenter","Sector: "+mView.getSectorToDelete()+" nSector: "+mView.getNSectorToDelete());
-        mRebootFeature.rebootToFlash(mView.getSectorToDelete(), mView.getNSectorToDelete(),
-                () -> mView.performFileUpload(null));
-
-    }
 }

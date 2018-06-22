@@ -1,7 +1,9 @@
-package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
+package com.st.BlueSTSDK.gui.fwUpgrade.stm32wb;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
 import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature.OTAControlFeature;
 
 public class FwVersionConsoleSTM32WB extends FwVersionConsole {
@@ -16,10 +18,9 @@ public class FwVersionConsoleSTM32WB extends FwVersionConsole {
     /**
      * @param callback object where notify the command answer
      */
-    protected FwVersionConsoleSTM32WB(FwVersionCallback callback) {
+    private FwVersionConsoleSTM32WB(FwVersionCallback callback) {
         super(callback);
     }
-
 
     @Override
     public boolean readVersion(@FirmwareType int type) {

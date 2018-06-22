@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.gui.NodeConnectionService;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeService;
 import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.RequestFileUtil;
@@ -34,7 +35,7 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
     private static final String FILE_PARAM = UploadOtaFileFragment.class.getCanonicalName()+".FILE_PARAM";
     private static final String ADDRESS_PARAM = UploadOtaFileFragment.class.getCanonicalName()+".ADDRESS_PARAM";
 
-    private static final int MIN_MEMORY_ADDRESS = 0x6000;
+    private static final int MIN_MEMORY_ADDRESS = 0x7000;
     private static final int MAX_MEMORY_ADDRESS = 0xFFFF;
 
     public static UploadOtaFileFragment build(@NonNull Node node, @Nullable Uri file,@Nullable Long address){
@@ -184,8 +185,9 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
     public void onUploadFinished(float time_s) {
         SimpleFragmentDialog dialog = SimpleFragmentDialog.newInstance(getString(R.string.otaUpload_finished,time_s));
         dialog.setOnclickListener((dialog1, which) -> {
+            NodeConnectionService.disconnect(requireContext(),mNode);
             //UploadOtaFileFragment.this
-            NavUtils.navigateUpTo(requireActivity(),NavUtils.getParentActivityIntent(requireActivity()));
+            NavUtils.navigateUpFromSameTask(requireActivity());
         });
         dialog.show(getFragmentManager(),"finisDialog");
     }

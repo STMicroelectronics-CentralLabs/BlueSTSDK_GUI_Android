@@ -8,17 +8,14 @@ public interface StartOtaConfigContract {
     interface View{
         short getSectorToDelete();
         short getNSectorToDelete();
-        void showConnectionResetWarningDialog();
         void openFileSelector();
-        void performFileUpload(@Nullable Uri file);
+        void performFileUpload();
     }
 
 
     interface Presenter{
         void onRebootPressed();
         void onSelectFwFilePressed();
-        void onFileSelected(@Nullable Uri file);
-        void onConnectionResetWarningDismiss();
     }
 
 }

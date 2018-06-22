@@ -25,7 +25,6 @@ import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.FwUpgradeSTM32WBActivity;
 import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.RequestFileUtil;
 import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature.RebootOTAModeFeature;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckNumberRange;
-import com.st.BlueSTSDK.gui.util.SimpleFragmentDialog;
 
 
 @DemoDescriptionAnnotation(name="Firmware Upgrade",
@@ -36,8 +35,6 @@ import com.st.BlueSTSDK.gui.util.SimpleFragmentDialog;
 public class StartOtaRebootFragment extends DemoFragment implements StartOtaConfigContract.View {
 
     private static final byte MIN_DELETABLE_SECTOR = 7;
-
-    private static final String DIALOG_TAG = StartOtaRebootFragment.class.getName()+".rebootDialog";
 
     private static final class MemoryLayout{
         final short fistSector;
@@ -68,7 +65,7 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View mRootView = inflater.inflate(R.layout.fragment_ota_reboot, container, false);
 
         mApplicationMemory = mRootView.findViewById(R.id.otaReboot_appMemory);
@@ -147,14 +144,6 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
         return Short.parseShort(mLengthTextLayout.getEditText().getText().toString(),16);
     }
 
-    @Override
-    public void showConnectionResetWarningDialog() {
-        SimpleFragmentDialog dialog = SimpleFragmentDialog.newInstance(R.string.otaReboot_rebootDialog);
-
-        dialog.setOnclickListener((dialog1, which) -> mPresenter.onConnectionResetWarningDismiss());
-
-        dialog.show(getChildFragmentManager(),DIALOG_TAG);
-    }
 
     @Override
     public void openFileSelector() {
@@ -162,7 +151,7 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
     }
 
     @Override
-    public void performFileUpload(@Nullable Uri file) {
+    public void performFileUpload() {
         NodeConnectionService.disconnect(requireContext(),getNode());
         long address = sectorToAddress(getSectorToDelete());
         startActivity(FwUpgradeSTM32WBActivity.getStartIntent(requireContext(),null,

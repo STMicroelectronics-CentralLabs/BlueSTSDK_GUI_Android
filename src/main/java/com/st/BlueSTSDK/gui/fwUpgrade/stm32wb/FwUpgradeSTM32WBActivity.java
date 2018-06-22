@@ -51,11 +51,14 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
     private Node mNode;
     private ConnectionStatusView mConnectionStatus;
 
-    private static @NonNull String getNodeTag(Intent startIntent, Bundle salvedIntansceState){
+    private static @Nullable String getNodeTag(Intent startIntent,@Nullable Bundle salvedIntansceState){
         if(startIntent.hasExtra(NODE_PARAM)){
             return startIntent.getStringExtra(NODE_PARAM);
         }else{
-            return salvedIntansceState.getString(NODE_PARAM);
+            if(salvedIntansceState!=null)
+                return salvedIntansceState.getString(NODE_PARAM);
+            else
+                return null;
         }
     }
 
@@ -67,20 +70,16 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
         mConnectionStatus = findViewById(R.id.otaStm32_connectionStatus);
 
         Intent startIntent = getIntent();
-        if(!startIntent.hasExtra(NODE_PARAM)){
+        String nodeTag = getNodeTag(startIntent,savedInstanceState);
+        Node n = nodeTag != null ? Manager.getSharedInstance().getNodeWithTag(nodeTag) : null;
+        if(n==null){ //the node is not discovered
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.otaSTM32_content,new SearchOtaNodeFragment(),SEARCH_NODE_TAG)
                     .commit();
-        }else{
-            Node n = Manager.getSharedInstance().getNodeWithTag(getNodeTag(startIntent,savedInstanceState));
-            if(n==null){ //the node disapier
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.otaSTM32_content,new SearchOtaNodeFragment(),SEARCH_NODE_TAG)
-                        .commit();
-            }else {
-                onOtaNodeFound(n);
-            }
+        }else {
+            onOtaNodeFound(n);
         }
+
 
     }
 
