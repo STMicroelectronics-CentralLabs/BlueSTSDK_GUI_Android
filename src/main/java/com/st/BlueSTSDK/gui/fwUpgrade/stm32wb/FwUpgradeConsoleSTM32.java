@@ -3,6 +3,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.stm32wb;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
@@ -41,16 +42,16 @@ public class FwUpgradeConsoleSTM32 extends FwUpgradeConsole {
         mReset = reset;
     }
 
-
     @Override
     public boolean loadFw(@FirmwareType int type, FwFileDescriptor fwFile,long startAddress) {
-        mReset.addFeatureListener((f, sample) -> {
+        Feature.FeatureListener onBoardWillReboot = (f, sample) -> {
             if(OTABoardWillRebootFeature.boardIsRebooting(sample))
                 mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32.this,fwFile);
             else
                 mCallback.onLoadFwError(FwUpgradeConsoleSTM32.this,fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
             mReset.getParentNode().disableNotification(mReset);
-        });
+        };
+        mReset.addFeatureListener(onBoardWillReboot);
         mReset.getParentNode().enableNotification(mReset);
         mControl.startUpload(type,startAddress);
         try {
@@ -63,7 +64,10 @@ public class FwUpgradeConsoleSTM32 extends FwUpgradeConsole {
                         Log.d("OnProgress", "run: "+sendData);
                         mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleSTM32.this,fwFile,sendData);
                         if(sendData<=0){
-                            mControl.uploadFinished(() -> mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32.this,fwFile));
+                            mControl.uploadFinished(() -> {
+                                mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32.this,fwFile);
+                                mReset.removeFeatureListener(onBoardWillReboot);
+                            });
                         }
                     }
             };
