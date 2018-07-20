@@ -37,7 +37,6 @@
 package com.st.BlueSTSDK.gui;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 
 import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Node;
@@ -69,23 +68,17 @@ public abstract class AskWhatFeatureLogActivity extends LogFeatureActivity {
                 .setIcon(R.drawable.ic_select_log_features_24dp)
                 .setCancelable(false)
                 .setMultiChoiceItems(featureToLogList, getEnabledFeature(featureToLogList),
-                    new DialogInterface.OnMultiChoiceClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                        (dialogInterface, i, b) -> {
                             if (b)
                                 mFeatureLogSet.add(featureToLogList[i]);
                             else
                                 mFeatureLogSet.remove(featureToLogList[i]);
-                        }
-                })
+                        })
                 .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        for (Node n : getNodesToLog())
-                            enableLoggingNodeNotification(n);
-                        AskWhatFeatureLogActivity.super.startLogging();
-                    }
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    for (Node n : getNodesToLog())
+                        enableLoggingNodeNotification(n);
+                    AskWhatFeatureLogActivity.super.startLogging();
                 }).create().show();
         }
 
@@ -120,12 +113,9 @@ public abstract class AskWhatFeatureLogActivity extends LogFeatureActivity {
         return  valuesChekedList;
     }
 
-    private Node.NodeStateListener mStateListener = new Node.NodeStateListener() {
-        @Override
-        public void onStateChange(Node node, Node.State newState, Node.State prevState) {
-            if (newState == Node.State.Connected) {
-                enableLoggingNodeNotification(node);
-            }
+    private Node.NodeStateListener mStateListener = (node, newState, prevState) -> {
+        if (newState == Node.State.Connected) {
+            enableLoggingNodeNotification(node);
         }
     };
 

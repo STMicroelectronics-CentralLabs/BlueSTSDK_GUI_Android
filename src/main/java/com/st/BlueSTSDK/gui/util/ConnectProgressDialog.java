@@ -49,6 +49,7 @@ import com.st.BlueSTSDK.gui.R;
  * you can directly use this class as nodeStateListener for aromatically display/dismiss the dialog
  * when the node state change.
  */
+@Deprecated
 public class ConnectProgressDialog extends ProgressDialog implements Node.NodeStateListener {
 
     //main thread where run the command for change the gui

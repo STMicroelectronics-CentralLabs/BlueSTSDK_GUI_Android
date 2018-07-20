@@ -40,6 +40,7 @@ package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -73,7 +74,7 @@ public class LibLicenseListFragment extends Fragment {
         // Inflate the layout for this fragment
         View root =  inflater.inflate(R.layout.fragment_lib_license_list, container, false);
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.libLicense_libsList);
+        mRecyclerView = root.findViewById(R.id.libLicense_libsList);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
                 DividerItemDecoration.HORIZONTAL));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
@@ -110,12 +111,13 @@ public class LibLicenseListFragment extends Fragment {
         private OnLibLicenseSelected mOnSelect;
         private List<LibLicense> mData = new ArrayList<>();
 
-        public LibAdapter(OnLibLicenseSelected onSelectItem){
+        LibAdapter(OnLibLicenseSelected onSelectItem){
             mOnSelect = onSelectItem;
         }
 
+        @NonNull
         @Override
-        public LibAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public LibAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.fragment_lib_license_item, parent, false);
 
@@ -123,7 +125,7 @@ public class LibLicenseListFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(LibAdapter.ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull LibAdapter.ViewHolder holder, int position) {
             holder.update(mData.get(position));
         }
 
@@ -132,7 +134,7 @@ public class LibLicenseListFragment extends Fragment {
             return mData.size();
         }
 
-        public void setLibs(List<LibLicense> newData){
+        void setLibs(List<LibLicense> newData){
             mData.clear();
             mData.addAll(newData);
             notifyDataSetChanged();
@@ -147,13 +149,8 @@ public class LibLicenseListFragment extends Fragment {
             public ViewHolder(View itemView) {
                 super(itemView);
 
-                mLibName = (TextView) itemView.findViewById(R.id.libLicense_itemName);
-                itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mOnSelect.onSelected(mLib);
-                    }
-                });
+                mLibName = itemView.findViewById(R.id.libLicense_itemName);
+                itemView.setOnClickListener(view -> mOnSelect.onSelected(mLib));
             }
 
             public void update(LibLicense lib){

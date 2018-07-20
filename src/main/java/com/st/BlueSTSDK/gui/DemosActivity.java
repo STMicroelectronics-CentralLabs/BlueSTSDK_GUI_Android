@@ -600,13 +600,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         startActivity(i);
     }
 
-
-    public void startFwUpgradeActivity(Node node) {
-        if(!enableFwUploading())
-            return;
-        startFwUpgradeActivity(this,node);
-    }
-
     protected void startFwUpgradeActivity(Context context, Node node) {
         keepConnectionOpen(true,false);
         Intent i = FwUpgradeActivity.getStartIntent(context,node,true);

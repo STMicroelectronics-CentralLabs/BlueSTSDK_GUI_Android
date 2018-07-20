@@ -109,7 +109,7 @@ public class FwVersionConsoleNucleo extends FwVersionConsole {
                 mCallback.onVersionRead(FwVersionConsoleNucleo.this,mRequestFwType,version);
         }
 
-        public void requestVersion(@FirmwareType int fwType){
+        private void requestVersion(@FirmwareType int fwType){
             mRequestFwType=fwType;
             switch (fwType) {
                 case FirmwareType.BLE_FW:
@@ -184,7 +184,7 @@ public class FwVersionConsoleNucleo extends FwVersionConsole {
      * @param console console where send the command
      * @param callback object where notify the command answer
      */
-    FwVersionConsoleNucleo(Debug console, FwVersionConsole.FwVersionCallback callback) {
+    private FwVersionConsoleNucleo(Debug console, FwVersionConsole.FwVersionCallback callback) {
         super(callback);
         mConsole = console;
         mTimeout = new Handler(Looper.getMainLooper());

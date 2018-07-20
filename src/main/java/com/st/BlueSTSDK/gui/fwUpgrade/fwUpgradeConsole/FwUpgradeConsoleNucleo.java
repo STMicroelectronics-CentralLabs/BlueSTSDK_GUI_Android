@@ -240,7 +240,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
          * @param fwType firmware that we are uploading
          * @param file file to upload
          */
-        public void loadFile(@FirmwareType int fwType,FwFileDescriptor file){
+        void loadFile(@FirmwareType int fwType,FwFileDescriptor file){
 
             mFile=file;
             mNodeReadyToReceiveFile =false;
@@ -374,7 +374,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      * @param console console where send the command
      * @param callback object where notify the command answer
      */
-    FwUpgradeConsoleNucleo(Debug console, FwUpgradeConsole.FwUpgradeCallback callback) {
+    private FwUpgradeConsoleNucleo(Debug console, FwUpgradeConsole.FwUpgradeCallback callback) {
         super(callback);
         mConsole = console;
         mTimeout = new Handler(Looper.getMainLooper());
@@ -403,7 +403,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
     /**
      *
-     * @param fwType
+     * @param fwType type of the firmware to load, only board fw is supported
      * @param fwFile file path
      * @param startingAddress not used the firmware will always be loaded in the address 0x0804000
      * @return true if the upload starts correctly

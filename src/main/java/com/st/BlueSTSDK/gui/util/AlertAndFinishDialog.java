@@ -128,7 +128,7 @@ public class AlertAndFinishDialog extends DialogFragment {
      */
     private void onAttachToContext(Context context) {
         try {
-            ActivityWithNode  temp= (ActivityWithNode) context;
+            ActivityWithNode temp = (ActivityWithNode) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.getClass().getName() + " must extend ActivityWithNode");
         }//try

@@ -36,7 +36,6 @@
  */
 package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.Scanner;
@@ -61,7 +60,7 @@ public class ImgFileInputStream extends InputStream {
 
     private long mFileSize;
 
-    public  ImgFileInputStream(InputStream input, long streamByteLength){
+    ImgFileInputStream(InputStream input, long streamByteLength){
         long nLine = streamByteLength/10;
         mFileSize=(streamByteLength-2*nLine)/2;
         mScanner=new Scanner(input);
@@ -84,7 +83,7 @@ public class ImgFileInputStream extends InputStream {
     }
 
     @Override
-    public int read() throws IOException {
+    public int read() {
         if(mBuffer.isEmpty())
             if(!readLine()) // if the read fail, the file ended
                 return -1;

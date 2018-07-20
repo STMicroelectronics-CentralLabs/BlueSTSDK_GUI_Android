@@ -39,7 +39,6 @@ package com.st.BlueSTSDK.gui;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -106,8 +105,8 @@ public abstract class MainActivity extends AppCompatActivity {
 
         mControlsView = findViewById(R.id.main_content_controls);
 
-        TextView versionText = (TextView) findViewById(R.id.versionText);
-        TextView appText = (TextView) findViewById(R.id.appNameText);
+        TextView versionText = findViewById(R.id.versionText);
+        TextView appText = findViewById(R.id.appNameText);
         //show the version using the data in the manifest
         String version=null;
         CharSequence appName=null;
@@ -153,8 +152,9 @@ public abstract class MainActivity extends AppCompatActivity {
         }
     }
 
-    protected void onSaveInstanceState(Bundle savedInstanceState){
-        savedInstanceState.putBoolean(SPLASH_SCREEN_WAS_SHOWN,true);
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putBoolean(SPLASH_SCREEN_WAS_SHOWN, true);
     }
 
     private void showSplashScreen() {
@@ -250,21 +250,14 @@ public abstract class MainActivity extends AppCompatActivity {
 
             dialogBuilder.setTitle(R.string.privacyDialog_title);
             dialogBuilder.setMessage(R.string.privacyDialog_message);
-            dialogBuilder.setPositiveButton(R.string.privacyDialog_button, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    Intent openUrl = new Intent(Intent.ACTION_VIEW);
-                    openUrl.setData(Uri.parse(urlPage));
-                    startActivity(openUrl);
-                    setDialogShown(prefs,false);
-                }
+            dialogBuilder.setPositiveButton(R.string.privacyDialog_button, (dialogInterface, i) -> {
+                Intent openUrl = new Intent(Intent.ACTION_VIEW);
+                openUrl.setData(Uri.parse(urlPage));
+                startActivity(openUrl);
+                setDialogShown(prefs,false);
             });
-            dialogBuilder.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    setDialogShown(prefs,false);
-                }
-            });
+            dialogBuilder.setNeutralButton(android.R.string.ok,
+                    (dialogInterface, i) -> setDialogShown(prefs,false));
             dialogBuilder.setCancelable(false);
 
             return dialogBuilder.create();

@@ -37,8 +37,6 @@
 
 package com.st.BlueSTSDK.gui.ConnectionStatusView;
 
-import com.st.BlueSTSDK.Node;
-
 public class ConnectionStatusContract {
 
     public interface View{

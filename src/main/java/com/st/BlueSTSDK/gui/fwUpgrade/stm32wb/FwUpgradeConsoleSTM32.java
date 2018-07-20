@@ -33,7 +33,7 @@ public class FwUpgradeConsoleSTM32 extends FwUpgradeConsole {
     private OTAFileUpload mUpload;
     private OTABoardWillRebootFeature mReset;
 
-    public FwUpgradeConsoleSTM32(@NonNull OTAControlFeature control,
+    private FwUpgradeConsoleSTM32(@NonNull OTAControlFeature control,
                                  @NonNull OTAFileUpload upload,
                                  @NonNull OTABoardWillRebootFeature reset){
         super(null);

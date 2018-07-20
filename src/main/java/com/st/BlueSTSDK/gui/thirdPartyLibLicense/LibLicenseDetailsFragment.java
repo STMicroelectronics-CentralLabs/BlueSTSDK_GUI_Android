@@ -77,8 +77,8 @@ public class LibLicenseDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root =  inflater.inflate(R.layout.fragment_lib_licese_details, container, false);
-        mTitle = (TextView) root.findViewById(R.id.libLicense_detailsName);
-        mLicense = (TextView) root.findViewById(R.id.libLicense_detailsLic);
+        mTitle = root.findViewById(R.id.libLicense_detailsName);
+        mLicense = root.findViewById(R.id.libLicense_detailsLic);
 
         Bundle args = getArguments();
         if(args!=null && args.containsKey(DETAILS)){

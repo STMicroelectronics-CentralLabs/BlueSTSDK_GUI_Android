@@ -45,13 +45,14 @@ import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 
 /**
  * read the file content in a background thread
  */
 public class LoadFileAsyncTask extends AsyncTask<Integer,Void, CharSequence> {
 
-    private TextView mTargetView;
+    private WeakReference<TextView> mTargetView;
     private Resources resources;
 
     /**
@@ -61,7 +62,7 @@ public class LoadFileAsyncTask extends AsyncTask<Integer,Void, CharSequence> {
      */
     public LoadFileAsyncTask(Resources res , TextView targetView){
         resources=res;
-        mTargetView = targetView;
+        mTargetView = new WeakReference<>(targetView);
     }
 
     /**
@@ -94,6 +95,8 @@ public class LoadFileAsyncTask extends AsyncTask<Integer,Void, CharSequence> {
      */
     @Override
     protected void onPostExecute(CharSequence content) {
-        mTargetView.setText(content);
+        TextView temp = mTargetView.get();
+        if(temp!=null)
+            temp.setText(content);
     }
 }

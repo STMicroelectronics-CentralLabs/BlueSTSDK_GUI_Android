@@ -40,7 +40,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -49,7 +48,6 @@ import android.preference.PreferenceScreen;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.st.BlueSTSDK.Log.FeatureLogBase;
 import com.st.BlueSTSDK.Utils.LogFeatureActivity;
 import com.st.BlueSTSDK.gui.R;
 
@@ -67,11 +65,9 @@ import java.util.regex.Pattern;
 
 public class LogPreferenceFragment extends PreferenceFragment {
 
-    private static final String EXPORT_LOG_FILE_EXTENSION = "csv";
     private static final Pattern PATTERN_FILE_NAME_SESSION = Pattern.compile("^(\\d{8})_(\\d{6})_.*(csv|wav)$");
 
     public final static String KEY_PREF_LOG_STORE="prefLog_logStore";
-    public final static String KEY_PREF_LOG_DUMP_PATH="prefLog_exportPath";
     private static final String TAG = LogPreferenceFragment.class.getCanonicalName();
 
     /** preference widget */
@@ -96,12 +92,10 @@ public class LogPreferenceFragment extends PreferenceFragment {
     static public File[] getLogFiles(String directoryPath, final String session){
         File directory = new File(directoryPath);
         //find all the log files files
-        final FileFilter isLogFile = new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                final String fileName = pathname.getName();
-                return PATTERN_FILE_NAME_SESSION.matcher(fileName).matches();
-            }//accept
+        //accept
+        final FileFilter isLogFile = pathname -> {
+            final String fileName = pathname.getName();
+            return PATTERN_FILE_NAME_SESSION.matcher(fileName).matches();
         };
         return directory.listFiles(isLogFile);
     }//getLogFiles
@@ -156,21 +150,14 @@ public class LogPreferenceFragment extends PreferenceFragment {
         mCheckedSession = new boolean[mSessionsLocal.length];
         for (int i = 0; i< mCheckedSession.length; i++)
         {
-            mCheckedSession[i] = false;
-            if (title.startsWith("Export"))
-                mCheckedSession[i] = true;
+            mCheckedSession[i] = title.startsWith("Export");
         }
         builder.setTitle(title);
 
         builder.setIcon(resId);
         builder.setCancelable(false);
-        builder.setMultiChoiceItems(mSessionsLocal, mCheckedSession, new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                //featureToLog(featureToLogList[i], b);
-                mCheckedSession[i]=b;
-            }
-        });
+        builder.setMultiChoiceItems(mSessionsLocal, mCheckedSession,
+                (dialogInterface, i, b) -> mCheckedSession[i]=b);
 
         builder.setNegativeButton(android.R.string.cancel, null);
         builder.setPositiveButton(android.R.string.ok, actionListener);
@@ -188,15 +175,12 @@ public class LogPreferenceFragment extends PreferenceFragment {
         public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
                                              @NonNull Preference preference) {
             if(preference==mClearLog){
-                createSessionDialog("Remove Sessions Log", android.R.drawable.ic_delete, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (mCheckedSession != null && mCheckedSession.length > 0) {
-                            for (int j = 0; j < mCheckedSession.length; j++)
-                            {
-                                if (mCheckedSession[j])
-                                    deleteSession(getActivity(), getLogPath(), mSessionsLocal[j].replace(" ","_"));
-                            }
+                createSessionDialog("Remove Sessions Log", android.R.drawable.ic_delete, (dialogInterface, i) -> {
+                    if (mCheckedSession != null && mCheckedSession.length > 0) {
+                        for (int j = 0; j < mCheckedSession.length; j++)
+                        {
+                            if (mCheckedSession[j])
+                                deleteSession(getActivity(), getLogPath(), mSessionsLocal[j].replace(" ","_"));
                         }
                     }
                 });
@@ -206,27 +190,24 @@ public class LogPreferenceFragment extends PreferenceFragment {
             }
             if(preference==mExportSessionLog){
                 //TODO CHECK + SHOW ONLY IF THERE ARE SOMETHING TO EXPORT
-                createSessionDialog("Export Sessions Log", android.R.drawable.ic_dialog_email, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (mCheckedSession != null && mCheckedSession.length > 0) {
-                            List<File> mFileToExport = new ArrayList<>();
-                            for (int j = 0; j < mCheckedSession.length; j++)
-                            {
-                                if (mCheckedSession[j]) {
-                                    File[] files = getLogFiles(getLogPath(), mSessionsLocal[j]
-                                            .replace(" ", "_"));
-                                    mFileToExport.addAll(Arrays.asList(files));
-                                }
-
+                createSessionDialog("Export Sessions Log", android.R.drawable.ic_dialog_email, (dialogInterface, i) -> {
+                    if (mCheckedSession != null && mCheckedSession.length > 0) {
+                        List<File> mFileToExport = new ArrayList<>();
+                        for (int j = 0; j < mCheckedSession.length; j++)
+                        {
+                            if (mCheckedSession[j]) {
+                                File[] files = getLogFiles(getLogPath(), mSessionsLocal[j]
+                                        .replace(" ", "_"));
+                                mFileToExport.addAll(Arrays.asList(files));
                             }
 
-                            if (mFileToExport.size()> 0)
-                                LogFeatureActivity.exportDataByMail(getActivity(),
-                                        getLogPath(),
-                                        mFileToExport.toArray(new File[mFileToExport.size()]),
-                                        false);
                         }
+
+                        if (mFileToExport.size()> 0)
+                            LogFeatureActivity.exportDataByMail(getActivity(),
+                                    getLogPath(),
+                                    mFileToExport.toArray(new File[mFileToExport.size()]),
+                                    false);
                     }
                 });
                 //clearLog();

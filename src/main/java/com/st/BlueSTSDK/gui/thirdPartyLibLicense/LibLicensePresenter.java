@@ -46,7 +46,7 @@ public class LibLicensePresenter implements LibLicenseContract.Presenter {
     private final LibLicenseContract.View mView;
     private final List<LibLicense> mLibs;
 
-    public LibLicensePresenter(LibLicenseContract.View mView, List<LibLicense> mLibs) {
+    LibLicensePresenter(LibLicenseContract.View mView, List<LibLicense> mLibs) {
         this.mView = mView;
         this.mLibs = mLibs;
     }

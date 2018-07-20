@@ -15,11 +15,11 @@ public @interface FirmwareType {
     /**
      * constant used for upload the bluetooth low energy firmware
      */
-    public static final int BLE_FW = 0;
+    int BLE_FW = 0;
 
     /**
      * constant used for upload the node firmware
      */
-    public static final int BOARD_FW = 1;
+    int BOARD_FW = 1;
 
 }

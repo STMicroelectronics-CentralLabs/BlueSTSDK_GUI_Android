@@ -90,6 +90,8 @@ public class FwUpgradeServiceActionReceiver extends BroadcastReceiver{
 
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
+        if(action==null)
+            return;
         if(action.equals(FwUpgradeService.FW_UPLOAD_STARTED_ACTION))
             onUploadStarted();
         if(action.equals(FwUpgradeService.FW_UPLOAD_STATUS_UPGRADE_ACTION)){

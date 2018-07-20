@@ -142,14 +142,15 @@ public class AboutActivity extends AppCompatActivity {
         setContentView(R.layout.activity_about);
         Bundle extra = getIntent().getExtras();
         mPrivacyResFile = null;
-        if(extra.containsKey(PRIVACY_RES_ID))
-            mPrivacyResFile = (URL) extra.getSerializable(PRIVACY_RES_ID);
+        if(extra!=null) {
+            if (extra.containsKey(PRIVACY_RES_ID))
+                mPrivacyResFile = (URL) extra.getSerializable(PRIVACY_RES_ID);
 
-        if(extra.containsKey(LIB_LICENSES_INFOS)){
-            mLicenseInfos = extra.getParcelableArrayList(LIB_LICENSES_INFOS);
+            if (extra.containsKey(LIB_LICENSES_INFOS)) {
+                mLicenseInfos = extra.getParcelableArrayList(LIB_LICENSES_INFOS);
+            }
+            setUpMainPage(extra.getString(ABOUT_PAGE_URL));
         }
-
-        setUpMainPage(extra.getString(ABOUT_PAGE_URL));
 
         setUpAppName();
         setUpAppVersion();
