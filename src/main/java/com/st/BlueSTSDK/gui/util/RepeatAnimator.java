@@ -96,6 +96,13 @@ public class RepeatAnimator {
         mAnim.start();
     }//start
 
+    /**
+     * change the view where the animation will be done
+     * @param view view where apply the animation
+     */
+    public void  setTarget(View view){
+        mAnim.setTarget(view);
+    }
 
     /**
      * tell if the animation is running

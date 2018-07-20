@@ -65,8 +65,8 @@ public class FwUpgradeConsoleSTM32 extends FwUpgradeConsole {
                         mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleSTM32.this,fwFile,sendData);
                         if(sendData<=0){
                             mControl.uploadFinished(() -> {
-                                mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32.this,fwFile);
-                                mReset.removeFeatureListener(onBoardWillReboot);
+                            //    mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32.this,fwFile);
+                            //    mReset.removeFeatureListener(onBoardWillReboot);
                             });
                         }
                     }
