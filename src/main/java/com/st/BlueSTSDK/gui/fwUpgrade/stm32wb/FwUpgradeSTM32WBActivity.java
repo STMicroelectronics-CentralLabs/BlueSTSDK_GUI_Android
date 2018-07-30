@@ -26,6 +26,7 @@ import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.uploadOtaFile.UploadOtaFileFragmen
 public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements SearchOtaNodeFragment.OnOtaNodeSearchCallback {
 
     private static final String NODE_PARAM = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".NODE_PARAM";
+    private static final String NODE_ADDRESS_PARAM = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".NODE_ADDRESS_PARAM";
     private static final String FILE_PARAM = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".FILE_PARAM";
     private static final String ADDRESS_PARAM = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".ADDRESS_PARAM";
 
@@ -38,6 +39,22 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
         if(node!=null){
             fwUpgradeActivity.putExtra(NODE_PARAM,node.getTag());
         }
+        if(file!=null){
+            fwUpgradeActivity.putExtra(FILE_PARAM,file);
+        }
+        if(address!=null) {
+            fwUpgradeActivity.putExtra(ADDRESS_PARAM, address);
+        }
+
+        return fwUpgradeActivity;
+    }
+
+    public static Intent getStartIntent(@NonNull Context context, @NonNull String nodeAddress, @Nullable Uri file,
+                                        @Nullable Long address){
+        Intent fwUpgradeActivity = new Intent(context, FwUpgradeSTM32WBActivity.class);
+
+        fwUpgradeActivity.putExtra(NODE_ADDRESS_PARAM,nodeAddress);
+
         if(file!=null){
             fwUpgradeActivity.putExtra(FILE_PARAM,file);
         }
@@ -73,8 +90,9 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
         String nodeTag = getNodeTag(startIntent,savedInstanceState);
         Node n = nodeTag != null ? Manager.getSharedInstance().getNodeWithTag(nodeTag) : null;
         if(n==null){ //the node is not discovered
+            String address = startIntent.getStringExtra(NODE_ADDRESS_PARAM);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.otaSTM32_content,new SearchOtaNodeFragment(),SEARCH_NODE_TAG)
+                    .add(R.id.otaSTM32_content,SearchOtaNodeFragment.instanciate(address),SEARCH_NODE_TAG)
                     .commit();
         }else {
             onOtaNodeFound(n);

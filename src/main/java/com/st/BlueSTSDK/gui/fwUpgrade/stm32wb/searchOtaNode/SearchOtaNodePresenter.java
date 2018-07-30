@@ -1,5 +1,8 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.searchOtaNode;
 
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
+
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature.STM32OTASupport;
@@ -11,6 +14,7 @@ public class SearchOtaNodePresenter implements SearchOtaNodeContract.Presenter{
 
     private SearchOtaNodeContract.View mView;
     private Manager mManager;
+    private @Nullable String mAddress;
 
     private Manager.ManagerListener mManagerListener = new Manager.ManagerListener() {
         @Override
@@ -26,9 +30,11 @@ public class SearchOtaNodePresenter implements SearchOtaNodeContract.Presenter{
         @Override
         public void onNodeDiscovered(Manager m, Node node) {
             if(STM32OTASupport.isOTANode(node)){
-                mManager.removeListener(this);
-                mView.foundNode(node);
-                mManager.stopDiscovery();
+                if(node.getTag().equals(mAddress) || mAddress==null) {
+                    mManager.removeListener(this);
+                    mView.foundNode(node);
+                    mManager.stopDiscovery();
+                }
             }
         }
     };
@@ -36,10 +42,12 @@ public class SearchOtaNodePresenter implements SearchOtaNodeContract.Presenter{
     public SearchOtaNodePresenter(SearchOtaNodeContract.View view, Manager manager){
         mView = view;
         mManager = manager;
+        mAddress = null;
     }
 
     @Override
-    public void startScan() {
+    public void startScan(@Nullable String address) {
+        mAddress = address;
         mManager.resetDiscovery();
         mManager.addListener(mManagerListener);
         mManager.startDiscovery(SCANNER_TIMEOUT_MS);

@@ -1,6 +1,7 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.searchOtaNode;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.st.BlueSTSDK.Node;
 
@@ -14,7 +15,7 @@ public class SearchOtaNodeContract {
 
 
     public interface Presenter{
-        void startScan();
+        void startScan(@Nullable String address);
         void stopScan();
     }
 

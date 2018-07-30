@@ -3,6 +3,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.searchOtaNode;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -24,6 +25,24 @@ import com.st.BlueSTSDK.gui.util.FragmentUtil;
 public class SearchOtaNodeFragment extends Fragment implements SearchOtaNodeContract.View {
 
     private OnOtaNodeSearchCallback mListener;
+
+    private static final String SEARCH_ADDRESS_PARAM = SearchOtaNodeFragment.class.getCanonicalName()+".SEARCH_ADDRESS_PARAM";
+
+    public static SearchOtaNodeFragment instanciate(@Nullable String searchAddress){
+        SearchOtaNodeFragment f = new SearchOtaNodeFragment();
+
+        if(searchAddress!=null) {
+            Bundle args = new Bundle();
+            args.putString(SEARCH_ADDRESS_PARAM, searchAddress);
+            f.setArguments(args);
+        }
+
+        return f;
+    }
+
+    public static SearchOtaNodeFragment instanciate(){
+        return instanciate(null);
+    }
 
     public SearchOtaNodeFragment() {
         // Required empty public constructor
@@ -59,11 +78,21 @@ public class SearchOtaNodeFragment extends Fragment implements SearchOtaNodeCont
     }
 
 
+    private @Nullable String getSearchNodeAddress(){
+        Bundle args = getArguments();
+        if(args==null)
+            return null;
+        return args.getString(SEARCH_ADDRESS_PARAM,null);
+    }
+
     @Override
     public void onStart() {
         super.onStart();
+
+        String address = getSearchNodeAddress();
+
         mPresenter = new SearchOtaNodePresenter(this, Manager.getSharedInstance());
-        mPresenter.startScan();
+        mPresenter.startScan(address);
     }
 
     @Override
@@ -93,18 +122,8 @@ public class SearchOtaNodeFragment extends Fragment implements SearchOtaNodeCont
         changeMessageText(R.string.otaSearch_nodeNotFound);
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnOtaNodeSearchCallback {
 
+    public interface OnOtaNodeSearchCallback {
         void onOtaNodeFound(@NonNull Node node);
     }
 }

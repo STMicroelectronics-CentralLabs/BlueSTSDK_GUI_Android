@@ -24,4 +24,19 @@ public class STM32OTASupport{
         return featureMap;
     }
 
+    /**
+     * after the board reboot it will have the current address +1
+     * @param node current node
+     * @return node address/tag that the board will have when it is in ota mode
+     */
+    public static String getOtaAddressForNode(Node node){
+        String currentAddress = node.getTag();
+
+        int lastDigit = Short.valueOf(currentAddress.substring(currentAddress.length()-2),16);
+
+        lastDigit = lastDigit + 1;
+        return currentAddress.substring(0,currentAddress.length()-2) +
+                String.format("%X",(byte)lastDigit);
+    }
+
 }

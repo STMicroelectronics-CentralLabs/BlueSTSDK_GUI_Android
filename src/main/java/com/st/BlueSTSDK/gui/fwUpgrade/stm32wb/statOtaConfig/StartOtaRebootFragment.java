@@ -24,6 +24,7 @@ import com.st.BlueSTSDK.gui.demos.DemoFragment;
 import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.FwUpgradeSTM32WBActivity;
 import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.RequestFileUtil;
 import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature.RebootOTAModeFeature;
+import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.feature.STM32OTASupport;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckNumberRange;
 
 
@@ -152,9 +153,14 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
 
     @Override
     public void performFileUpload() {
+        Node n = getNode();
+        if(n == null)
+            return;
+
         NodeConnectionService.disconnect(requireContext(),getNode());
         long address = sectorToAddress(getSectorToDelete());
-        startActivity(FwUpgradeSTM32WBActivity.getStartIntent(requireContext(),null,
+        startActivity(FwUpgradeSTM32WBActivity.getStartIntent(requireContext(),
+                STM32OTASupport.getOtaAddressForNode(getNode()),
                 mSelectedFw,address));
     }
 
