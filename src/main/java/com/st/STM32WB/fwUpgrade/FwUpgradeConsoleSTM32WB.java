@@ -15,15 +15,15 @@ import com.st.STM32WB.fwUpgrade.feature.OTAFileUpload;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class FwUpgradeConsoleSTM32 extends FwUpgradeConsole {
+public class FwUpgradeConsoleSTM32WB extends FwUpgradeConsole {
 
 
-    public static FwUpgradeConsoleSTM32 buildForNode(Node node){
+    public static FwUpgradeConsoleSTM32WB buildForNode(Node node){
         OTAControlFeature control = node.getFeature(OTAControlFeature.class);
         OTAFileUpload upload = node.getFeature(OTAFileUpload.class);
         OTABoardWillRebootFeature reboot = node.getFeature(OTABoardWillRebootFeature.class);
         if(control!=null && upload!=null && reboot!=null){
-            return new FwUpgradeConsoleSTM32(control,upload,reboot);
+            return new FwUpgradeConsoleSTM32WB(control,upload,reboot);
         }else{
             return null;
         }
@@ -33,9 +33,9 @@ public class FwUpgradeConsoleSTM32 extends FwUpgradeConsole {
     private OTAFileUpload mUpload;
     private OTABoardWillRebootFeature mReset;
 
-    private FwUpgradeConsoleSTM32(@NonNull OTAControlFeature control,
-                                 @NonNull OTAFileUpload upload,
-                                 @NonNull OTABoardWillRebootFeature reset){
+    private FwUpgradeConsoleSTM32WB(@NonNull OTAControlFeature control,
+                                    @NonNull OTAFileUpload upload,
+                                    @NonNull OTABoardWillRebootFeature reset){
         super(null);
         mControl = control;
         mUpload = upload;
@@ -46,9 +46,9 @@ public class FwUpgradeConsoleSTM32 extends FwUpgradeConsole {
     public boolean loadFw(@FirmwareType int type, FwFileDescriptor fwFile,long startAddress) {
         Feature.FeatureListener onBoardWillReboot = (f, sample) -> {
             if(OTABoardWillRebootFeature.boardIsRebooting(sample))
-                mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32.this,fwFile);
+                mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32WB.this,fwFile);
             else
-                mCallback.onLoadFwError(FwUpgradeConsoleSTM32.this,fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
+                mCallback.onLoadFwError(FwUpgradeConsoleSTM32WB.this,fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
             mReset.getParentNode().disableNotification(mReset);
         };
         mReset.addFeatureListener(onBoardWillReboot);
@@ -62,10 +62,10 @@ public class FwUpgradeConsoleSTM32 extends FwUpgradeConsole {
                     public void run() {
                         sendData-=OTAFileUpload.CHUNK_LENGTH;
                         Log.d("OnProgress", "run: "+sendData);
-                        mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleSTM32.this,fwFile,sendData);
+                        mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleSTM32WB.this,fwFile,sendData);
                         if(sendData<=0){
                             mControl.uploadFinished(() -> {
-                            //    mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32.this,fwFile);
+                            //    mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32WB.this,fwFile);
                             //    mReset.removeFeatureListener(onBoardWillReboot);
                             });
                         }

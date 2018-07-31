@@ -43,7 +43,8 @@ import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
-import com.st.STM32WB.fwUpgrade.FwUpgradeConsoleSTM32;
+
+import com.st.STM32WB.fwUpgrade.FwUpgradeConsoleSTM32WB;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -60,7 +61,7 @@ public abstract class FwUpgradeConsole {
      * @return null if isn't possible upload the firmware in the node, or a class for do it
      */
     static public @Nullable FwUpgradeConsole getFwUpgradeConsole(Node node){
-        FwUpgradeConsoleSTM32 stm32wbConsole = FwUpgradeConsoleSTM32.buildForNode(node);
+        FwUpgradeConsoleSTM32WB stm32wbConsole = FwUpgradeConsoleSTM32WB.buildForNode(node);
         if( stm32wbConsole!=null)
             return stm32wbConsole;
 
