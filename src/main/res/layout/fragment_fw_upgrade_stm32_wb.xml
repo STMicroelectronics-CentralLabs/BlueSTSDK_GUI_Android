@@ -4,6 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fwUpgrade.stm32wb.FwUpgradeSTM32WBActivityFragment">
+    tools:context="com.st.STM32WB.fwUpgrade.FwUpgradeSTM32WBActivityFragment">
 
 </android.support.constraint.ConstraintLayout>

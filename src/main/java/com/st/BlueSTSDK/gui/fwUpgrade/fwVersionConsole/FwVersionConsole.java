@@ -7,7 +7,7 @@ import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
-import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.FwVersionConsoleSTM32WB;
+import com.st.STM32WB.fwUpgrade.FwVersionConsoleSTM32WB;
 
 public abstract  class FwVersionConsole {
 

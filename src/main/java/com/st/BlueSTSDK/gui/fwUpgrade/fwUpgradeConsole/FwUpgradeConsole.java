@@ -43,7 +43,7 @@ import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
-import com.st.BlueSTSDK.gui.fwUpgrade.stm32wb.FwUpgradeConsoleSTM32;
+import com.st.STM32WB.fwUpgrade.FwUpgradeConsoleSTM32;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

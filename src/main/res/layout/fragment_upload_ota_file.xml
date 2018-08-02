@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fwUpgrade.stm32wb.uploadOtaFile.UploadOtaFileFragment">
+    tools:context="com.st.STM32WB.fwUpgrade.uploadOtaFile.UploadOtaFileFragment">
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
