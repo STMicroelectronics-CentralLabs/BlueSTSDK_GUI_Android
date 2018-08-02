@@ -15,7 +15,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/led_on" />
+        app:srcCompat="@drawable/stm32wb_led_on" />
 
     <TextView
         android:id="@+id/stm32wb_remoteNodeText"

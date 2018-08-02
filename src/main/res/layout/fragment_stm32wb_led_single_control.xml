@@ -34,7 +34,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stm32wb_single_alarmImage"
         app:layout_constraintVertical_chainStyle="spread_inside"
-        app:srcCompat="@drawable/led_off" />
+        app:srcCompat="@drawable/stm32wb_led_off" />
 
     <ImageView
         android:id="@+id/stm32wb_single_rssiImage"
@@ -44,7 +44,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stm32wb_single_titleText"
-        app:srcCompat="@drawable/signal_strength" />
+        app:srcCompat="@drawable/stm32wb_signal_strength" />
 
     <TextView
         android:id="@+id/stm32wb_single_rssiText"

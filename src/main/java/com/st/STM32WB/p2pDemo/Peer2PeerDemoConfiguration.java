@@ -47,9 +47,19 @@ public class Peer2PeerDemoConfiguration {
      * @return true if the node is manage by this demo
      */
     public static boolean isValidNode(@NonNull Node node){
+        return isValidDeviceNode(node) || isValidRouterNode(node);
+    }
+
+    public static boolean isValidDeviceNode(@NonNull Node node){
         byte nodeId = node.getTypeId();
         return node.getType() == Node.Type.NUCLEO &&
-                (WB_DEVICE_NODE_IDS.contains(nodeId) || nodeId == WB_ROUTER_NODE_ID);
+                (WB_DEVICE_NODE_IDS.contains(nodeId));
+    }
+
+    public static boolean isValidRouterNode(@NonNull Node node){
+        byte nodeId = node.getTypeId();
+        return node.getType() == Node.Type.NUCLEO &&
+                (WB_ROUTER_NODE_ID == nodeId);
     }
 
     /**

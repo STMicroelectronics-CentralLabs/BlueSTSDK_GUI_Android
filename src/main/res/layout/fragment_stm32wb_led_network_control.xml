@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="com.st.SensNet.com.st.STM32WB.p2pDemo.DemoSTM32WBActivity">
+    tools:context="com.st.STM32WB.p2pDemo.DemoSTM32WBActivity">
 
 
     <android.support.v7.widget.CardView
@@ -36,7 +36,7 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/stm32wb_network_titleText"
-                app:srcCompat="@drawable/signal_strength" />
+                app:srcCompat="@drawable/stm32wb_signal_strength" />
 
             <TextView
                 android:id="@+id/stm32wb_network_rssiText"
