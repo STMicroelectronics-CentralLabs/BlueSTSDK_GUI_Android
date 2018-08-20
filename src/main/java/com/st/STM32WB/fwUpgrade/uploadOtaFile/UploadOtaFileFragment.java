@@ -188,7 +188,7 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
             //UploadOtaFileFragment.this
             NavUtils.navigateUpFromSameTask(requireActivity());
         });
-        dialog.show(getFragmentManager(),"finisDialog");
+        dialog.show(requireFragmentManager(),"finisDialog");
     }
 
 }

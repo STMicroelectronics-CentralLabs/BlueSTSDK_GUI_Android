@@ -3,7 +3,11 @@ package com.st.STM32WB.p2pDemo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.Group;
+import android.support.v4.app.NavUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -11,10 +15,12 @@ import android.widget.TextView;
 
 import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.gui.NodeConnectionService;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.STM32WB.p2pDemo.feature.FeatureControlLed;
 import com.st.STM32WB.p2pDemo.feature.FeatureSwitchStatus;
+import com.st.STM32WB.p2pDemo.feature.FeatureThreadReboot;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -87,6 +93,12 @@ public class LedButtonControlFragment extends RssiDemoFragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     protected int getRssiLabelId() {
         return R.id.stm32wb_single_rssiText;
     }
@@ -144,6 +156,40 @@ public class LedButtonControlFragment extends RssiDemoFragment {
             mLedImage.setImageResource(R.drawable.stm32wb_led_on);
         }else{
             mLedImage.setImageResource(R.drawable.stm32wb_led_off);
+        }
+    }
+
+    private final int ENABLE_REBOOT_THREAD_ADVERTISE_MASK = 0x00004000;
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        Node node = getNode();
+        if(node!=null && ((node.getAdvertiseBitMask() & ENABLE_REBOOT_THREAD_ADVERTISE_MASK) != 0)){
+            inflater.inflate(R.menu.stm32wb_thread_reboot,menu);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.stm32wb_single_switchRadio){
+            switchToThreadRadio();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void switchToThreadRadio() {
+        Node node = getNode();
+        if(node!=null) {
+            FeatureThreadReboot reboot = node.getFeature(FeatureThreadReboot.class);
+            if(reboot!=null) {
+                reboot.rebootToThreadRadio(mCurrentDevice, () -> {
+                    //disconnect and close the demo
+                    NodeConnectionService.disconnect(requireContext(), node);
+                    NavUtils.navigateUpFromSameTask(requireActivity());
+                });
+            }
         }
     }
 

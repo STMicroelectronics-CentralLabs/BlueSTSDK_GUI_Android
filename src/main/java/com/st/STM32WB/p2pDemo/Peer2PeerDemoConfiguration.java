@@ -7,7 +7,9 @@ import com.st.BlueSTSDK.Utils.UUIDToFeatureMap;
 import com.st.STM32WB.p2pDemo.feature.FeatureControlLed;
 import com.st.STM32WB.p2pDemo.feature.FeatureNetworkStatus;
 import com.st.STM32WB.p2pDemo.feature.FeatureSwitchStatus;
+import com.st.STM32WB.p2pDemo.feature.FeatureThreadReboot;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -68,7 +70,8 @@ public class Peer2PeerDemoConfiguration {
      */
     public static UUIDToFeatureMap getCharacteristicMapping(){
         UUIDToFeatureMap temp = new UUIDToFeatureMap();
-        temp.put(UUID.fromString("0000fe41-8e22-4541-9d4c-21edae82ed19"), FeatureControlLed.class);
+        temp.put(UUID.fromString("0000fe41-8e22-4541-9d4c-21edae82ed19"),
+                Arrays.asList(FeatureControlLed.class,FeatureThreadReboot.class));
         temp.put(UUID.fromString("0000fe42-8e22-4541-9d4c-21edae82ed19"), FeatureSwitchStatus.class);
         temp.put(UUID.fromString("0000fe51-8e22-4541-9d4c-21edae82ed19"), FeatureNetworkStatus.class);
         return temp;

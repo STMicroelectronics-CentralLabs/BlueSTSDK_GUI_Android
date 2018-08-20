@@ -11,8 +11,8 @@ import com.st.STM32WB.p2pDemo.Peer2PeerDemoConfiguration;
 public class FeatureControlLed extends Feature {
     public static final String FEATURE_NAME = "ControlLed";
 
-    private static final byte SWITCH_ON_COMMAND = 1;
-    private static final byte SWITCH_OFF_COMMAND = 0;
+    private static final byte SWITCH_ON_COMMAND  = 0x01;
+    private static final byte SWITCH_OFF_COMMAND = 0x00;
 
     /**
      * build a carry position feature

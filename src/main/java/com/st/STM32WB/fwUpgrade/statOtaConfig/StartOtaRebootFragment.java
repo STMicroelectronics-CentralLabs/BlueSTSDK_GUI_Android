@@ -48,13 +48,13 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
         }
     }
 
-    private static final MemoryLayout APPLICATION_MEMORY = new MemoryLayout((short)0x07,(short) 0xFF);
-    private static final MemoryLayout BLE_MEMORY = new MemoryLayout((short)0x07,(short) 0xFF);
+    private static final MemoryLayout APPLICATION_MEMORY = new MemoryLayout((short)0x07,(short) 0x7F);
+    //private static final MemoryLayout BLE_MEMORY = new MemoryLayout((short)0x07,(short) 0x7F);
 
     private StartOtaConfigContract.Presenter mPresenter;
     private RequestFileUtil mRequestFileUtil;
     private CompoundButton mApplicationMemory;
-    private CompoundButton mBleMemory;
+    //private CompoundButton mBleMemory;
     private CompoundButton mCustomMemory;
     private View mCustomAddressView;
 
@@ -71,7 +71,7 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
         View mRootView = inflater.inflate(R.layout.fragment_ota_reboot, container, false);
 
         mApplicationMemory = mRootView.findViewById(R.id.otaReboot_appMemory);
-        mBleMemory = mRootView.findViewById(R.id.otaReboot_bleMemory);
+        //mBleMemory = mRootView.findViewById(R.id.otaReboot_bleMemory);
         mCustomMemory = mRootView.findViewById(R.id.otaReboot_customMemory);
 
         mCustomAddressView = mRootView.findViewById(R.id.otaReboot_customAddrView);
