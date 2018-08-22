@@ -114,6 +114,8 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
                 return R.drawable.board_bluecoin;
             case STEVAL_IDB008VX:
                 return R.drawable.board_bluenrg;
+            case STEVAL_BCN002V1:
+                return R.drawable.board_bluenrg;
             case NUCLEO:
                 return R.drawable.board_nucleo;
             case GENERIC:
