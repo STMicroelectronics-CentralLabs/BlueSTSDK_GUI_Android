@@ -36,6 +36,10 @@ import com.st.STM32WB.fwUpgrade.feature.STM32OTASupport;
         )
 public class StartOtaRebootFragment extends DemoFragment implements StartOtaConfigContract.View {
 
+    private static final String FIRST_SECTOR_KEY = StartOtaRebootFragment.class.getCanonicalName()+".FIRST_SECTOR_KEY";
+    private static final String NUMBER_OF_SECTOR_KEY = StartOtaRebootFragment.class.getCanonicalName()+".NUMBER_OF_SECTOR_KEY";
+    private static final String FW_URI_KEY = StartOtaRebootFragment.class.getCanonicalName()+".FW_URI_KEY";
+
     private static final byte MIN_DELETABLE_SECTOR = 7;
 
     private static final class MemoryLayout{
@@ -88,6 +92,40 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
         return mRootView;
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(mSectorTextLayout.getEditText()!=null) {
+            String text = mSectorTextLayout.getEditText().getText().toString();
+            outState.putString(FIRST_SECTOR_KEY,text);
+        }
+        if(mLengthTextLayout.getEditText()!=null) {
+            String text = mLengthTextLayout.getEditText().getText().toString();
+            outState.putString(NUMBER_OF_SECTOR_KEY, text);
+        }
+        if(mSelectedFw!=null){
+            outState.putParcelable(FW_URI_KEY, mSelectedFw);
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if(savedInstanceState == null)
+            return;
+        if(savedInstanceState.containsKey(FIRST_SECTOR_KEY) &&
+            mSectorTextLayout.getEditText()!=null){
+            mSectorTextLayout.getEditText().setText(savedInstanceState.getString(FIRST_SECTOR_KEY));
+        }
+        if(savedInstanceState.containsKey(NUMBER_OF_SECTOR_KEY) &&
+                mLengthTextLayout.getEditText()!=null){
+            mLengthTextLayout.getEditText().setText(savedInstanceState.getString(NUMBER_OF_SECTOR_KEY));
+        }
+        if(savedInstanceState.containsKey(FW_URI_KEY)){
+            onFileSelected(savedInstanceState.getParcelable(FW_URI_KEY));
+        }
+    }
+
     private void setUpLengthInputChecker(TextInputLayout lengthTextLayout) {
         EditText text = lengthTextLayout.getEditText();
         if(text!=null) {
@@ -134,14 +172,14 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
 
     @Override
     public short getSectorToDelete() {
-        if(mApplicationMemory.isChecked())
+        if(mApplicationMemory.isChecked() || mSectorTextLayout.getEditText() == null)
             return APPLICATION_MEMORY.fistSector;
-        return Short.parseShort(mSectorTextLayout.getEditText().getText().toString(),16);
+        return Short.parseShort( mSectorTextLayout.getEditText().getText().toString(),16);
     }
 
     @Override
     public short getNSectorToDelete() {
-        if(mApplicationMemory.isChecked())
+        if(mApplicationMemory.isChecked() || mLengthTextLayout.getEditText() == null)
             return APPLICATION_MEMORY.nSector;
         return Short.parseShort(mLengthTextLayout.getEditText().getText().toString(),16);
     }
