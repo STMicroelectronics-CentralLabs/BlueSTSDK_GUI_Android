@@ -28,7 +28,7 @@ public class SearchOtaNodeFragment extends Fragment implements SearchOtaNodeCont
 
     private static final String SEARCH_ADDRESS_PARAM = SearchOtaNodeFragment.class.getCanonicalName()+".SEARCH_ADDRESS_PARAM";
 
-    public static SearchOtaNodeFragment instanciate(@Nullable String searchAddress){
+    public static SearchOtaNodeFragment instantiate(@Nullable String searchAddress){
         SearchOtaNodeFragment f = new SearchOtaNodeFragment();
 
         if(searchAddress!=null) {
@@ -38,10 +38,6 @@ public class SearchOtaNodeFragment extends Fragment implements SearchOtaNodeCont
         }
 
         return f;
-    }
-
-    public static SearchOtaNodeFragment instanciate(){
-        return instanciate(null);
     }
 
     public SearchOtaNodeFragment() {

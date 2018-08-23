@@ -92,7 +92,7 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
         if(n==null){ //the node is not discovered
             String address = startIntent.getStringExtra(NODE_ADDRESS_PARAM);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.otaSTM32_content,SearchOtaNodeFragment.instanciate(address),SEARCH_NODE_TAG)
+                    .add(R.id.otaSTM32_content,SearchOtaNodeFragment.instantiate(address),SEARCH_NODE_TAG)
                     .commit();
         }else {
             onOtaNodeFound(n);
@@ -111,9 +111,9 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
                     startIntent.getLongExtra(ADDRESS_PARAM, 0) : null;
             UploadOtaFileFragment fragment = UploadOtaFileFragment.build(node, file, address);
 
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            if (getSupportFragmentManager().findFragmentByTag(SEARCH_NODE_TAG) != null)
-                transaction.replace(R.id.otaSTM32_content, fragment);
+            FragmentTransaction transaction = fm.beginTransaction();
+            if (fm.findFragmentByTag(SEARCH_NODE_TAG) != null)
+                transaction.replace(R.id.otaSTM32_content, fragment,UPLOAD_NODE_TAG);
             else
                 transaction.add(R.id.otaSTM32_content, fragment, UPLOAD_NODE_TAG);
             transaction.commit();
@@ -132,8 +132,8 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
     public void onOtaNodeFound(@NonNull Node node) {
         mNode = node;
 
-        ConnectionStatusController mConnectionStatusContoller = new ConnectionStatusController(mConnectionStatus, mNode);
-        getLifecycle().addObserver(mConnectionStatusContoller);
+        ConnectionStatusController mConnectionStatusController = new ConnectionStatusController(mConnectionStatus, mNode);
+        getLifecycle().addObserver(mConnectionStatusController);
 
         ConnectionOption option = ConnectionOption.builder()
                 //the node was probably connected with another name and char set so
