@@ -125,7 +125,7 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
         if(savedInstanceState!=null && savedInstanceState.containsKey(FW_URI_KEY))
             return savedInstanceState.getParcelable(FW_URI_KEY);
         if(arguments!=null && arguments.containsKey(FILE_PARAM))
-            return arguments.getParcelable(FW_URI_KEY);
+            return arguments.getParcelable(FILE_PARAM);
         return null;
     }
 
