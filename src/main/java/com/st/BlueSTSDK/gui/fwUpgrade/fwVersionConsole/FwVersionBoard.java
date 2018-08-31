@@ -38,6 +38,8 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.IllegalVersionFormatException;
@@ -64,7 +66,7 @@ public class FwVersionBoard extends FwVersion implements Parcelable{
         patchVersion = Integer.parseInt(matcher.group(5));
     }
 
-    public FwVersionBoard(String boardName,String mcuType, int major,int minor,int path) {
+    public FwVersionBoard(@NonNull String boardName, @Nullable String mcuType, int major, int minor, int path) {
         name = boardName;
         this.mcuType=mcuType;
         majorVersion=major;
@@ -72,11 +74,11 @@ public class FwVersionBoard extends FwVersion implements Parcelable{
         patchVersion=path;
     }
 
-    public String getMcuType() {
+    public @Nullable String getMcuType() {
         return mcuType;
     }
 
-    public String getName() {
+    public @NonNull String getName() {
         return name;
     }
 
