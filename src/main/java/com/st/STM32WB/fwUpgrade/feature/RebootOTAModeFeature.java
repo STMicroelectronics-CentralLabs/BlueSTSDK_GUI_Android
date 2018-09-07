@@ -5,7 +5,7 @@ import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
 
 public class RebootOTAModeFeature extends Feature {
-    private static final String FEATURE_NAME = "Rebot OTA Mode";
+    private static final String FEATURE_NAME = "Reboot OTA Mode";
     private static final Field[] DATA_DESC = new Field[0];
 
     private static final byte REBOOT_OTA_MODE = 0x01;
