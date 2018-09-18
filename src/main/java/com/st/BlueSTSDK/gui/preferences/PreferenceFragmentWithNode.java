@@ -129,9 +129,11 @@ public abstract class PreferenceFragmentWithNode extends PreferenceFragment {
     public void onStop() {
         super.onStop();
         Activity context = getActivity();
-        mNode.removeNodeStateListener(mConnectionProgressDialog);
-        if (!mKeepConnectionOpen) {
-            NodeConnectionService.disconnect(context, mNode);
+        if(mNode!=null) {
+            mNode.removeNodeStateListener(mConnectionProgressDialog);
+            if (!mKeepConnectionOpen) {
+                NodeConnectionService.disconnect(context, mNode);
+            }
         }
     }
 
