@@ -226,10 +226,10 @@ public class DebugConsoleActivity extends ActivityWithNode {
             mNextPartToSent++;
 
             String partToSent = mToSent.substring(startIndex, endIndex);
-            return (mDebugService.write(partToSent) == partToSent.length());
-        }
-        else
-            return false;
+            if(mDebugService!=null)
+                return (mDebugService.write(partToSent) == partToSent.length());
+        }//else
+        return false;
     }
 
     /**
