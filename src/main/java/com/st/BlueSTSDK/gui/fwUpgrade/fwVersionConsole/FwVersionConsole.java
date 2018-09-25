@@ -31,6 +31,7 @@ public abstract  class FwVersionConsole {
             case NUCLEO:
             case SENSOR_TILE:
             case BLUE_COIN:
+            case STEVAL_BCN002V1:
                 return new FwVersionConsoleNucleo(debug);
         }
         return null;
