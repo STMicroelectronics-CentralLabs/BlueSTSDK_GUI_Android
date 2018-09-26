@@ -104,25 +104,7 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         return new ViewHolder(view);
     }
 
-    private static @DrawableRes int getBoardTypeImage(Node.Type type){
-        switch (type){
-            case STEVAL_WESU1:
-                return R.drawable.board_steval_wesu1;
-            case SENSOR_TILE:
-                return R.drawable.board_sensor_tile;
-            case BLUE_COIN:
-                return R.drawable.board_bluecoin;
-            case STEVAL_IDB008VX:
-                return R.drawable.board_bluenrg;
-            case STEVAL_BCN002V1:
-                return R.drawable.board_bluenrg;
-            case NUCLEO:
-                return R.drawable.board_nucleo;
-            case GENERIC:
-                default:
-                return R.drawable.board_generic;
-        }
-    }
+
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
@@ -131,7 +113,7 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         holder.mNodeNameLabel.setText(n.getName());
         holder.mNodeTagLabel.setText(n.getTag());
 
-        @DrawableRes int boardImageRes = getBoardTypeImage(n.getType());
+        @DrawableRes int boardImageRes = NodeGui.getBoardTypeImage(n.getType());
         Drawable boardImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),boardImageRes);
         holder.mNodeImage.setImageDrawable(boardImage);
 
