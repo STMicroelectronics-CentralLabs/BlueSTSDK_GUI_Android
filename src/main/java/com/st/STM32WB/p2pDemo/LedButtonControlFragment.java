@@ -1,5 +1,7 @@
 package com.st.STM32WB.p2pDemo;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.Group;
@@ -35,7 +37,7 @@ public class LedButtonControlFragment extends RssiDemoFragment {
     private static final String LED_STATUS_KEY = LedButtonControlFragment.class.getName()+".LED_STATUS_KEY";
     private static final String ALARM_STATUS_KEY = LedButtonControlFragment.class.getName()+".ALARM_STATUS_KEY";
     private static final String ALARM_TEXT_KEY = LedButtonControlFragment.class.getName()+".ALARM_TEXT_KEY";
-    private static SimpleDateFormat ALLARM_FORMATTER = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+    private static final SimpleDateFormat ALLARM_FORMATTER = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
     private TextView mDeviceName;
     private TextView mInstructionText;
@@ -46,24 +48,13 @@ public class LedButtonControlFragment extends RssiDemoFragment {
     private Group mAlarmViewGroup;
     private Group mLedViewGroup;
     private TextView mAlarmText;
+    private ImageView mAlarmImage;
 
     private FeatureSwitchStatus mButtonFeature;
     private FeatureControlLed mLedControlFeature;
 
     private Peer2PeerDemoConfiguration.DeviceID mCurrentDevice;
 
-    /**
-     * this function is needed due to a bug/missing feature in the constraint layout group,
-     * that doesn't handle correctly the invisible state
-     * https://issuetracker.google.com/issues/80085885
-     * https://issuetracker.google.com/issues/70883899
-     * @param view viewgroup that has to change the visibility
-     * @param visibility new visibility
-     */
-    private static void changeGroupVisibility(Group view, int visibility){
-        view.setVisibility(visibility);
-        view.requestLayout();
-    }
 
     //we cant initialize the listener here because we need to wait that the fragment is attached
     // to an activity
@@ -76,17 +67,27 @@ public class LedButtonControlFragment extends RssiDemoFragment {
                 updateGui(()-> showDeviceDetected(mCurrentDevice));
             }
 
-            if(FeatureSwitchStatus.isSwitchOn(sample)){
-                final String eventDate = ALLARM_FORMATTER.format(new Date(sample.notificationTime));
-                updateGui(() -> {
-                    mAlarmText.setText(getString(R.string.stm32wb_single_eventFormat,eventDate));
-                    changeGroupVisibility(mAlarmViewGroup,View.VISIBLE);
-                });
-            }else{
-                updateGui(() ->changeGroupVisibility(mAlarmViewGroup,View.INVISIBLE));
-            }
+            final String eventDate = ALLARM_FORMATTER.format(new Date(sample.notificationTime));
+            int isSelected = FeatureSwitchStatus.isSwitchOn(sample) ? 1 : 0;
+            updateGui(() -> {
+                mAlarmText.setText(getString(R.string.stm32wb_single_eventFormat,eventDate, isSelected));
+                animateAlarmColor();
+            });
         }//on update
     };
+
+    private void animateAlarmColor(){
+        int initialColor = getResources().getColor(R.color.colorAccent);
+        int finalColor = getResources().getColor(R.color.colorGrey);
+        int duration = getResources().getInteger(R.integer.stm32wb_single_alarmBlinkDuration);
+        ValueAnimator colorAnimation;
+        colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), initialColor,finalColor);
+        colorAnimation.setDuration(duration);
+        colorAnimation.addUpdateListener(animator ->
+                mAlarmImage.setColorFilter((int) animator.getAnimatedValue())
+        );
+        colorAnimation.start();
+    }
 
     public LedButtonControlFragment() {
         // Required empty public constructor
@@ -121,8 +122,11 @@ public class LedButtonControlFragment extends RssiDemoFragment {
         mInstructionText = root.findViewById(R.id.stm32wb_single_instruction);
         mLedViewGroup = root.findViewById(R.id.stm32wb_single_ledView);
         mAlarmViewGroup = root.findViewById(R.id.stm32wb_single_alarmView);
+        mAlarmImage = root.findViewById(R.id.stm32wb_single_alarmImage);
         mAlarmText = root.findViewById(R.id.stm32wb_single_alarmText);
         mDeviceName = root.findViewById(R.id.stm32wb_single_titleText);
+        mAlarmText.setText(getResources().getString(R.string.stm32wb_single_alarm_caption));
+        mAlarmImage.setColorFilter(getResources().getColor(R.color.colorGrey));
 
         if(savedInstanceState!=null &&
                 savedInstanceState.containsKey(DEVICE_ID_KEY)){
@@ -133,9 +137,6 @@ public class LedButtonControlFragment extends RssiDemoFragment {
 
             mLedStatus = savedInstanceState.getBoolean(LED_STATUS_KEY,false);
             changeLedStatusImage(mLedStatus);
-
-            changeGroupVisibility(mAlarmViewGroup,savedInstanceState.getInt(ALARM_STATUS_KEY,View.INVISIBLE));
-            mAlarmText.setText(savedInstanceState.getString(ALARM_TEXT_KEY));
         }
 
        return root;
@@ -159,7 +160,7 @@ public class LedButtonControlFragment extends RssiDemoFragment {
         }
     }
 
-    private final int ENABLE_REBOOT_THREAD_ADVERTISE_MASK = 0x00004000;
+    private static final int ENABLE_REBOOT_THREAD_ADVERTISE_MASK = 0x00004000;
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -196,7 +197,6 @@ public class LedButtonControlFragment extends RssiDemoFragment {
     private void showDeviceDetected(@NonNull Peer2PeerDemoConfiguration.DeviceID currentDevice){
         mCurrentDevice = currentDevice;
         mDeviceName.setText(getString(R.string.stm32wb_deviceNameFormat,currentDevice.getId()));
-        //TODO add animation?
         mLedViewGroup.setVisibility(View.VISIBLE);
         mInstructionText.setVisibility(View.GONE);
     }
