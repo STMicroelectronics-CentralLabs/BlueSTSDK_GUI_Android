@@ -56,7 +56,7 @@ public class LedButtonNetworkControlFragment extends RssiDemoFragment {
             final boolean isPressed = FeatureSwitchStatus.isSwitchOn(sample);
 
             if(mStatus.containsKey(deviceId)){
-                mStatus.get(deviceId).buttonStatus =isPressed;
+                mStatus.get(deviceId).buttonStatus = isPressed;
                 updateGui(() -> mStatusAdapter.setDevices(mStatus.values()));
             }
 
