@@ -43,6 +43,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -274,7 +275,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
 
 
     private Intent getFileSelectIntent(){
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         return intent;
@@ -334,8 +335,10 @@ public class FwUpgradeActivity extends ActivityWithNode {
         if(resultCode==RESULT_OK){
             if(requestCode==CHOOSE_BOARD_FILE_REQUESTCODE) {
                 Uri file = data.getData();
-                if(file!=null)
-                    FwUpgradeService.startUploadService(this,getNode(),file,null);
+                Node node = getNode();
+                if(file!=null && node!=null) {
+                    FwUpgradeService.startUploadService(this, node, file, null);
+                }
             }
         }
 

@@ -89,10 +89,6 @@ public class FwFileDescriptor {
         mType = getFileType(file);
         mContentResolver=resolver;
         mFile=file;
-        //the file will be open multiple time, set the persistance read permission
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            mContentResolver.takePersistableUriPermission(file, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        }
         setFileLength();
     }
 
