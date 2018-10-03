@@ -426,7 +426,17 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      */
     @Override
     public void onBackPressed() {
-        keepConnectionOpen(false,false);
+
+        //check if the current fragment has a back stack and unroll that one before close the activity
+        for(Fragment f : getSupportFragmentManager().getFragments()) {
+            FragmentManager fm = f.getChildFragmentManager();
+            if(fm.getBackStackEntryCount()>0) {
+                fm.popBackStack();
+                return;
+            }
+        }
+        //else
+        keepConnectionOpen(false, false);
         super.onBackPressed();
     }
 
