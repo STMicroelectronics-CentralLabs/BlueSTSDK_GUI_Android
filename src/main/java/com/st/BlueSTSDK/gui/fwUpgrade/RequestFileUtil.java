@@ -62,7 +62,7 @@ public class RequestFileUtil {
         else if (mActivity!=null)
             mActivity.startActivityForResult(intent,requestCode);
         else {
-            throw new IllegalStateException("Frament or activity must be != null");
+            throw new IllegalStateException("Fragment or activity must be != null");
         }
     }
 
@@ -71,16 +71,16 @@ public class RequestFileUtil {
             return mFragment.requireActivity();
         if(mActivity!=null)
             return mActivity;
-        throw new IllegalStateException("Frament or activity must be != null");
+        throw new IllegalStateException("Fragment or activity must be != null");
     }
 
     private void requestPermissions(String permission[],int requestCode){
         if(mFragment!=null)
             mFragment.requestPermissions(permission,requestCode);
         else if (mActivity!=null)
-            mActivity.requestPermissions(permission,requestCode);
+            ActivityCompat.requestPermissions(mActivity,permission,requestCode);
         else {
-            throw new IllegalStateException("Frament or activity must be != null");
+            throw new IllegalStateException("Fragment or activity must be != null");
         }
     }
 
