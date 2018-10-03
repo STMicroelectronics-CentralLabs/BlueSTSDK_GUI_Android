@@ -22,7 +22,7 @@ import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.NodeConnectionService;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeService;
-import com.st.STM32WB.fwUpgrade.RequestFileUtil;
+import com.st.BlueSTSDK.gui.fwUpgrade.RequestFileUtil;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckHexNumber;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckNumberRange;
 import com.st.BlueSTSDK.gui.util.SimpleFragmentDialog;

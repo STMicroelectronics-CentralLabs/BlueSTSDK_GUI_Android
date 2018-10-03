@@ -23,7 +23,7 @@ import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.BlueSTSDK.gui.demos.DemoFragment;
 
 import com.st.STM32WB.fwUpgrade.FwUpgradeSTM32WBActivity;
-import com.st.STM32WB.fwUpgrade.RequestFileUtil;
+import com.st.BlueSTSDK.gui.fwUpgrade.RequestFileUtil;
 import com.st.STM32WB.fwUpgrade.feature.RebootOTAModeFeature;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckNumberRange;
 import com.st.STM32WB.fwUpgrade.feature.STM32OTASupport;

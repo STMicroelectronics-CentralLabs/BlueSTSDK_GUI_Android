@@ -36,21 +36,15 @@
  */
 package com.st.BlueSTSDK.gui.fwUpgrade;
 
-import android.Manifest;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.TextView;
@@ -74,14 +68,11 @@ public class FwUpgradeActivity extends ActivityWithNode {
             new FwVersionBoard("BLUEMICROSYSTEM2","",2,0,1)
     };
 
-    private static final int CHOOSE_BOARD_FILE_REQUESTCODE=1;
-
     private static final String FRAGMENT_DIALOG_TAG = "Dialog";
 
     private static final String VERSION = FwUpgradeActivity.class.getName()+"FW_VERSION";
     private static final String FINAL_MESSAGE = FwUpgradeActivity.class.getName()+"FINAL_MESSAGE";
     private static final String EXTRA_FW_TO_LOAD = FwUpgradeActivity.class.getName()+"EXTRA_FW_TO_LOAD";
-    private static final int RESULT_READ_ACCESS = 2;
 
     /**
      * crate the start intent for this activity
@@ -115,12 +106,12 @@ public class FwUpgradeActivity extends ActivityWithNode {
         return intent;
     }
 
-    private View mRootView;
     private TextView mVersionBoardText;
     private TextView mBoardTypeText;
     private TextView mFwBoardName;
     private TextView mFinalMessage;
     private FwVersionBoard mVersion;
+    private RequestFileUtil mRequestFile;
 
     private Node.NodeStateListener mOnConnected = (node, newState, prevState) -> {
         if(newState==Node.State.Connected){
@@ -168,9 +159,10 @@ public class FwUpgradeActivity extends ActivityWithNode {
      */
     private boolean startExternalFwUpgrade() {
         Intent intent = getIntent();
-        if(intent.hasExtra(EXTRA_FW_TO_LOAD) && checkReadSDPermission()){
+        Node node = getNode();
+        if(intent.hasExtra(EXTRA_FW_TO_LOAD) && mRequestFile.checkReadSDPermission() && node!=null){
             Uri fwLocation = intent.getParcelableExtra(EXTRA_FW_TO_LOAD);
-            FwUpgradeService.startUploadService(this,getNode(),fwLocation,null);
+            FwUpgradeService.startUploadService(this,node,fwLocation,null);
             return true;
         }//if
         return false;
@@ -232,7 +224,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fw_upgrade);
-        mRootView = findViewById(R.id.activityFwRootView);
+        View rootView = findViewById(R.id.activityFwRootView);
         mVersionBoardText = findViewById(R.id.fwVersionValue);
         mBoardTypeText = findViewById(R.id.boardTypeValue);
         mFwBoardName = findViewById(R.id.fwName);
@@ -240,11 +232,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
 
         FloatingActionButton uploadButton = findViewById(R.id.startUpgradeButton);
         if( uploadButton !=null) {
-            uploadButton.setOnClickListener(view -> {
-            if(checkReadSDPermission())
-                startFwUpgrade();
-            });
-
+            uploadButton.setOnClickListener(view -> startFwUpgrade());
         }
 
         if(savedInstanceState!=null) {
@@ -253,6 +241,8 @@ public class FwUpgradeActivity extends ActivityWithNode {
                 displayVersion(mVersion);
             mFinalMessage.setText(savedInstanceState.getString(FINAL_MESSAGE,""));
         }
+
+        mRequestFile = new RequestFileUtil(this, rootView);
     }
 
     @Override
@@ -272,17 +262,6 @@ public class FwUpgradeActivity extends ActivityWithNode {
         mMessageReceiver.releaseDialog();
         DialogUtil.releaseDialog(mLoadVersionProgressDialog);
     }
-
-
-    private Intent getFileSelectIntent(){
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        return intent;
-        //Intent i = Intent.createChooser(intent, "Open firmwere file");
-    }
-
-
 
     private class FwUpgradeServiceActionReceiver extends com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeServiceActionReceiver{
 
@@ -326,71 +305,27 @@ public class FwUpgradeActivity extends ActivityWithNode {
 
     private void startFwUpgrade(){
         keepConnectionOpen(true,false);
-        startActivityForResult(getFileSelectIntent(), CHOOSE_BOARD_FILE_REQUESTCODE);
+        mRequestFile.openFileSelector();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode==RESULT_OK){
-            if(requestCode==CHOOSE_BOARD_FILE_REQUESTCODE) {
-                Uri file = data.getData();
-                Node node = getNode();
-                if(file!=null && node!=null) {
-                    FwUpgradeService.startUploadService(this, node, file, null);
-                }
-            }
+        Uri selectedFile = mRequestFile.onActivityResult(requestCode, resultCode, data);
+        Node node = getNode();
+        if (selectedFile != null && node != null) {
+            FwUpgradeService.startUploadService(this, node, selectedFile, null);
         }
-
     }
 
-    /**
-     * check it we have the permission to write data on the sd
-     * @return true if we have it, false if we ask for it
-     */
-    private boolean checkReadSDPermission(){
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                //onClick
-                Snackbar.make(mRootView, R.string.FwUpgrade_readSDRationale,
-                        Snackbar.LENGTH_INDEFINITE)
-                        .setAction(android.R.string.ok, view -> ActivityCompat.requestPermissions(FwUpgradeActivity.this,
-                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                RESULT_READ_ACCESS)).show();
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        RESULT_READ_ACCESS);
-            }//if-else
-            return false;
-        }else
-            return  true;
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case RESULT_READ_ACCESS: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(!startExternalFwUpgrade()) //if we already have a fw to upload
-                        startFwUpgrade(); // ask to the user
-                } else {
-                    Snackbar.make(mRootView, R.string.FwUpgrade_permissionDenied,
-                            Snackbar.LENGTH_SHORT).show();
-
-                }//if-else
-                break;
-            }//REQUEST_LOCATION_ACCESS
-        }//switch
+        mRequestFile.onRequestPermissionsResult(requestCode,permissions,grantResults);
     }//onRequestPermissionsResult
 
 }

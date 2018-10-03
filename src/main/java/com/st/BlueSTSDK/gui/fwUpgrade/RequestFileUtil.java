@@ -1,6 +1,7 @@
-package com.st.STM32WB.fwUpgrade;
+package com.st.BlueSTSDK.gui.fwUpgrade;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 
@@ -28,31 +30,71 @@ public class RequestFileUtil {
     private static final int RESULT_READ_ACCESS = 2;
 
 
-    private final Fragment mSrc;
-    private final View mRootView;
+    private final @NonNull Context mCtx;
+    private final @Nullable FragmentActivity mActivity;
+    private final @Nullable Fragment mFragment;
+    private final @NonNull View mRootView;
 
     /**
      *
      * @param src fragment that will trigger the open of the file selector
      * @param rootView view where show the shankbar with the request/errors
      */
-    public RequestFileUtil(Fragment src, View rootView) {
-        this.mSrc = src;
+    public RequestFileUtil(@NonNull Fragment src,@NonNull View rootView) {
+        this.mFragment = src;
+        this.mCtx = src.requireContext();
         this.mRootView = rootView;
+        this.mActivity=null;
     }
 
+    public RequestFileUtil(@NonNull FragmentActivity src,@NonNull View rootView) {
+        this.mFragment = null;
+        mActivity = src;
+        this.mRootView = rootView;
+        mCtx = mActivity;
+    }
+
+
+
+    private void startActivityForResult(Intent intent,int requestCode){
+        if(mFragment!=null)
+            mFragment.startActivityForResult(intent,requestCode);
+        else if (mActivity!=null)
+            mActivity.startActivityForResult(intent,requestCode);
+        else {
+            throw new IllegalStateException("Frament or activity must be != null");
+        }
+    }
+
+    private Activity requireActivity(){
+        if(mFragment!=null)
+            return mFragment.requireActivity();
+        if(mActivity!=null)
+            return mActivity;
+        throw new IllegalStateException("Frament or activity must be != null");
+    }
+
+    private void requestPermissions(String permission[],int requestCode){
+        if(mFragment!=null)
+            mFragment.requestPermissions(permission,requestCode);
+        else if (mActivity!=null)
+            mActivity.requestPermissions(permission,requestCode);
+        else {
+            throw new IllegalStateException("Frament or activity must be != null");
+        }
+    }
 
     /**
      * check the permission and open the file selector
      */
     public void openFileSelector(){
         if(checkReadSDPermission()) {
-            mSrc.startActivityForResult(getFileSelectIntent(), CHOOSE_BOARD_FILE_REQUESTCODE);
+            startActivityForResult(getFileSelectIntent(), CHOOSE_BOARD_FILE_REQUESTCODE);
         }
     }
 
     private Intent getFileSelectIntent(){
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         return intent;
@@ -106,22 +148,22 @@ public class RequestFileUtil {
      * check it we have the permission to write data on the sd
      * @return true if we have it, false if we ask for it
      */
-    private boolean checkReadSDPermission(){
-        if (ContextCompat.checkSelfPermission(mSrc.requireContext(),
+    public boolean checkReadSDPermission(){
+        if (ContextCompat.checkSelfPermission(mCtx,
                 Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(mSrc.requireActivity(),
+            if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(),
                     Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 //onClick
                 Snackbar.make(mRootView, R.string.FwUpgrade_readSDRationale,
                         Snackbar.LENGTH_INDEFINITE)
-                        .setAction(android.R.string.ok, view -> mSrc.requestPermissions(
+                        .setAction(android.R.string.ok, view -> requestPermissions(
                                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                                 RESULT_READ_ACCESS)).show();
             } else {
                 // No explanation needed, we can request the permission.
-                mSrc.requestPermissions(
+                requestPermissions(
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         RESULT_READ_ACCESS);
             }//if-else
@@ -147,7 +189,7 @@ public class RequestFileUtil {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mSrc.startActivityForResult(getFileSelectIntent(), CHOOSE_BOARD_FILE_REQUESTCODE);
+                    startActivityForResult(getFileSelectIntent(), CHOOSE_BOARD_FILE_REQUESTCODE);
                 } else {
                     Snackbar.make(mRootView, R.string.FwUpgrade_permissionDenied,
                             Snackbar.LENGTH_SHORT).show();
