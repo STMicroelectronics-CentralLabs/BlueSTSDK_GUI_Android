@@ -37,6 +37,7 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:tools="http://schemas.android.com/tools"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              tools:context="com.st.BlueSTSDK.gui.MainActivity">
@@ -48,65 +49,80 @@
                  android:fitsSystemWindows="true"
                  android:visibility="visible">
 
-        <RelativeLayout
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/bluestsdk_main_content_controls"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/background_light"
-            android:visibility="gone"
-            android:id="@+id/main_content_controls">
-            <Button
+            android:visibility="visible">
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/main_searchButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/startScanButton"
                 android:background="@drawable/search_button_icon_compat"
-                android:id="@+id/searchButton"
                 android:gravity="bottom|center_horizontal"
                 android:onClick="startScanBleActivity"
-                android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true"/>
+                android:text="@string/startScanButton"
+                android:layout_marginRight="8dp"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginLeft="8dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/main_aboutButton"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="8dp" />
 
-            <Button
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/main_aboutButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/startAboutButton"
                 android:background="@drawable/about_button_icon_compat"
-                android:id="@+id/aboutButton"
-                android:onClick="startAboutActivity"
                 android:gravity="bottom|center_horizontal"
-                android:layout_above="@+id/appNameText"
-                android:layout_centerHorizontal="true"
-                android:layout_margin="16dp"/>
+                android:onClick="startAboutActivity"
+                android:text="@string/startAboutButton"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/bluestsdk_main_appNameText"
+                android:layout_marginRight="8dp"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginLeft="8dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintHorizontal_bias="0.5" />
 
             <TextView
+                android:id="@+id/main_copyrightText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/copyright"
-                android:id="@+id/copyrightText"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/colorPrimary"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentEnd="true"/>
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:layout_marginEnd="@dimen/activity_vertical_margin"
+                app:layout_constraintRight_toRightOf="parent" />
+
             <TextView
+                android:id="@+id/bluestsdk_main_versionText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="@string/version"
-                android:id="@+id/versionText"
+                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/colorPrimary"
-                android:layout_above="@+id/copyrightText"
-                android:layout_alignParentEnd="true"/>
+                app:layout_constraintBottom_toTopOf="@+id/main_copyrightText"
+                android:layout_marginEnd="@dimen/activity_vertical_margin"
+                app:layout_constraintRight_toRightOf="parent" />
+
             <TextView
+                android:id="@+id/main_appNameText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/appNameText"
                 android:textColor="@color/colorPrimary"
-                android:layout_above="@+id/versionText" android:layout_alignParentEnd="true"/>
-        </RelativeLayout>
+                app:layout_constraintBottom_toTopOf="@+id/bluestsdk_main_versionText"
+                android:layout_marginEnd="@dimen/activity_vertical_margin"
+                app:layout_constraintRight_toRightOf="parent" />
+        </android.support.constraint.ConstraintLayout>
     </FrameLayout>
 
 </FrameLayout>

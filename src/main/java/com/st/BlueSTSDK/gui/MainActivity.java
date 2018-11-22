@@ -101,12 +101,12 @@ public abstract class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_bluestsdk_gui_main);
 
-        mControlsView = findViewById(R.id.main_content_controls);
+        mControlsView = findViewById(R.id.bluestsdk_main_content_controls);
 
-        TextView versionText = findViewById(R.id.versionText);
-        TextView appText = findViewById(R.id.appNameText);
+        TextView versionText = findViewById(R.id.bluestsdk_main_versionText);
+        TextView appText = findViewById(R.id.bluestsdk_main_appNameText);
         //show the version using the data in the manifest
         String version=null;
         CharSequence appName=null;

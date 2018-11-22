@@ -57,35 +57,36 @@
             android:layout_height="match_parent"
             android:background="@android:color/background_light"
             android:visibility="gone"
-            android:id="@+id/main_content_controls">
+            android:id="@+id/bluestsdk_main_content_controls">
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/startScanButton"
                 android:background="@drawable/search_button_icon_compat"
-                android:id="@+id/searchButton"
-                android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true"
+                android:id="@+id/main_searchButton"
                 android:gravity="bottom|center_horizontal"
-                android:onClick="startScanBleActivity" />
+                android:onClick="startScanBleActivity"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"/>
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/startAboutButton"
                 android:background="@drawable/about_button_icon_compat"
-                android:id="@+id/aboutButton"
+                android:id="@+id/main_aboutButton"
                 android:onClick="startAboutActivity"
                 android:gravity="bottom|center_horizontal"
-                android:layout_alignBottom="@+id/copyrightText"
-                android:layout_alignParentStart="true"/>
+                android:layout_above="@+id/bluestsdk_main_appNameText"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="16dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/copyright"
-                android:id="@+id/copyrightText"
+                android:id="@+id/main_copyrightText"
                 android:textColor="@color/colorPrimary"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="true"/>
@@ -94,16 +95,17 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="@string/version"
-                android:id="@+id/versionText"
+                android:id="@+id/bluestsdk_main_versionText"
                 android:textColor="@color/colorPrimary"
-                android:layout_above="@+id/copyrightText" android:layout_alignParentEnd="true"/>
+                android:layout_above="@+id/main_copyrightText"
+                android:layout_alignParentEnd="true"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/appNameText"
+                android:id="@+id/main_appNameText"
                 android:textColor="@color/colorPrimary"
-                android:layout_above="@+id/versionText" android:layout_alignParentEnd="true"/>
+                android:layout_above="@+id/bluestsdk_main_versionText" android:layout_alignParentEnd="true"/>
         </RelativeLayout>
     </FrameLayout>
 
