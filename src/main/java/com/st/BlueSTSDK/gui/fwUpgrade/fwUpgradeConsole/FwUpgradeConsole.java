@@ -73,6 +73,7 @@ public abstract class FwUpgradeConsole {
                 case SENSOR_TILE:
                 case BLUE_COIN:
                 case STEVAL_BCN002V1:
+                case SENSOR_TILE_101:
                     return new FwUpgradeConsoleNucleo(debug);
             }
         }
