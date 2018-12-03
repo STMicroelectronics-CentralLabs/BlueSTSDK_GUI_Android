@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2017  STMicroelectronics – All rights reserved
   ~ The STMicroelectronics corporate logo is a trademark of STMicroelectronics
@@ -36,13 +35,21 @@
   ~ OF SUCH DAMAGE.
   -->
 
-<resources>
-    <string name="copyright">\u00A9 2018 STMicroelectronics</string>
-    <string name="version">Version: </string>
-    <string name="startScanButton">Connect to a Device</string>
-    <string name="startAboutButton">About</string>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context="com.st.BlueSTSDK.gui.MainActivity">
 
-    <string name="privacyDialog_title">Privacy Policy</string>
-    <string name="privacyDialog_message">Open the link to show the app privacy policy</string>
-    <string name="privacyDialog_button">Privacy Policy</string>
-</resources>
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows.-->
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:fitsSystemWindows="true"
+                 android:visibility="visible"
+                    android:id="@+id/bluestsdk_main_content_view">
+
+
+    </FrameLayout>
+
+</FrameLayout>

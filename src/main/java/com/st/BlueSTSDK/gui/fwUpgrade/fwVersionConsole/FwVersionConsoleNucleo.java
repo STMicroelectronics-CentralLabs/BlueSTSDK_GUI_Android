@@ -1,5 +1,3 @@
-package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
-
 /*
  * Copyright (c) 2017  STMicroelectronics – All rights reserved
  * The STMicroelectronics corporate logo is a trademark of STMicroelectronics
@@ -36,6 +34,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
+package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
 
 import android.os.Handler;
 import android.os.Looper;

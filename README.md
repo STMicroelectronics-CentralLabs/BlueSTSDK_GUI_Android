@@ -1,10 +1,10 @@
-#BlueSTSDK Gui
+# BlueSTSDK Gui
 
 This library is built on top of the [BlueSTSDK](https://github.com/STMicroelectronics-CentralLabs/BlueSTSDK_Android) library.
 
 It extends the BlueSTSDK providing firmware update over bluetooth and a set of helper classes to build a consistent user interface among apps based on the BlueSTSDK library.
 
-##License
+## License
 
 Copyright (c) 2017  STMicroelectronics – All rights reserved
 The STMicroelectronics corporate logo is a trademark of STMicroelectronics
