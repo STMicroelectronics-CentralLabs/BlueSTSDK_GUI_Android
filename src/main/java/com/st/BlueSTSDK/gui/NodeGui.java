@@ -34,6 +34,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
+
 package com.st.BlueSTSDK.gui;
 
 import android.support.annotation.DrawableRes;
@@ -48,6 +49,7 @@ public class NodeGui {
             case STEVAL_WESU1:
                 return R.drawable.board_steval_wesu1;
             case SENSOR_TILE:
+            case SENSOR_TILE_101:
                 return R.drawable.board_sensor_tile;
             case BLUE_COIN:
                 return R.drawable.board_bluecoin;

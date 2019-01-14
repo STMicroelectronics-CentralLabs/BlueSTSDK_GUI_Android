@@ -35,6 +35,7 @@
  * OF SUCH DAMAGE.
  */
 package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
+
 import android.os.Handler;
 import android.os.Looper;
 

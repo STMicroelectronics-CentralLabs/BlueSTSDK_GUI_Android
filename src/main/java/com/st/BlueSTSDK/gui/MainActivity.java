@@ -51,7 +51,9 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.net.URL;
@@ -60,7 +62,7 @@ import java.net.URL;
  * Main activity, it will show the ST logo and a button for the about page and one for start the ble
  * scanning
  */
-public abstract class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -97,16 +99,19 @@ public abstract class MainActivity extends AppCompatActivity {
         }
     };
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+    /**
+     * build the view to display after the splash screen
+     * this method is called during the on create, if you need a different home view overwrite it
+     * @param parent view to use as parent during the layout inflation
+     * @return view to display after the splash screen
+     */
+    protected View buildContentView(ViewGroup parent) {
+        LayoutInflater inflater = getLayoutInflater();
+        View content = inflater.inflate(R.layout.view_main_default_content,parent,true);
 
-        mControlsView = findViewById(R.id.main_content_controls);
-
-        TextView versionText = findViewById(R.id.versionText);
-        TextView appText = findViewById(R.id.appNameText);
+        TextView versionText = content.findViewById(R.id.bluestsdk_main_versionText);
+        TextView appText = content.findViewById(R.id.bluestsdk_main_appNameText);
         //show the version using the data in the manifest
         String version=null;
         CharSequence appName=null;
@@ -130,6 +135,19 @@ public abstract class MainActivity extends AppCompatActivity {
             appText.setText(appName);
         }
 
+        content.findViewById(R.id.bluestsdk_main_aboutButton).setOnClickListener(this::startAboutActivity);
+        content.findViewById(R.id.bluestsdk_main_searchButton).setOnClickListener(this::startScanBleActivity);
+        return content;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_bluestsdk_gui_main);
+        ViewGroup frame = findViewById(R.id.bluestsdk_main_content_view);
+
+        mControlsView = buildContentView(frame);
     }
 
     @Override
@@ -182,20 +200,19 @@ public abstract class MainActivity extends AppCompatActivity {
      * function called when the start ble scan button is pressed
      * @param view view pressed
      */
-    public abstract void startScanBleActivity(View view);
+    public void startScanBleActivity(View view){}
 
     /**
      * function called when the about button is pressed
      * @param view view pressed
      */
-    public abstract void startAboutActivity(View view);
+    public void startAboutActivity(View view){}
 
     /**
      * tell witch file is containing the privacy policy, the file content will be shown in the dialog
      * @return raw resource id with the privacy policy
      */
-    public abstract URL getPrivacyPolicyUrl();
-
+    public URL getPrivacyPolicyUrl(){ return null;}
 
     private static void setDialogShown(final SharedPreferences prefs, boolean showNextTime){
         SharedPreferences.Editor editor = prefs.edit();

@@ -50,7 +50,9 @@ import android.support.v7.app.AlertDialog;
  */
 public class SimpleFragmentDialog extends DialogFragment {
     private static final String MESSAGE_ID = "Message_id";
-    private static final String MESSAGE_SRC = "Message_src";
+    private static final String TITLE_ID = "title_id";
+    private static final String MESSAGE_STR = "Message_str";
+    private static final String TITLE_STR = "Message_str";
 
     public static SimpleFragmentDialog newInstance(@StringRes int message) {
         SimpleFragmentDialog frag = new SimpleFragmentDialog();
@@ -60,10 +62,20 @@ public class SimpleFragmentDialog extends DialogFragment {
         return frag;
     }
 
+
+    public static SimpleFragmentDialog newInstance(@StringRes int title,@StringRes int message) {
+        SimpleFragmentDialog frag = new SimpleFragmentDialog();
+        Bundle args = new Bundle();
+        args.putInt(MESSAGE_ID, message);
+        args.putInt(TITLE_ID, title);
+        frag.setArguments(args);
+        return frag;
+    }
+
     public static SimpleFragmentDialog newInstance(@NonNull String message) {
         SimpleFragmentDialog frag = new SimpleFragmentDialog();
         Bundle args = new Bundle();
-        args.putString(MESSAGE_SRC, message);
+        args.putString(MESSAGE_STR, message);
         frag.setArguments(args);
         return frag;
     }
@@ -74,8 +86,17 @@ public class SimpleFragmentDialog extends DialogFragment {
         final Bundle args = getArguments();
         if(args!=null && args.containsKey(MESSAGE_ID))
             return getString(args.getInt(MESSAGE_ID));
-        if(args!=null && args.containsKey(MESSAGE_SRC))
-            return args.getString(MESSAGE_SRC);
+        if(args!=null && args.containsKey(MESSAGE_STR))
+            return args.getString(MESSAGE_STR);
+        return null;
+    }
+
+    private @Nullable String getTitle(){
+        final Bundle args = getArguments();
+        if(args!=null && args.containsKey(TITLE_ID))
+            return getString(args.getInt(TITLE_ID));
+        if(args!=null && args.containsKey(TITLE_STR))
+            return args.getString(TITLE_STR);
         return null;
     }
 
@@ -83,7 +104,8 @@ public class SimpleFragmentDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         String message = getMessage();
-        return new AlertDialog.Builder(requireContext())
+        String title = getTitle();
+        AlertDialog.Builder dialogBuilder =  new AlertDialog.Builder(requireContext())
                 .setMessage(message)
                 .setPositiveButton(android.R.string.ok,
                         (dialog, whichButton) ->{
@@ -91,9 +113,10 @@ public class SimpleFragmentDialog extends DialogFragment {
                                 mClickListener.onClick(dialog,whichButton);
                         }
                 )
-                .setCancelable(false)
-                .create();
-
+                .setCancelable(false);
+        if(title!=null)
+            dialogBuilder.setTitle(title);
+        return dialogBuilder.create();
     }
 
 
