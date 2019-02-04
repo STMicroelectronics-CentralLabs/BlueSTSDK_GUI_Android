@@ -65,6 +65,8 @@ public abstract class FwUpgradeConsole {
         if( stm32wbConsole!=null)
             return stm32wbConsole;
 
+        // todo: add new if(blueNrgConsole) ... new class of division
+
         Debug debug = node.getDebug();
 
         if(debug !=null) {
