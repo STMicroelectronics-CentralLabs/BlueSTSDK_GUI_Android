@@ -44,7 +44,7 @@ public class OTABoardWillRebootFeature extends DeviceTimestampFeature {
 
     public OTABoardWillRebootFeature(Node n){
         super(FEATURE_NAME,n,new Field[]{
-                new Field("IsRebooing",null, Field.Type.UInt8,1,0)
+                new Field("IsRebooting",null, Field.Type.UInt8,1,0)
         });
     }
 
