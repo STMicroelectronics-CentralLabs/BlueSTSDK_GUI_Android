@@ -175,20 +175,4 @@ public abstract class FwUpgradeConsole {
         void onLoadFwProgressUpdate(FwUpgradeConsole console, FwFileDescriptor fwFile, long loadBytes);
     }
 
-    /**
-     * Utility class that implement the {@link FwUpgradeCallback} interface with empty methods
-     */
-    public static class SimpleFwUpgradeCallback implements FwUpgradeCallback{
-
-        @Override
-        public void onLoadFwComplete(FwUpgradeConsole console, FwFileDescriptor fwFile) {  }
-
-        @Override
-        public void onLoadFwError(FwUpgradeConsole console, FwFileDescriptor fwFile,
-                                  @UpgradeErrorType int error) {       }
-
-        @Override
-        public void onLoadFwProgressUpdate(FwUpgradeConsole console, FwFileDescriptor fwFile, long loadBytes) { }
-    }
-
 }
