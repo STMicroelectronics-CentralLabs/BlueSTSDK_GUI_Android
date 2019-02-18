@@ -1,4 +1,4 @@
-/** Copyright (c) 2017  STMicroelectronics – All rights reserved
+/* Copyright (c) 2017  STMicroelectronics – All rights reserved
  * The STMicroelectronics corporate logo is a trademark of STMicroelectronics
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -56,7 +56,7 @@ public class ImageFeature extends Feature {
     /** index where you can find gyroscope value/description in the y direction*/
     private static final int ProtocolVer_INDEX = 2;
 
-    private int protocolVer = 0x10;// server
+    private int dataLength = 8;
 
     public ImageFeature(Node n){
         super(FEATURE_NAME,n,new Field[]{
@@ -80,8 +80,15 @@ public class ImageFeature extends Feature {
         return DATA_MIN;
     }
 
-    public int getProtocolVer(){
-        return protocolVer;
+    public int getProtocolVer(Sample s){
+        if (dataLength >= 9) {//protocol version > 1.2
+            if(hasValidIndex(s,ProtocolVer_INDEX))
+                return s.data[ProtocolVer_INDEX].intValue();
+            else
+                return 0xFF;
+        }else {
+            return 0x10;// server
+        }
     }
 
     @Override
@@ -94,13 +101,12 @@ public class ImageFeature extends Feature {
         long flash_LB = NumberConversion.BigEndian.bytesToUInt32(data,dataOffset);
         long flash_UB = NumberConversion.BigEndian.bytesToUInt32(data,dataOffset+4);
 
-        protocolVer = 0x10;// server
+        dataLength = data.length;
 
         if (data.length >= 9) {//protocol version > 1.2
-             protocolVer = data[dataOffset + 8];
-//            numByte++;// not supported
-//            return new ExtractResult(new Sample(new Number[]{flash_LB, flash_UB, protocolVer}, getFieldsDesc()), numByte);
-            return new ExtractResult(new Sample(new Number[]{flash_LB, flash_UB}, getFieldsDesc()), numByte);
+            byte protocolVer = data[dataOffset + 8];
+            numByte++;// not supported
+            return new ExtractResult(new Sample(new Number[]{flash_LB, flash_UB, protocolVer}, getFieldsDesc()), numByte);
         }else
         {
             return new ExtractResult(new Sample(new Number[]{flash_LB, flash_UB}, getFieldsDesc()), numByte);

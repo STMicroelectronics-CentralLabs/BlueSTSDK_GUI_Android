@@ -81,11 +81,10 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private short SeqNum = 0;
     private ProtocolStatePhase protocolState;
     private FwFileDescriptor fwFile;
-    private InputStream fileOpened;
+    private InputStream fileOpened = null;
     private boolean resultState;
     private boolean onGoing;
     private int mProtocolVer; // server
-    private FwVersionConsole mConsole;
     private byte imageToSend[];
 
     public static FwUpgradeConsoleBLUENRG buildForNode(Node node){
@@ -97,10 +96,8 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
         // BLUENRG1 or BLUENRG2?
         Node.TypeService serviceId = node.getTypeService();
 
-        FwVersionConsole console = FwVersionConsole.getFwVersionConsole(node);
-
         if(rangeMem!=null && paramMem!=null && startAckNotification!=null && chunkData!=null){
-            return new FwUpgradeConsoleBLUENRG(rangeMem,paramMem,chunkData,startAckNotification,console,serviceId);
+            return new FwUpgradeConsoleBLUENRG(rangeMem,paramMem,chunkData,startAckNotification,serviceId);
         }else{
             return null;
         }
@@ -109,7 +106,6 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                                     @NonNull NewImageFeature paramMem,
                                     @NonNull NewImageTUContentFeature chunkData,
                                     @NonNull ExpectedImageTUSeqNumberFeature startAckNotification,
-                                    FwVersionConsole console,
                                     @NonNull Node.TypeService serviceId){
         super(null);
         mRangeMem = rangeMem;
@@ -117,7 +113,6 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
         mChunkData = chunkData;
         mStartAckNotification = startAckNotification;
         mServiceId = serviceId;
-        mConsole = console;
     }
 
     private boolean checkRangeFlashMemAddress(){
@@ -166,9 +161,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
         public void onUpdate(Feature f, Feature.Sample sample) {
             flash_LB = ImageFeature.getFlash_LB(sample);
             flash_UB = ImageFeature.getFlash_LB(sample);
-            mProtocolVer = mRangeMem.getProtocolVer();
-            if(mConsole!=null) // no upgrade fw supported
-                mConsole.readVersion(mProtocolVer);//read the current fw version
+            mProtocolVer = mRangeMem.getProtocolVer(sample);
             // Set base address
             base_address = flash_LB;
             protocolState = ProtocolStatePhase.PARAM_FLASH_MEM;
@@ -255,7 +248,12 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 imageToSend = new byte[(int)cnt];
                 try {
                     fileOpened = fwFile.openFile();
-                    fileOpened.read(imageToSend);
+                    int nReadByte = fileOpened.read(imageToSend);
+                    if(nReadByte != cnt )
+                    {
+                        mCallback.onLoadFwError(this, fwFile, FwUpgradeCallback.ERROR_INVALID_FW_FILE);
+                        resultState = false;
+                    }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     mCallback.onLoadFwError(this, fwFile, FwUpgradeCallback.ERROR_INVALID_FW_FILE);
@@ -274,17 +272,27 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
             case CLOSURE:
                 mRangeMem.removeFeatureListener(onImageFeature);
                 mParamMem.removeFeatureListener(onNewImageFeature);
-                mCallback.onLoadFwComplete(FwUpgradeConsoleBLUENRG.this, fwFile);
-                try {
-                    fileOpened.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    mCallback.onLoadFwError(this, fwFile, FwUpgradeCallback.ERROR_INVALID_FW_FILE);
-                    resultState = false;
+                mStartAckNotification.getParentNode().disableNotification(mStartAckNotification);
+                if(fileOpened != null) {
+                    try {
+                        fileOpened.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        mCallback.onLoadFwError(this, fwFile, FwUpgradeCallback.ERROR_INVALID_FW_FILE);
+                        resultState = false;
+                    }
+                }
+                if(resultState) {
+                    mCallback.onLoadFwComplete(FwUpgradeConsoleBLUENRG.this, fwFile);
                 }
                 onGoing = false;
                 break;
         }//switch
+
+        if(onGoing && (!resultState)){
+            protocolState=ProtocolStatePhase.CLOSURE;
+            EngineProtocolState();
+        }
 
         return resultState;
     }
@@ -298,12 +306,13 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
         protocolState = ProtocolStatePhase.RANGE_FLASH_MEM;
         EngineProtocolState();
 
-        while(onGoing && resultState){
-
-        }
-
-        mStartAckNotification.getParentNode().disableNotification(mStartAckNotification);
-
-        return resultState;
+//        while(onGoing && resultState){
+//
+//        }
+//
+//        mStartAckNotification.getParentNode().disableNotification(mStartAckNotification);
+//
+//        return resultState;
+        return true;
     }
 }
