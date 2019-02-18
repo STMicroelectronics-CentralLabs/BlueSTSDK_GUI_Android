@@ -41,12 +41,15 @@ import com.st.BlueSTSDK.Node;
 
 import java.io.IOException;
 import java.io.InputStream;
+import com.st.BlueSTSDK.Utils.NumberConversion;
 
 public class NewImageTUContentFeature extends Feature {
 
-    private static final String FEATURE_NAME = "Write update byte sequence";
+    private static final String FEATURE_NAME = "Write byte sequence";
+    private static final int OTA_SUPPORT_INFO_SIZE = 4; // Sequence Number (2 bytes), NeedsAcks (1 byte), Checksum (1 byte)
+    private short SeqNum;
 
-     /**
+    /**
      * build a new disabled feature, that doesn't need to be initialized in the node side
      *
      * @param n        node that will update this feature
@@ -57,15 +60,56 @@ public class NewImageTUContentFeature extends Feature {
         });
     }
 
-//    public void upload(InputStream file , Runnable onUpload) throws IOException {
-//        byte buffer[] = new byte[CHUNK_LENGTH];
-//        int nReadByte;
-//        while ( (nReadByte = file.read(buffer))>0){
-//            //todo what if nReadByte!=20?
-//            writeData(buffer,onUpload);
-//            buffer = new byte[CHUNK_LENGTH];
-//        }
-//    }
+    public static byte getParamBlueNRG2(Sample s){
+        if(hasValidIndex(s,0))
+            return s.data[0].byteValue();
+        //else
+        return 0;
+    }
+
+    private byte checkSum(byte message[], int start,int destPos){
+        byte checksum = 0;
+        for (int i=start; i<destPos;i++){
+            checksum ^= message[i];
+        }
+        return checksum;
+    }
+
+    public void upload(byte imageToSend[] ,byte OTA_ACK_EVERY, int fw_image_packet_size, short SeqNum){
+        int Write_Data_Len = fw_image_packet_size + OTA_SUPPORT_INFO_SIZE;// Set number of bytes sent on a single write without response
+        byte payload[] = new byte[fw_image_packet_size];
+        byte temp[];
+        int end = OTA_ACK_EVERY-(SeqNum+1)%OTA_ACK_EVERY+1; // ok????
+        for (int i=0; i<end;i++){
+            byte message[] = new byte[Write_Data_Len];
+            int destPos = 0;
+            byte needsAck;
+            //file.read(payload);
+            System.arraycopy(imageToSend,SeqNum*fw_image_packet_size,payload,0,fw_image_packet_size);
+
+            // prepare message
+            // SeqNum:2 byte + needsAck:1 byte +  payload:fw_image_packet_size byte + checksum:1 byte
+            destPos +=1;//checksum
+            int start = destPos;
+            System.arraycopy(payload,0,message,destPos,payload.length);
+            destPos +=fw_image_packet_size;//payload
+            if((SeqNum+1)%OTA_ACK_EVERY==0)
+                needsAck = 1;
+            else
+                needsAck = 0;
+            message[destPos] = needsAck;
+            destPos +=1;//needsAck
+            temp = NumberConversion.LittleEndian.uint16ToBytes(SeqNum);
+            System.arraycopy(temp,0,message,destPos,temp.length);
+            destPos +=2;//SeqNum
+            byte checksum = checkSum(message,start,destPos);
+            message[0] = checksum;
+
+            writeData(message);
+            if(needsAck == 0)
+                SeqNum++;
+        }
+    }
 
     @Override
     protected ExtractResult extractData(long timestamp, byte[] data, int dataOffset) {

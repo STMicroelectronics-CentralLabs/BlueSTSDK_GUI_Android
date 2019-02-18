@@ -49,18 +49,18 @@ import java.util.Arrays;
 public class NewImageFeature extends Feature {
 
     private static final String FEATURE_NAME = "Write or Read Memory Param";
-    public static final String[] FEATURE_DATA_NAME = {"OtaAckEvery", "ImageSize", "BaseAddress"};
+    private static final String[] FEATURE_DATA_NAME = {"OtaAckEvery", "ImageSize", "BaseAddress"};
     /** max value of one component*/
-    public static final long DATA_MAX = 0xFFFFFFFF;
+    private static final long DATA_MAX = 0xFFFFFFFF;
     /** min value of one component*/
-    public static final long DATA_MIN = 0;
+    private static final long DATA_MIN = 0;
 
     /** index where you can find gyroscope value/description in the x direction */
-    public static final int OtaAckEvery_INDEX = 0;
+    private static final int OtaAckEvery_INDEX = 0;
     /** index where you can find gyroscope value/description in the y direction*/
-    public static final int ImageSize_INDEX = 1;
+    private static final int ImageSize_INDEX = 1;
     /** index where you can find gyroscope value/description in the y direction*/
-    public static final int BaseAddress_INDEX = 2;
+    private static final int BaseAddress_INDEX = 2;
 
 
     public NewImageFeature(Node n){
@@ -87,15 +87,15 @@ public class NewImageFeature extends Feature {
 
     public static long getBaseAddress(Sample s){
         if(hasValidIndex(s,BaseAddress_INDEX))
-            return s.data[BaseAddress_INDEX].longValue();
+            return s.data[BaseAddress_INDEX].intValue();
         //else
         return DATA_MAX;
     }
 
     public void writeParamMem(int protocolVer,byte otaAckEvery,long imageSize, long baseAddress, long crcValue, byte cmdValue){
         int nByte = 9;
-        if(protocolVer >= 0x12)
-            nByte = 14;
+//        if(protocolVer >= 0x12)// not supported
+//            nByte = 14;
         byte buffer[] = new byte[nByte];
         byte temp[];
         buffer[0] = otaAckEvery;
@@ -103,44 +103,14 @@ public class NewImageFeature extends Feature {
         System.arraycopy(temp,0,buffer,1,temp.length);
         temp = NumberConversion.LittleEndian.uint32ToBytes(baseAddress);
         System.arraycopy(temp,0,buffer,5,temp.length);
-        if(protocolVer >= 0x12) {
-            temp = NumberConversion.LittleEndian.uint32ToBytes(crcValue);
-            System.arraycopy(temp,0,buffer,9,temp.length);
-            buffer[13] = cmdValue;
-        }
+//        if(protocolVer >= 0x12) {// not supported
+//            temp = NumberConversion.LittleEndian.uint32ToBytes(crcValue);
+//            System.arraycopy(temp,0,buffer,9,temp.length);
+//            buffer[13] = cmdValue;
+//        }
 
         writeData(buffer);
     }
-
-
-//    if IS_BlueNRG():
-//    OTA_ACK_EVERY = 1  ## BLUENRG value (allowed values: 1; 1 notification after 1 write_without_response)
-//    else:
-//    OTA_ACK_EVERY = 8  ## BLUENRG-MS value (allowed values: 8; 1 notification after 8 write_without_response)
-//    btlBoundaries =  (base_address<<40) + (cnt << 8) + OTA_ACK_EVERY
-//            retries = 0
-//    ACI_GATT_WRITE_CHAR_VALUE(Connection_Handle=otaBtlHandle,
-//                              Attr_Handle=BTLCharHandle2+1,
-//                              Attribute_Val_Length=0x09,
-//                              Attribute_Val=btlBoundaries)
-//    evt = WAIT_EVENT(HCI_VENDOR_EVENT,Ecode=ACI_GATT_PROC_COMPLETE_EVENT)
-//    ACI_GATT_READ_CHAR_VALUE(Connection_Handle=otaBtlHandle,
-//                             Attr_Handle=BTLCharHandle2+1)
-//    evt = WAIT_EVENT(HCI_VENDOR_EVENT,Ecode=ACI_ATT_READ_RESP_EVENT)
-//    notifData = evt.get_param('Attribute_Value').get_list()
-//    verifData = 0
-//            notifData.reverse()
-//            for elem in (notifData[:len(notifData)]) :
-//    verifData<<=8
-//    verifData += elem
-//    if (btlBoundaries != verifData) :
-//    retries += 1
-//            if (retries > 10) :
-//    ERROR('Cannot write parameters for OTA image transfer :')
-//    elif (DEBUG_ON == 1):
-//    PRINT('OTA image transfer parameters written')
-
-
 
     @Override
     protected ExtractResult extractData(long timestamp, byte[] data, int dataOffset) {

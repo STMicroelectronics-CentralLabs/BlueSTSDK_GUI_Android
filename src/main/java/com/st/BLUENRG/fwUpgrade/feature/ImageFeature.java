@@ -43,19 +43,20 @@ import com.st.BlueSTSDK.Utils.NumberConversion;
 public class ImageFeature extends Feature {
     private static final String FEATURE_NAME = "Read Range Memory";
     /** name of the exported data */
-    public static final String[] FEATURE_DATA_NAME = {"Flash_LB", "Flash_UB", "ProtocolVer"};
+    private static final String[] FEATURE_DATA_NAME = {"Flash_LB", "Flash_UB", "ProtocolVer"};
     /** max value of one component*/
-    public static final long DATA_MAX = 0xFFFFFFFF;
+    private static final long DATA_MAX = 0xFFFFFFFF;
     /** min value of one component*/
-    public static final long DATA_MIN = 0;
+    private static final long DATA_MIN = 0;
 
     /** index where you can find gyroscope value/description in the x direction */
-    public static final int Flash_LB_INDEX = 0;
+    private static final int Flash_LB_INDEX = 0;
     /** index where you can find gyroscope value/description in the y direction*/
-    public static final int Flash_UB_INDEX = 1;
+    private static final int Flash_UB_INDEX = 1;
     /** index where you can find gyroscope value/description in the y direction*/
-    public static final int ProtocolVer_INDEX = 2;
+    private static final int ProtocolVer_INDEX = 2;
 
+    private int protocolVer = 0x10;// server
 
     public ImageFeature(Node n){
         super(FEATURE_NAME,n,new Field[]{
@@ -79,11 +80,8 @@ public class ImageFeature extends Feature {
         return DATA_MIN;
     }
 
-    public static int getProtocolVer(Sample s){
-        if(hasValidIndex(s,ProtocolVer_INDEX))
-            return s.data[ProtocolVer_INDEX].intValue();
-        //else
-        return 0;
+    public int getProtocolVer(){
+        return protocolVer;
     }
 
     @Override
@@ -96,11 +94,16 @@ public class ImageFeature extends Feature {
         long flash_LB = NumberConversion.BigEndian.bytesToUInt32(data,dataOffset);
         long flash_UB = NumberConversion.BigEndian.bytesToUInt32(data,dataOffset+4);
 
-        int protocolVer = 0x10;// server
+        protocolVer = 0x10;// server
+
         if (data.length >= 9) {//protocol version > 1.2
-            protocolVer = data[dataOffset + 8];
-            numByte++;
+             protocolVer = data[dataOffset + 8];
+//            numByte++;// not supported
+//            return new ExtractResult(new Sample(new Number[]{flash_LB, flash_UB, protocolVer}, getFieldsDesc()), numByte);
+            return new ExtractResult(new Sample(new Number[]{flash_LB, flash_UB}, getFieldsDesc()), numByte);
+        }else
+        {
+            return new ExtractResult(new Sample(new Number[]{flash_LB, flash_UB}, getFieldsDesc()), numByte);
         }
-        return new ExtractResult(new Sample(new Number[]{flash_LB,flash_UB,protocolVer},getFieldsDesc()),numByte);
     }
 }

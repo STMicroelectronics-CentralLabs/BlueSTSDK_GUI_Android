@@ -36,17 +36,17 @@
  */
 package com.st.BLUENRG.fwUpgrade;
 
+import com.st.BLUENRG.fwUpgrade.feature.ImageFeature;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
-import com.st.BLUENRG.fwUpgrade.feature.OTAControlFeature;
 
 public class FwVersionConsoleBLUENRG extends FwVersionConsole {
 
 
     public static FwVersionConsole buildForNode(Node node){
-        if(node.getFeature(OTAControlFeature.class)!=null)
+        if(node.getFeature(ImageFeature.class)!=null)
             return new FwVersionConsoleBLUENRG(null);
         return null;
     }
@@ -62,7 +62,10 @@ public class FwVersionConsoleBLUENRG extends FwVersionConsole {
     public boolean readVersion(@FirmwareType int type) {
         if(mCallback==null)
             return true;
-        FwVersionBoard version = new FwVersionBoard("BLUENRG OTA","BLUENRG",1,0,0);
+        int minor = type & 0x000000FF;
+        int major = type & 0x0000FF00;
+        major = major >> 8;
+        FwVersionBoard version = new FwVersionBoard("BLUENRG OTA","BLUENRG",major,minor,0);
         mCallback.onVersionRead(this,type,version);
         return true;
     }

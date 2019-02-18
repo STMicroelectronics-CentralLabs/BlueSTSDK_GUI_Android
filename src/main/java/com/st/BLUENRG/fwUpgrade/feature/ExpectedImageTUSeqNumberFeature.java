@@ -39,23 +39,55 @@ package com.st.BLUENRG.fwUpgrade.feature;
 import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.NumberConversion;
 
 public class ExpectedImageTUSeqNumberFeature extends Feature {
 
-    private static final String FEATURE_NAME = "Start Upload";
-    private static final Field[] DATA_DESC = new Field[0];
+    private static final String FEATURE_NAME = "Start ack notification";
+    /** name of the exported data */
+    private static final String[] FEATURE_DATA_NAME = {"NextExpectedCharBlock", "ReadAck"};
+    /** max value of one component*/
+    private static final short DATA_MAX = (short) 0xFFFF;
+    /** min value of one component*/
+    private static final short DATA_MIN = 0;
 
-    /**
-     * build a new disabled feature, that doesn't need to be initialized in the node side
-     *
-     * @param n        node that will update this feature
-     */
-    public ExpectedImageTUSeqNumberFeature(Node n) {
-        super(FEATURE_NAME, n, DATA_DESC);
+    /** index where you can find gyroscope value/description in the x direction */
+    private static final int NextExpected_INDEX = 0;
+    /** index where you can find gyroscope value/description in the y direction*/
+    private static final int ErrorAck_INDEX = 1;
+
+
+    public ExpectedImageTUSeqNumberFeature(Node n){
+        super(FEATURE_NAME,n,new Field[]{
+                new Field(FEATURE_DATA_NAME[NextExpected_INDEX],null, Field.Type.UInt16,DATA_MAX,DATA_MIN),
+                new Field(FEATURE_DATA_NAME[ErrorAck_INDEX],null, Field.Type.UInt8,255,DATA_MIN)
+        });
+    }
+
+    public static short getNextExpectedCharBlock(Sample s){
+        if(hasValidIndex(s,NextExpected_INDEX))
+            return s.data[NextExpected_INDEX].byteValue();
+        //else
+        return DATA_MAX;
+    }
+
+    public static byte getAck(Sample s){
+        if(hasValidIndex(s,ErrorAck_INDEX))
+            return s.data[ErrorAck_INDEX].byteValue();
+        //else
+        return (byte) 0xFF;
     }
 
     @Override
     protected ExtractResult extractData(long timestamp, byte[] data, int dataOffset) {
-        return new ExtractResult(null,0);
+        int numByte = 3;
+
+        if (data.length - dataOffset < numByte)
+            throw new IllegalArgumentException("There are byte available to read");
+
+        int nextExpectedCharBlock = NumberConversion.LittleEndian.bytesToUInt16(data,dataOffset); // unsigned short is saved as int
+        byte errorAck = data[dataOffset+2];
+
+        return new ExtractResult(new Sample(new Number[]{nextExpectedCharBlock,errorAck},getFieldsDesc()),numByte);
     }
 }
