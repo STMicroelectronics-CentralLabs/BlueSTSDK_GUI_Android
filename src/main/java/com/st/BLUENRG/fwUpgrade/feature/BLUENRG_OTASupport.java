@@ -36,9 +36,6 @@
  */
 package com.st.BLUENRG.fwUpgrade.feature;
 
-import android.support.annotation.NonNull;
-
-import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.UUIDToFeatureMap;
 
 import java.util.UUID;
