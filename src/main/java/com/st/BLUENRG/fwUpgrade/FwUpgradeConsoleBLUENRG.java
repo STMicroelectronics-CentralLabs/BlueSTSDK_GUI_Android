@@ -215,7 +215,8 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                         protocolState = ProtocolStatePhase.CLOSURE;
                     } else if((cntExtended - (SeqNum+OTA_ACK_EVERY) * fw_image_packet_size) < 0) { // if next sequence is the last one with residue size
                         //mOta_Ack_Every = (byte) (residue/fw_image_packet_size);
-                        mOta_Ack_Every = (byte) (cntExtended/fw_image_packet_size - SeqNum); // to have sendData=0
+                        // residue of (OTA_ACK_EVERY * fw_image_packet_size)
+                        mOta_Ack_Every = (byte) (cntExtended/fw_image_packet_size - SeqNum); // to have sendData=0; cntExtended is multiple of fw_image_packet_size
                     }
                     EngineProtocolState();
                 } else {
@@ -245,7 +246,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
             case PARAM_FLASH_MEM:
                 cnt = fwFile.getLength();
                 cntExtended = cnt;
-                if(cnt%fw_image_packet_size != 0)
+                if(cnt%fw_image_packet_size != 0) // // residue of fw_image_packet_size
                     cntExtended = (cnt/fw_image_packet_size+1)*fw_image_packet_size; // to have always cntExtended as multiple of fw_image_packet_size
                 if(!checkRangeFlashMemAddress()) {
                     mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
