@@ -78,6 +78,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private int fw_image_packet_size = 16;
     private long base_address;
     private long cnt;
+    private long cntExtended;
     private long flash_LB;
     private long flash_UB;
     private short SeqNum = 0;
@@ -119,7 +120,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
 
     private boolean checkRangeFlashMemAddress(){
 
-        return (base_address >= flash_LB) && ((base_address + cnt) <= flash_UB) && ((base_address % 512) == 0);
+        return (base_address >= flash_LB) && ((base_address + cntExtended) <= flash_UB) && ((base_address % 512) == 0);
     }
 
     private boolean ackResult(short nextExpectedCharBlock,byte ack){
@@ -178,7 +179,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
             byte otaAckEveryRead = NewImageFeature.getOtaAckEvery(sample);
             long imageSizeRead = NewImageFeature.getImageSize(sample);
             long baseAddressRead = NewImageFeature.getBaseAddress(sample);
-            if ((otaAckEveryRead != OTA_ACK_EVERY)||(imageSizeRead != cnt)||(baseAddressRead != base_address)){
+            if ((otaAckEveryRead != OTA_ACK_EVERY)||(imageSizeRead != cntExtended)||(baseAddressRead != base_address)){
                 retries++;
                 if(retries >= retriesMax) {
                     mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
@@ -196,7 +197,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     };
 
     private Feature.FeatureListener onAckNotification = new Feature.FeatureListener(){
-        private long residue = cnt%OTA_ACK_EVERY;
+        //private long residue = cntExtended%(OTA_ACK_EVERY * fw_image_packet_size); // residue byte size
         @Override
         public void onUpdate(Feature f, Feature.Sample sample) {
             if(protocolState == ProtocolStatePhase.START_ACK_NOTIFICATION) {
@@ -207,13 +208,14 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 short nextExpectedCharBlock = ExpectedImageTUSeqNumberFeature.getNextExpectedCharBlock(sample);
                 boolean good = ackResult(nextExpectedCharBlock, ack); // check ack answer
                 if (good) {
-                    long sendData = cnt - SeqNum * fw_image_packet_size;
+                    long sendData = cntExtended - SeqNum * fw_image_packet_size;
                     Log.d("OnProgress", "run: " + sendData);
                     mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleBLUENRG.this, fwFile, sendData);
                     if (sendData <= 0) {
                         protocolState = ProtocolStatePhase.CLOSURE;
-                    } else if(sendData == residue) {
-                        mOta_Ack_Every = (byte) residue;
+                    } else if((cntExtended - (SeqNum+OTA_ACK_EVERY) * fw_image_packet_size) < 0) { // if next sequence is the last one with residue size
+                        //mOta_Ack_Every = (byte) (residue/fw_image_packet_size);
+                        mOta_Ack_Every = (byte) (cntExtended/fw_image_packet_size - SeqNum); // to have sendData=0
                     }
                     EngineProtocolState();
                 } else {
@@ -242,13 +244,16 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 break;
             case PARAM_FLASH_MEM:
                 cnt = fwFile.getLength();
+                cntExtended = cnt;
+                if(cnt%fw_image_packet_size != 0)
+                    cntExtended = (cnt/fw_image_packet_size+1)*fw_image_packet_size; // to have always cntExtended as multiple of fw_image_packet_size
                 if(!checkRangeFlashMemAddress()) {
                     mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
                     resultState =  false;
                 }else {
                     byte cmdValue = 0;
                     long crcValue = 0; // todo: replace with crc func  // not supported
-                    mParamMem.writeParamMem(mProtocolVer,OTA_ACK_EVERY,cnt,base_address, crcValue, cmdValue);
+                    mParamMem.writeParamMem(mProtocolVer,OTA_ACK_EVERY,cntExtended,base_address, crcValue, cmdValue);
                     mParamMem.addFeatureListener(onNewImageFeature); // remember to removeFeatureListener when it is the last
                     mParamMem.getParentNode().readFeature(mParamMem);
                 }
@@ -258,15 +263,17 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 mStartAckNotification.getParentNode().enableNotification(mStartAckNotification);
                 break;
             case FIRST_RECEIVED_NOTIFICATION:
-                imageToSend = new byte[(int)cnt];
+                byte imageToSendTemp[] = new byte[(int)cnt];
+                imageToSend = new byte[(int)cntExtended]; // all zero value
                 try {
                     fileOpened = fwFile.openFile();
-                    int nReadByte = fileOpened.read(imageToSend);
+                    int nReadByte = fileOpened.read(imageToSendTemp);
                     if(nReadByte != cnt )
                     {
                         mCallback.onLoadFwError(this, fwFile, FwUpgradeCallback.ERROR_INVALID_FW_FILE);
                         resultState = false;
-                    }
+                    }else
+                        System.arraycopy(imageToSendTemp,0,imageToSend,0,(int)cnt); // to have the last (cntExtended - cnt) bytes with value zero
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     mCallback.onLoadFwError(this, fwFile, FwUpgradeCallback.ERROR_INVALID_FW_FILE);
