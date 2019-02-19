@@ -36,11 +36,12 @@
 package com.st.BLUENRG.fwUpgrade.feature;
 
 import com.st.BlueSTSDK.Feature;
+import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.NumberConversion;
 
-public class ImageFeature extends Feature {
+public class ImageFeature extends DeviceTimestampFeature {
     private static final String FEATURE_NAME = "Read Range Memory";
     /** name of the exported data */
     private static final String[] FEATURE_DATA_NAME = {"Flash_LB", "Flash_UB", "ProtocolVer"};

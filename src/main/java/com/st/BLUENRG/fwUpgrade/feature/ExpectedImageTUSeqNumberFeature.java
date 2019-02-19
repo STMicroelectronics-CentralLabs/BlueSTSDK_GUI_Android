@@ -37,11 +37,12 @@
 package com.st.BLUENRG.fwUpgrade.feature;
 
 import com.st.BlueSTSDK.Feature;
+import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.NumberConversion;
 
-public class ExpectedImageTUSeqNumberFeature extends Feature {
+public class ExpectedImageTUSeqNumberFeature extends DeviceTimestampFeature {
 
     private static final String FEATURE_NAME = "Start ack notification";
     /** name of the exported data */

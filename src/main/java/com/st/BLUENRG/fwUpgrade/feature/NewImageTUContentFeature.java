@@ -36,6 +36,7 @@
 package com.st.BLUENRG.fwUpgrade.feature;
 
 import com.st.BlueSTSDK.Feature;
+import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
 
@@ -43,7 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import com.st.BlueSTSDK.Utils.NumberConversion;
 
-public class NewImageTUContentFeature extends Feature {
+public class NewImageTUContentFeature extends DeviceTimestampFeature {
 
     private static final String FEATURE_NAME = "Write byte sequence";
     private static final int OTA_SUPPORT_INFO_SIZE = 4; // Sequence Number (2 bytes), NeedsAcks (1 byte), Checksum (1 byte)
@@ -84,7 +85,6 @@ public class NewImageTUContentFeature extends Feature {
             byte message[] = new byte[Write_Data_Len];
             int destPos = 0;
             byte needsAck;
-            //file.read(payload);
             System.arraycopy(imageToSend,SeqNum*fw_image_packet_size,payload,0,fw_image_packet_size);
 
             // prepare message

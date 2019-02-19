@@ -39,6 +39,7 @@ package com.st.BLUENRG.fwUpgrade.feature;
 import android.util.Log;
 
 import com.st.BlueSTSDK.Feature;
+import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.NumberConversion;
@@ -46,7 +47,7 @@ import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 
 import java.util.Arrays;
 
-public class NewImageFeature extends Feature {
+public class NewImageFeature extends DeviceTimestampFeature {
 
     private static final String FEATURE_NAME = "Write or Read Memory Param";
     private static final String[] FEATURE_DATA_NAME = {"OtaAckEvery", "ImageSize", "BaseAddress"};

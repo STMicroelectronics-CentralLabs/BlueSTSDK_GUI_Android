@@ -46,7 +46,6 @@ import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
 public class FwVersionConsoleBLUENRG extends FwVersionConsole {
 
     private ImageFeature mRangeMem;
-    private FwVersionConsoleBLUENRG mySelf;
 
     public static FwVersionConsole buildForNode(Node node){
         ImageFeature rangeMem = node.getFeature(ImageFeature.class);
@@ -62,35 +61,27 @@ public class FwVersionConsoleBLUENRG extends FwVersionConsole {
     private FwVersionConsoleBLUENRG(FwVersionCallback callback,ImageFeature rangeMem) {
         super(callback);
         mRangeMem = rangeMem;
-        mySelf = this;
-        Feature.FeatureListener onImageFeature = new Feature.FeatureListener(){
-            @Override
-            public void onUpdate(Feature f, Feature.Sample sample) {
-                int protocolVer = mRangeMem.getProtocolVer(sample);
-                if(mCallback!=null) {
-                    int minor = protocolVer & 0x000000FF;
-                    int major = protocolVer & 0x0000FF00;
-                    major = major >> 8;
-                    FwVersionBoard version = new FwVersionBoard("BLUENRG OTA", "BLUENRG", major, minor, 0);
-                    mCallback.onVersionRead(mySelf, FirmwareType.BOARD_FW, version);
-                }
-                mRangeMem.removeFeatureListener(this);
-            }
-        };
-        rangeMem.addFeatureListener(onImageFeature); // remember to removeFeatureListener when it is the last
-        mRangeMem.getParentNode().readFeature(rangeMem);
+
     }
 
 
     @Override
     public boolean readVersion(@FirmwareType int type) {
-//        if(mCallback==null)
-//            return true;
-//        int minor = type & 0x000000FF;
-//        int major = type & 0x0000FF00;
-//        major = major >> 8;
-//        FwVersionBoard version = new FwVersionBoard("BLUENRG OTA","BLUENRG",major,minor,0);
-//        mCallback.onVersionRead(this,type,version);
+        Feature.FeatureListener onImageFeature = new Feature.FeatureListener(){
+            @Override
+            public void onUpdate(Feature f, Feature.Sample sample) {
+                int protocolVer = mRangeMem.getProtocolVer(sample);
+                if(mCallback!=null) {
+                    int minor = protocolVer%16;
+                    int major = protocolVer/16;
+                    FwVersionBoard version = new FwVersionBoard("BLUENRG OTA", "BLUENRG", major, minor, 0);
+                    mCallback.onVersionRead(FwVersionConsoleBLUENRG.this, FirmwareType.BOARD_FW, version);
+                }
+                mRangeMem.removeFeatureListener(this);
+            }
+        };
+        mRangeMem.addFeatureListener(onImageFeature); // remember to removeFeatureListener when it is the last
+        mRangeMem.getParentNode().readFeature(mRangeMem);
         return true;
     }
 }
