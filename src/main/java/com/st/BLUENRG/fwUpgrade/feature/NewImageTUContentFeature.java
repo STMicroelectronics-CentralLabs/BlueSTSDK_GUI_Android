@@ -76,11 +76,11 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
         return checksum;
     }
 
-    public void upload(byte imageToSend[] ,byte OTA_ACK_EVERY, int fw_image_packet_size, short SeqNum){
+    public void upload(byte imageToSend[] ,byte OTA_ACK_EVERY,byte lastOTA_ACK_EVERY, int fw_image_packet_size, short SeqNum){
         int Write_Data_Len = fw_image_packet_size + OTA_SUPPORT_INFO_SIZE;// Set number of bytes sent on a single write without response
         byte payload[] = new byte[fw_image_packet_size];
         byte temp[];
-        int end = (OTA_ACK_EVERY-(SeqNum+1)%OTA_ACK_EVERY)%OTA_ACK_EVERY+1; // ok????
+        int end = (lastOTA_ACK_EVERY-(SeqNum+1)%OTA_ACK_EVERY)%lastOTA_ACK_EVERY+1; // ok????
         for (int i=0; i<end;i++){
             byte message[] = new byte[Write_Data_Len];
             int destPos = 0;
@@ -93,7 +93,7 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
             int start = destPos;
             System.arraycopy(payload,0,message,destPos,payload.length);
             destPos +=fw_image_packet_size;//payload
-            if((SeqNum+1)%OTA_ACK_EVERY==0)
+            if(i==(end-1))
                 needsAck = 1;
             else
                 needsAck = 0;

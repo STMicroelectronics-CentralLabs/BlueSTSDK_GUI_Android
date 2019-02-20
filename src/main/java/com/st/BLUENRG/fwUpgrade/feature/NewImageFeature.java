@@ -88,7 +88,7 @@ public class NewImageFeature extends DeviceTimestampFeature {
 
     public static long getBaseAddress(Sample s){
         if(hasValidIndex(s,BaseAddress_INDEX))
-            return s.data[BaseAddress_INDEX].intValue();
+            return s.data[BaseAddress_INDEX].longValue();
         //else
         return DATA_MAX;
     }

@@ -63,7 +63,6 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private NewImageFeature mParamMem;
     private NewImageTUContentFeature mChunkData;
     private ExpectedImageTUSeqNumberFeature mStartAckNotification;
-    private Node.TypeService mServiceId;
 
     // IMAGE packet data for OTA transfer
     //private static final int DEFAULT_ATT_MTU_SIZE = 23;
@@ -74,7 +73,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private short retriesForChecksumError = 0;
     private short retriesForSequenceError = 0;
     private static final byte OTA_ACK_EVERY = 8;
-    private byte mOta_Ack_Every = OTA_ACK_EVERY;
+    private byte mLastOta_Ack_Every = OTA_ACK_EVERY;
     private int fw_image_packet_size = 16;
     private long base_address;
     private long cnt;
@@ -96,11 +95,8 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
         NewImageTUContentFeature chunkData = node.getFeature(NewImageTUContentFeature.class);
         ExpectedImageTUSeqNumberFeature startAckNotification = node.getFeature(ExpectedImageTUSeqNumberFeature.class);
 
-        // BLUENRG1 or BLUENRG2?
-        Node.TypeService serviceId = node.getTypeService();
-
         if(rangeMem!=null && paramMem!=null && startAckNotification!=null && chunkData!=null){
-            return new FwUpgradeConsoleBLUENRG(rangeMem,paramMem,chunkData,startAckNotification,serviceId);
+            return new FwUpgradeConsoleBLUENRG(rangeMem,paramMem,chunkData,startAckNotification);
         }else{
             return null;
         }
@@ -108,14 +104,13 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private FwUpgradeConsoleBLUENRG(@NonNull ImageFeature rangeMem,
                                     @NonNull NewImageFeature paramMem,
                                     @NonNull NewImageTUContentFeature chunkData,
-                                    @NonNull ExpectedImageTUSeqNumberFeature startAckNotification,
-                                    @NonNull Node.TypeService serviceId){
+                                    @NonNull ExpectedImageTUSeqNumberFeature startAckNotification
+                                     ){
         super(null);
         mRangeMem = rangeMem;
         mParamMem = paramMem;
         mChunkData = chunkData;
         mStartAckNotification = startAckNotification;
-        mServiceId = serviceId;
     }
 
     private boolean checkRangeFlashMemAddress(){
@@ -197,7 +192,6 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     };
 
     private Feature.FeatureListener onAckNotification = new Feature.FeatureListener(){
-        //private long residue = cntExtended%(OTA_ACK_EVERY * fw_image_packet_size); // residue byte size
         @Override
         public void onUpdate(Feature f, Feature.Sample sample) {
             if(protocolState == ProtocolStatePhase.START_ACK_NOTIFICATION) {
@@ -214,9 +208,8 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     if (sendData <= 0) {
                         protocolState = ProtocolStatePhase.CLOSURE;
                     } else if((cntExtended - (SeqNum+OTA_ACK_EVERY) * fw_image_packet_size) < 0) { // if next sequence is the last one with residue size
-                        //mOta_Ack_Every = (byte) (residue/fw_image_packet_size);
                         // residue of (OTA_ACK_EVERY * fw_image_packet_size)
-                        mOta_Ack_Every = (byte) (cntExtended/fw_image_packet_size - SeqNum); // to have sendData=0; cntExtended is multiple of fw_image_packet_size
+                        mLastOta_Ack_Every = (byte) (cntExtended/fw_image_packet_size - SeqNum); // to have sendData=0; cntExtended is multiple of fw_image_packet_size
                     }
                     EngineProtocolState();
                 } else {
@@ -233,7 +226,8 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
         START_ACK_NOTIFICATION,
         FIRST_RECEIVED_NOTIFICATION,
         WRITE_CHUNK_DATA,
-        CLOSURE
+        CLOSURE,
+        EXIT_PROTOCOLL
     }//ProtocolStatePhase
 
 
@@ -288,7 +282,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 EngineProtocolState();
                 break;
             case WRITE_CHUNK_DATA:
-                    mChunkData.upload(imageToSend,mOta_Ack_Every,fw_image_packet_size,SeqNum);
+                    mChunkData.upload(imageToSend,OTA_ACK_EVERY,mLastOta_Ack_Every,fw_image_packet_size,SeqNum);
                 break;
             case CLOSURE:
                 mRangeMem.removeFeatureListener(onImageFeature);
@@ -307,6 +301,9 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     mCallback.onLoadFwComplete(FwUpgradeConsoleBLUENRG.this, fwFile);
                 }
                 onGoing = false;
+                protocolState=ProtocolStatePhase.EXIT_PROTOCOLL;
+                break;
+            case EXIT_PROTOCOLL:
                 break;
         }//switch
 

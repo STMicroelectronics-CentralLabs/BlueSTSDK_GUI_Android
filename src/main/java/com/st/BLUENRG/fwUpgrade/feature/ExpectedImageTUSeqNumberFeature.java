@@ -67,7 +67,7 @@ public class ExpectedImageTUSeqNumberFeature extends DeviceTimestampFeature {
 
     public static short getNextExpectedCharBlock(Sample s){
         if(hasValidIndex(s,NextExpected_INDEX))
-            return s.data[NextExpected_INDEX].byteValue();
+            return s.data[NextExpected_INDEX].shortValue();
         //else
         return DATA_MAX;
     }
