@@ -39,6 +39,9 @@ package com.st.BLUENRG.fwUpgrade;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
@@ -67,9 +70,11 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     // IMAGE packet data for OTA transfer
     //private static final int DEFAULT_ATT_MTU_SIZE = 23;
     //private static final int DEFAULT_WRITE_DATA_LEN = (DEFAULT_ATT_MTU_SIZE - 3); // 20 bytes
-    private static final int retriesMax = 10;
+    private static final int retriesMax = 1000; // typical 80 times
     private static final short retriesForChecksumErrorMax = 4;
     private static final short retriesForSequenceErrorMax = 4;
+    private static final short retriesForMissedNotificationMax = 400;
+    private short retriesForMissedNotification = 0;
     private short retriesForChecksumError = 0;
     private short retriesForSequenceError = 0;
     private static final byte OTA_ACK_EVERY = 8;
@@ -88,6 +93,8 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private boolean onGoing;
     private int mProtocolVer; // server
     private byte imageToSend[];
+    static private final int FW_UPLOAD_MSG_TIMEOUT_MS = 800; //8 msec instead of 7.5
+    private Handler mTimeout;
 
     public static FwUpgradeConsoleBLUENRG buildForNode(Node node){
         ImageFeature rangeMem = node.getFeature(ImageFeature.class);
@@ -111,6 +118,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
         mParamMem = paramMem;
         mChunkData = chunkData;
         mStartAckNotification = startAckNotification;
+        mTimeout = new Handler(Looper.getMainLooper());
     }
 
     private boolean checkRangeFlashMemAddress(){
@@ -133,6 +141,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     SeqNum = nextExpectedCharBlock;
                     result = true;
                     retriesForChecksumError++;
+                    Log.d("BlueNRG1", "retriesForChecksumError: " + retriesForChecksumError);
                 }
                 break;
             case (byte)0xF0:
@@ -140,10 +149,13 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     SeqNum = nextExpectedCharBlock;
                     result = true;
                     retriesForSequenceError++;
+                    Log.d("BlueNRG1", "retriesForSequenceError: " + retriesForSequenceError);
                 }
                 break;
             case 0x00:
                 SeqNum = nextExpectedCharBlock;
+                retriesForChecksumError = 0;
+                retriesForSequenceError = 0;
                 result = true;
                 break;
             default:
@@ -153,6 +165,19 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
 
         return result;
     }
+
+    private Runnable onTimeout = () -> {
+        if(retriesForMissedNotification < retriesForMissedNotificationMax) {
+            retriesForMissedNotification++;
+            Log.d("BlueNRG1", "retriesForMissedNotification: " + retriesForMissedNotification);
+        }else{
+            mCallback.onLoadFwError(this,fwFile,FwUpgradeCallback.ERROR_TRANSMISSION);
+            resultState =  false;
+            protocolState=ProtocolStatePhase.CLOSURE;
+        }
+        EngineProtocolState();
+    };
+
 
     private Feature.FeatureListener onImageFeature = new Feature.FeatureListener(){
         @Override
@@ -176,10 +201,13 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
             long baseAddressRead = NewImageFeature.getBaseAddress(sample);
             if ((otaAckEveryRead != OTA_ACK_EVERY)||(imageSizeRead != cntExtended)||(baseAddressRead != base_address)){
                 retries++;
+                Log.d("BlueNRG1", "retries: " + retries);
                 if(retries >= retriesMax) {
                     mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
                     resultState = false;
                     retries = 0;
+                    protocolState=ProtocolStatePhase.CLOSURE;
+                    EngineProtocolState();
                 }else{
                     EngineProtocolState();
                 }
@@ -194,6 +222,9 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private Feature.FeatureListener onAckNotification = new Feature.FeatureListener(){
         @Override
         public void onUpdate(Feature f, Feature.Sample sample) {
+            //reset the timeout
+            mTimeout.removeCallbacks(onTimeout);
+            retriesForMissedNotification = 0;
             if(protocolState == ProtocolStatePhase.START_ACK_NOTIFICATION) {
                 protocolState = ProtocolStatePhase.FIRST_RECEIVED_NOTIFICATION;
                 EngineProtocolState();
@@ -215,6 +246,8 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 } else {
                     mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
                     resultState = false;
+                    protocolState=ProtocolStatePhase.CLOSURE;
+                    EngineProtocolState();
                 }
             }
         }
@@ -278,13 +311,20 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     mCallback.onLoadFwError(this,fwFile,FwUpgradeCallback.ERROR_TRANSMISSION);
                     resultState =  false;
                 }
-                protocolState=ProtocolStatePhase.WRITE_CHUNK_DATA;
-                EngineProtocolState();
+                if(resultState) {
+                    protocolState = ProtocolStatePhase.WRITE_CHUNK_DATA;
+                    //reset the timeout
+                    //mTimeout.removeCallbacks(onTimeout);
+                    EngineProtocolState();
+                }
                 break;
             case WRITE_CHUNK_DATA:
                     mChunkData.upload(imageToSend,OTA_ACK_EVERY,mLastOta_Ack_Every,fw_image_packet_size,SeqNum);
+                    mTimeout.postDelayed(onTimeout,FW_UPLOAD_MSG_TIMEOUT_MS);
                 break;
             case CLOSURE:
+                //reset the timeout
+                mTimeout.removeCallbacks(onTimeout);
                 mRangeMem.removeFeatureListener(onImageFeature);
                 mParamMem.removeFeatureListener(onNewImageFeature);
                 mStartAckNotification.getParentNode().disableNotification(mStartAckNotification);
@@ -324,13 +364,6 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
         protocolState = ProtocolStatePhase.RANGE_FLASH_MEM;
         EngineProtocolState();
 
-//        while(onGoing && resultState){
-//
-//        }
-//
-//        mStartAckNotification.getParentNode().disableNotification(mStartAckNotification);
-//
-//        return resultState;
         return true;
     }
 }
