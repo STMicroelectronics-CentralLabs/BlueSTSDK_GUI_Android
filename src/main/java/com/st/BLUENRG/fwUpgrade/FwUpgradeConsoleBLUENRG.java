@@ -57,8 +57,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-// todo: add mTimeout management
-
 public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
 
     // smart phone androids, BLUENRG service
@@ -68,8 +66,8 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private ExpectedImageTUSeqNumberFeature mStartAckNotification;
 
     // IMAGE packet data for OTA transfer
-    //private static final int DEFAULT_ATT_MTU_SIZE = 23;
-    //private static final int DEFAULT_WRITE_DATA_LEN = (DEFAULT_ATT_MTU_SIZE - 3); // 20 bytes
+    private static final int DEFAULT_ATT_MTU_SIZE = 23;
+    private static final int DEFAULT_WRITE_DATA_LEN = (DEFAULT_ATT_MTU_SIZE - 3); // 20 bytes
     private static final int retriesMax = 1000; // typical 80 times
     private static final short retriesForChecksumErrorMax = 4;
     private static final short retriesForSequenceErrorMax = 4;
@@ -95,6 +93,10 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private byte imageToSend[];
     static private final int FW_UPLOAD_MSG_TIMEOUT_MS = 800; //8 msec instead of 7.5
     private Handler mTimeout;
+    // todo: add ota client BlueNRG 1 or 2 test
+    private byte blueNRGtype = 1; // BLUENRG 1 or 2
+    private boolean SDKversion310higher = false;
+    private boolean mProtocolVer21higher = false; // server
 
     public static FwUpgradeConsoleBLUENRG buildForNode(Node node){
         ImageFeature rangeMem = node.getFeature(ImageFeature.class);
@@ -192,29 +194,71 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
         }
     };
 
+    private Runnable onWriteParamFlashMemDone = new Runnable() {
+        @Override
+        public void run() {
+            protocolState = ProtocolStatePhase.READ_PARAM_FLASH_MEM;
+            EngineProtocolState();
+        }
+    };
+
     private Feature.FeatureListener onNewImageFeature = new Feature.FeatureListener() {
         private int retries = 0;
         @Override
         public void onUpdate(Feature f, Feature.Sample sample) {
             byte otaAckEveryRead = NewImageFeature.getOtaAckEvery(sample);
-            long imageSizeRead = NewImageFeature.getImageSize(sample);
-            long baseAddressRead = NewImageFeature.getBaseAddress(sample);
-            if ((otaAckEveryRead != OTA_ACK_EVERY)||(imageSizeRead != cntExtended)||(baseAddressRead != base_address)){
-                retries++;
-                Log.d("BlueNRG1", "retries: " + retries);
-                if(retries >= retriesMax) {
-                    mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
-                    resultState = false;
-                    retries = 0;
-                    protocolState=ProtocolStatePhase.CLOSURE;
+            if(protocolState == ProtocolStatePhase.READ_PARAM_SDK_SERVER_VERSION) {
+                if(otaAckEveryRead < 2)
+                    SDKversion310higher = false;
+                else
+                    SDKversion310higher = true;
+                protocolState = ProtocolStatePhase.READ_BLUENRG_TYPE;
+                EngineProtocolState();
+            }else {
+                long imageSizeRead = NewImageFeature.getImageSize(sample);
+                long baseAddressRead = NewImageFeature.getBaseAddress(sample);
+                if ((otaAckEveryRead != OTA_ACK_EVERY) || (imageSizeRead != cntExtended) || (baseAddressRead != base_address)) {
+                    retries++;
+                    Log.d("BlueNRG1", "retries: " + retries);
+                    if (retries >= retriesMax) {
+                        mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
+                        resultState = false;
+                        retries = 0;
+                        protocolState = ProtocolStatePhase.CLOSURE;
+                        EngineProtocolState();
+                    } else {
+                        EngineProtocolState();
+                    }
+                } else {
+                    protocolState = ProtocolStatePhase.START_ACK_NOTIFICATION;
                     EngineProtocolState();
-                }else{
+                    retries = 0;
+                }
+            }
+        }
+    };
+
+    private Feature.FeatureListener onNewImageTUContentFeature = new Feature.FeatureListener(){
+        @Override
+        public void onUpdate(Feature f, Feature.Sample sample) {
+            // server/board read
+            byte paramBlueNRG2 = NewImageTUContentFeature.getParamBlueNRG2(sample);
+            if(blueNRGtype == 1) {
+                if (SDKversion310higher || ((!SDKversion310higher) && (paramBlueNRG2 <= DEFAULT_WRITE_DATA_LEN))) { // 20 byte
+                    protocolState = ProtocolStatePhase.RANGE_FLASH_MEM;
+                    EngineProtocolState();
+                } else {
+                    // OTA server is from SDK 3.0.0 and it supports extended packet len (BlueNRG-2 SDK 3.0.0). OTA Client (not BlueNRG-2) cannot upgrade it.
+                    mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_WRONG_SDK_VERSION);
+                    resultState = false;
+                    protocolState = ProtocolStatePhase.CLOSURE;
                     EngineProtocolState();
                 }
-            }else {
-                protocolState = ProtocolStatePhase.START_ACK_NOTIFICATION;
+            }else{
+                if(paramBlueNRG2 <= DEFAULT_WRITE_DATA_LEN) // server is BlueNRG1 (client is BlueNRG2 extension)
+                    fw_image_packet_size = 16; // force BlueNRG1 protocol size
+                protocolState = ProtocolStatePhase.RANGE_FLASH_MEM;
                 EngineProtocolState();
-                retries = 0;
             }
         }
     };
@@ -254,18 +298,29 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     };
 
     private enum ProtocolStatePhase {
+        READ_PARAM_SDK_SERVER_VERSION,
+        READ_BLUENRG_TYPE,
         RANGE_FLASH_MEM,
         PARAM_FLASH_MEM,
+        READ_PARAM_FLASH_MEM,
         START_ACK_NOTIFICATION,
         FIRST_RECEIVED_NOTIFICATION,
         WRITE_CHUNK_DATA,
         CLOSURE,
-        EXIT_PROTOCOLL
+        EXIT_PROTOCOL
     }//ProtocolStatePhase
 
 
     private boolean EngineProtocolState(){
         switch (protocolState){
+            case READ_PARAM_SDK_SERVER_VERSION:
+                mParamMem.addFeatureListener(onNewImageFeature); // remember to removeFeatureListener when it is the last
+                mParamMem.getParentNode().readFeature(mParamMem);
+                break;
+            case READ_BLUENRG_TYPE:
+                mChunkData.addFeatureListener(onNewImageTUContentFeature); // remember to removeFeatureListener when it is the last
+                mChunkData.getParentNode().readFeature(mChunkData);
+                break;
             case RANGE_FLASH_MEM:
                 mRangeMem.addFeatureListener(onImageFeature); // remember to removeFeatureListener when it is the last
                 mRangeMem.getParentNode().readFeature(mRangeMem);
@@ -281,10 +336,15 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 }else {
                     byte cmdValue = 0;
                     long crcValue = 0; // todo: replace with crc func  // not supported
-                    mParamMem.writeParamMem(mProtocolVer,OTA_ACK_EVERY,cntExtended,base_address, crcValue, cmdValue);
-                    mParamMem.addFeatureListener(onNewImageFeature); // remember to removeFeatureListener when it is the last
-                    mParamMem.getParentNode().readFeature(mParamMem);
+                    if(blueNRGtype == 2)
+                        mParamMem.addFeatureListener(onNewImageFeature); // remember to removeFeatureListener when it is the last
+                    mParamMem.writeParamMem(mProtocolVer,OTA_ACK_EVERY,cntExtended,base_address, crcValue, cmdValue,onWriteParamFlashMemDone);
+                    //protocolState = ProtocolStatePhase.READ_PARAM_FLASH_MEM;
+                    //EngineProtocolState();
                 }
+                break;
+            case READ_PARAM_FLASH_MEM:
+                mParamMem.getParentNode().readFeature(mParamMem);
                 break;
             case START_ACK_NOTIFICATION:
                 mStartAckNotification.addFeatureListener(onAckNotification);
@@ -313,8 +373,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 }
                 if(resultState) {
                     protocolState = ProtocolStatePhase.WRITE_CHUNK_DATA;
-                    //reset the timeout
-                    //mTimeout.removeCallbacks(onTimeout);
+                    //mTimeout.removeCallbacks(onTimeout);//reset the timeout
                     EngineProtocolState();
                 }
                 break;
@@ -327,6 +386,8 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 mTimeout.removeCallbacks(onTimeout);
                 mRangeMem.removeFeatureListener(onImageFeature);
                 mParamMem.removeFeatureListener(onNewImageFeature);
+                if(blueNRGtype == 1)
+                    mParamMem.removeFeatureListener(onNewImageTUContentFeature);
                 mStartAckNotification.getParentNode().disableNotification(mStartAckNotification);
                 if(fileOpened != null) {
                     try {
@@ -341,9 +402,9 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     mCallback.onLoadFwComplete(FwUpgradeConsoleBLUENRG.this, fwFile);
                 }
                 onGoing = false;
-                protocolState=ProtocolStatePhase.EXIT_PROTOCOLL;
+                protocolState=ProtocolStatePhase.EXIT_PROTOCOL;
                 break;
-            case EXIT_PROTOCOLL:
+            case EXIT_PROTOCOL:
                 break;
         }//switch
 
@@ -361,7 +422,11 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
         fwFile = fwFileIn;
         resultState =  true;
         onGoing =  true;
-        protocolState = ProtocolStatePhase.RANGE_FLASH_MEM;
+        //protocolState = ProtocolStatePhase.RANGE_FLASH_MEM;
+        if(blueNRGtype == 1)
+            protocolState = ProtocolStatePhase.READ_PARAM_SDK_SERVER_VERSION;
+        else
+            protocolState = ProtocolStatePhase.READ_BLUENRG_TYPE;
         EngineProtocolState();
 
         return true;

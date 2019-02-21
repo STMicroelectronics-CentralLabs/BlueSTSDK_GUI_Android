@@ -129,7 +129,7 @@ public abstract class FwUpgradeConsole {
         /**
          * enum with the possible upload error
          */
-        @IntDef({ERROR_CORRUPTED_FILE, ERROR_TRANSMISSION,ERROR_INVALID_FW_FILE,ERROR_UNKNOWN})
+        @IntDef({ERROR_CORRUPTED_FILE, ERROR_TRANSMISSION,ERROR_INVALID_FW_FILE,ERROR_WRONG_SDK_VERSION,ERROR_UNKNOWN})
         @Retention(RetentionPolicy.SOURCE)
         @interface UpgradeErrorType {}
 
@@ -151,9 +151,14 @@ public abstract class FwUpgradeConsole {
         int ERROR_INVALID_FW_FILE=2;
 
         /**
+         * the node firmware has a wrong version
+         */
+        int ERROR_WRONG_SDK_VERSION=3;
+
+        /**
          * unknown error
          */
-        int ERROR_UNKNOWN=3;
+        int ERROR_UNKNOWN=4;
 
         /**
          * called when the loadFw finish correctly

@@ -118,8 +118,10 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
 
         setupSelectFileButton(mRootView.findViewById(R.id.otaUpload_selectFileButton));
         setupStartUploadButton(mRootView.findViewById(R.id.otaUpload_startUploadButton));
-        setupAddressText(mAddressText,mRootView.findViewById(R.id.otaUpload_addressTextLayout),
-                getFlashAddress(savedInstanceState,getArguments()));
+//        setupAddressText(mAddressText,mRootView.findViewById(R.id.otaUpload_addressTextLayout),
+//                getFlashAddress(savedInstanceState,getArguments()));
+        mAddressText.setText("address is not selectable");
+
         mRequestFile = new RequestFileUtil(this,mRootView);
         onFileSelected(getFirmwareLocation(savedInstanceState,getArguments()));
         return  mRootView;
@@ -128,9 +130,9 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if(mAddressText.getText().length()!=0) {
-            outState.putString(ADDRESS_KEY,mAddressText.getText().toString());
-        }
+//        if(mAddressText.getText().length()!=0) {
+//            outState.putString(ADDRESS_KEY,mAddressText.getText().toString());
+//        }
         outState.putInt(UPLOAD_PROGRESS_VISIBILITY_KEY,mProgressViewGroup.getVisibility());
         outState.putParcelable(FW_URI_KEY,mSelectedFw);
     }
@@ -211,13 +213,14 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
 
     private void setupStartUploadButton(View button) {
         button.setOnClickListener(v -> {
-            Long addrres = getFwAddress();
+            //Long addrres = getFwAddress();
             if(mSelectedFw!=null) {
-                if(addrres!=null) {
-                    startUploadFile(mSelectedFw, addrres);
-                }else{
-                    Snackbar.make(mRootView,"Invalid address",Snackbar.LENGTH_SHORT).show();
-                }
+//                if(addrres!=null) {
+//                    startUploadFile(mSelectedFw, addrres);
+//                }else{
+//                    Snackbar.make(mRootView,"Invalid address",Snackbar.LENGTH_SHORT).show();
+//                }
+                startUploadFile(mSelectedFw, 1);
             }else{
                 Snackbar.make(mRootView,"Invalid file",Snackbar.LENGTH_SHORT).show();
             }

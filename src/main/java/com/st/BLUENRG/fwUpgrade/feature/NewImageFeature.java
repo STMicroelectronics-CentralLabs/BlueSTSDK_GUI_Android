@@ -93,7 +93,7 @@ public class NewImageFeature extends DeviceTimestampFeature {
         return DATA_MAX;
     }
 
-    public void writeParamMem(int protocolVer,byte otaAckEvery,long imageSize, long baseAddress, long crcValue, byte cmdValue){
+    public void writeParamMem(int protocolVer,byte otaAckEvery,long imageSize, long baseAddress, long crcValue, byte cmdValue,Runnable onWriteParamFlashMemDone){
         int nByte = 9;
 //        if(protocolVer >= 0x12)// not supported
 //            nByte = 14;
@@ -110,7 +110,7 @@ public class NewImageFeature extends DeviceTimestampFeature {
 //            buffer[13] = cmdValue;
 //        }
 
-        writeData(buffer);
+        writeData(buffer,onWriteParamFlashMemDone);
     }
 
     @Override
