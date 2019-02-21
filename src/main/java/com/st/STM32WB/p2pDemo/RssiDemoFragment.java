@@ -121,4 +121,7 @@ public abstract class RssiDemoFragment extends DemoFragment implements Node.BleC
     public void onRSSIChanged(Node node, final int newRSSIValue) {
         updateGui(() -> mRssiText.setText(getString(R.string.stm32wb_rssiFormat,newRSSIValue)));
     }//onRSSIChanged
+
+    @Override
+    public void onMtuChange(Node node, int newMtu) { }
 }

@@ -276,7 +276,5 @@ public class LedButtonControlFragment extends RssiDemoFragment {
         }
     }
 
-    @Override
-    public void onTxPowerChange(Node node, int newPower) {}
 }
 
