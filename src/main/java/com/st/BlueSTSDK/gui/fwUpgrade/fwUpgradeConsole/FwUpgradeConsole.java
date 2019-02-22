@@ -129,7 +129,7 @@ public abstract class FwUpgradeConsole {
         /**
          * enum with the possible upload error
          */
-        @IntDef({ERROR_CORRUPTED_FILE, ERROR_TRANSMISSION,ERROR_INVALID_FW_FILE,ERROR_WRONG_SDK_VERSION,ERROR_UNKNOWN})
+        @IntDef({ERROR_CORRUPTED_FILE, ERROR_TRANSMISSION,ERROR_INVALID_FW_FILE,ERROR_WRONG_SDK_VERSION,ERROR_WRONG_SDK_VERSION_OR_ERROR_TRANSMISSION,ERROR_UNKNOWN})
         @Retention(RetentionPolicy.SOURCE)
         @interface UpgradeErrorType {}
 
@@ -155,10 +155,12 @@ public abstract class FwUpgradeConsole {
          */
         int ERROR_WRONG_SDK_VERSION=3;
 
+        int ERROR_WRONG_SDK_VERSION_OR_ERROR_TRANSMISSION=4;
+
         /**
          * unknown error
          */
-        int ERROR_UNKNOWN=4;
+        int ERROR_UNKNOWN=5;
 
         /**
          * called when the loadFw finish correctly

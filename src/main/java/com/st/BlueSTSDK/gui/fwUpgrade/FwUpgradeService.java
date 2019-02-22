@@ -177,6 +177,8 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
                 return getString(R.string.fwUpgrade_error_transmission);
             case FwUpgradeConsole.FwUpgradeCallback.ERROR_WRONG_SDK_VERSION:
                 return getString(R.string.fwUpgrade_error_wrong_sdk);
+            case FwUpgradeConsole.FwUpgradeCallback.ERROR_WRONG_SDK_VERSION_OR_ERROR_TRANSMISSION:
+                return getString(R.string.fwUpgrade_error_wrong_sdk_or_error_transmission);
             case FwUpgradeConsole.FwUpgradeCallback.ERROR_UNKNOWN:
                 return getString(R.string.fwUpgrade_error_unknown);
             case FwUpgradeConsole.FwUpgradeCallback.ERROR_INVALID_FW_FILE:

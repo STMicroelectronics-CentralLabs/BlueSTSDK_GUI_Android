@@ -61,9 +61,9 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
         });
     }
 
-    public static byte getParamBlueNRG2(Sample s){
+    public static int getParamBlueNRG2(Sample s){
         if(hasValidIndex(s,0))
-            return s.data[0].byteValue();
+            return s.data[0].intValue();
         //else
         return 0;
     }
