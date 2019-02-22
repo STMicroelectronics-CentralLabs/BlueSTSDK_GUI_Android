@@ -36,69 +36,59 @@
  */
 package com.st.BLUENRG.fwUpgrade.feature;
 
-import android.util.Log;
-
-import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.NumberConversion;
-import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
-
-import java.util.Arrays;
 
 public class NewImageFeature extends DeviceTimestampFeature {
 
-    private static final String FEATURE_NAME = "Write or Read Memory Param";
+    private static final String FEATURE_NAME = "FwUpgradeSettings";
     private static final String[] FEATURE_DATA_NAME = {"OtaAckEvery", "ImageSize", "BaseAddress"};
     /** max value of one component*/
     private static final long DATA_MAX = 0xFFFFFFFF;
     /** min value of one component*/
     private static final long DATA_MIN = 0;
 
-    /** index where you can find gyroscope value/description in the x direction */
-    private static final int OtaAckEvery_INDEX = 0;
-    /** index where you can find gyroscope value/description in the y direction*/
-    private static final int ImageSize_INDEX = 1;
-    /** index where you can find gyroscope value/description in the y direction*/
-    private static final int BaseAddress_INDEX = 2;
+    private static final int OTA_ACK_EVERY_INDEX = 0;
+    private static final int IMAGE_SIZE_INDEX = 1;
+    private static final int BASE_ADDRESS_INDEX = 2;
 
 
     public NewImageFeature(Node n){
         super(FEATURE_NAME,n,new Field[]{
-                new Field(FEATURE_DATA_NAME[OtaAckEvery_INDEX],null, Field.Type.UInt8,255,0),
-                new Field(FEATURE_DATA_NAME[ImageSize_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
-                new Field(FEATURE_DATA_NAME[BaseAddress_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN)
+                new Field(FEATURE_DATA_NAME[OTA_ACK_EVERY_INDEX],null, Field.Type.UInt8,255,0),
+                new Field(FEATURE_DATA_NAME[IMAGE_SIZE_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
+                new Field(FEATURE_DATA_NAME[BASE_ADDRESS_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN)
         });
     }
 
     public static byte getOtaAckEvery(Sample s){
-        if(hasValidIndex(s,OtaAckEvery_INDEX))
-            return s.data[OtaAckEvery_INDEX].byteValue();
+        if(hasValidIndex(s, OTA_ACK_EVERY_INDEX))
+            return s.data[OTA_ACK_EVERY_INDEX].byteValue();
         //else
         return 0;
     }
 
     public static long getImageSize(Sample s){
-        if(hasValidIndex(s,ImageSize_INDEX))
-            return s.data[ImageSize_INDEX].longValue();
+        if(hasValidIndex(s, IMAGE_SIZE_INDEX))
+            return s.data[IMAGE_SIZE_INDEX].longValue();
         //else
         return 0;
     }
 
     public static long getBaseAddress(Sample s){
-        if(hasValidIndex(s,BaseAddress_INDEX))
-            return s.data[BaseAddress_INDEX].longValue();
+        if(hasValidIndex(s, BASE_ADDRESS_INDEX))
+            return s.data[BASE_ADDRESS_INDEX].longValue();
         //else
         return DATA_MAX;
     }
 
-    public void writeParamMem(byte otaAckEvery,long imageSize, long baseAddress, long crcValue, byte cmdValue,Runnable onWriteParamFlashMemDone){
-        int nByte = 9;
-        byte buffer[] = new byte[nByte];
-        byte temp[];
+
+    public void writeParamMem(byte otaAckEvery,long imageSize, long baseAddress, Runnable onWriteParamFlashMemDone){
+        byte buffer[] = new byte[9];
         buffer[0] = otaAckEvery;
-        temp = NumberConversion.LittleEndian.uint32ToBytes(imageSize);
+        byte temp[] = NumberConversion.LittleEndian.uint32ToBytes(imageSize);
         System.arraycopy(temp,0,buffer,1,temp.length);
         temp = NumberConversion.LittleEndian.uint32ToBytes(baseAddress);
         System.arraycopy(temp,0,buffer,5,temp.length);

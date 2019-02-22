@@ -365,11 +365,9 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
                     resultState =  false;
                 }else {
-                    byte cmdValue = 0;
-                    long crcValue = 0; // todo: replace with crc func  // not supported
                     if(blueNRGclientType == 2)
                         mParamMem.addFeatureListener(onNewImageFeature); // remember to removeFeatureListener when it is the last
-                    mParamMem.writeParamMem(OTA_ACK_EVERY,cntExtended,base_address, crcValue, cmdValue,onWriteParamFlashMemDone);
+                    mParamMem.writeParamMem(OTA_ACK_EVERY,cntExtended,base_address, onWriteParamFlashMemDone);
                     //protocolState = ProtocolStatePhase.READ_PARAM_FLASH_MEM;
                     //EngineProtocolState();
                 }

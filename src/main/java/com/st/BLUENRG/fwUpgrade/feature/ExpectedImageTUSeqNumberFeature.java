@@ -36,7 +36,6 @@
  */
 package com.st.BLUENRG.fwUpgrade.feature;
 
-import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
@@ -52,29 +51,27 @@ public class ExpectedImageTUSeqNumberFeature extends DeviceTimestampFeature {
     /** min value of one component*/
     private static final short DATA_MIN = 0;
 
-    /** index where you can find gyroscope value/description in the x direction */
-    private static final int NextExpected_INDEX = 0;
-    /** index where you can find gyroscope value/description in the y direction*/
-    private static final int ErrorAck_INDEX = 1;
+    private static final int NEXT_EXPECTED_INDEX = 0;
+    private static final int ERROR_ACK_INDEX = 1;
 
 
     public ExpectedImageTUSeqNumberFeature(Node n){
         super(FEATURE_NAME,n,new Field[]{
-                new Field(FEATURE_DATA_NAME[NextExpected_INDEX],null, Field.Type.UInt16,DATA_MAX,DATA_MIN),
-                new Field(FEATURE_DATA_NAME[ErrorAck_INDEX],null, Field.Type.UInt8,255,DATA_MIN)
+                new Field(FEATURE_DATA_NAME[NEXT_EXPECTED_INDEX],null, Field.Type.UInt16,DATA_MAX,DATA_MIN),
+                new Field(FEATURE_DATA_NAME[ERROR_ACK_INDEX],null, Field.Type.UInt8,255,DATA_MIN)
         });
     }
 
     public static short getNextExpectedCharBlock(Sample s){
-        if(hasValidIndex(s,NextExpected_INDEX))
-            return s.data[NextExpected_INDEX].shortValue();
+        if(hasValidIndex(s, NEXT_EXPECTED_INDEX))
+            return s.data[NEXT_EXPECTED_INDEX].shortValue();
         //else
         return DATA_MAX;
     }
 
     public static byte getAck(Sample s){
-        if(hasValidIndex(s,ErrorAck_INDEX))
-            return s.data[ErrorAck_INDEX].byteValue();
+        if(hasValidIndex(s, ERROR_ACK_INDEX))
+            return s.data[ERROR_ACK_INDEX].byteValue();
         //else
         return (byte) 0xFF;
     }

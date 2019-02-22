@@ -48,7 +48,6 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
 
     private static final String FEATURE_NAME = "Write byte sequence";
     private static final int OTA_SUPPORT_INFO_SIZE = 4; // Sequence Number (2 bytes), NeedsAcks (1 byte), Checksum (1 byte)
-    private short SeqNum;
 
     /**
      * build a new disabled feature, that doesn't need to be initialized in the node side
@@ -88,7 +87,7 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
             System.arraycopy(imageToSend,SeqNum*fw_image_packet_size,payload,0,fw_image_packet_size);
 
             // prepare message
-            // SeqNum:2 byte + needsAck:1 byte +  payload:fw_image_packet_size byte + checksum:1 byte
+            // checksum:1 byte + payload:fw_image_packet_size byte +  needsAck:1 byte + SeqNum:2 byte
             destPos +=1;//checksum
             int start = destPos;
             System.arraycopy(payload,0,message,destPos,payload.length);
