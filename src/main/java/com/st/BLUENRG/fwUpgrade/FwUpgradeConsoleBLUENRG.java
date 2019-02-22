@@ -51,7 +51,6 @@ import com.st.BLUENRG.fwUpgrade.feature.ImageFeature;
 import com.st.BLUENRG.fwUpgrade.feature.NewImageFeature;
 import com.st.BLUENRG.fwUpgrade.feature.NewImageTUContentFeature;
 import com.st.BLUENRG.fwUpgrade.feature.ExpectedImageTUSeqNumberFeature;
-import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -89,7 +88,6 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private InputStream fileOpened = null;
     private boolean resultState;
     private boolean onGoing;
-    private int mProtocolVer; // server
     private byte imageToSend[];
     static private final int FW_UPLOAD_MSG_TIMEOUT_MS = 800; //8 msec instead of 7.5
     private Handler mTimeout;
@@ -113,8 +111,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private FwUpgradeConsoleBLUENRG(@NonNull ImageFeature rangeMem,
                                     @NonNull NewImageFeature paramMem,
                                     @NonNull NewImageTUContentFeature chunkData,
-                                    @NonNull ExpectedImageTUSeqNumberFeature startAckNotification
-                                     ){
+                                    @NonNull ExpectedImageTUSeqNumberFeature startAckNotification){
         super(null);
         mRangeMem = rangeMem;
         mParamMem = paramMem;
@@ -184,9 +181,8 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private Feature.FeatureListener onImageFeature = new Feature.FeatureListener(){
         @Override
         public void onUpdate(Feature f, Feature.Sample sample) {
-            flash_LB = ImageFeature.getFlash_LB(sample);
-            flash_UB = ImageFeature.getFlash_UB(sample);
-            mProtocolVer = mRangeMem.getProtocolVer(sample);
+            flash_LB = ImageFeature.getFlashLowerBound(sample);
+            flash_UB = ImageFeature.getFlashUpperBound(sample);
             // Set base address
             base_address = flash_LB;
             protocolState = ProtocolStatePhase.PARAM_FLASH_MEM;
@@ -338,7 +334,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     long crcValue = 0; // todo: replace with crc func  // not supported
                     if(blueNRGtype == 2)
                         mParamMem.addFeatureListener(onNewImageFeature); // remember to removeFeatureListener when it is the last
-                    mParamMem.writeParamMem(mProtocolVer,OTA_ACK_EVERY,cntExtended,base_address, crcValue, cmdValue,onWriteParamFlashMemDone);
+                    mParamMem.writeParamMem(OTA_ACK_EVERY,cntExtended,base_address, crcValue, cmdValue,onWriteParamFlashMemDone);
                     //protocolState = ProtocolStatePhase.READ_PARAM_FLASH_MEM;
                     //EngineProtocolState();
                 }

@@ -44,6 +44,8 @@ import com.st.STM32WB.fwUpgrade.feature.OTAControlFeature;
 
 public class FwVersionConsoleSTM32WB extends FwVersionConsole {
 
+    private static final  FwVersionBoard DEFAULT_VERSION = new
+            FwVersionBoard("STM32WB OTA","STM32WB",1,0,0);
 
     public static FwVersionConsole buildForNode(Node node){
         if(node.getFeature(OTAControlFeature.class)!=null)
@@ -62,8 +64,7 @@ public class FwVersionConsoleSTM32WB extends FwVersionConsole {
     public boolean readVersion(@FirmwareType int type) {
         if(mCallback==null)
             return true;
-        FwVersionBoard version = new FwVersionBoard("STM32WB OTA","STM32WB",1,0,0);
-        mCallback.onVersionRead(this,type,version);
+        mCallback.onVersionRead(this,type,DEFAULT_VERSION);
         return true;
     }
 }

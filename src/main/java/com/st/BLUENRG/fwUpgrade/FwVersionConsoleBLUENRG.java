@@ -39,11 +39,15 @@ package com.st.BLUENRG.fwUpgrade;
 import com.st.BLUENRG.fwUpgrade.feature.ImageFeature;
 import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
 
 public class FwVersionConsoleBLUENRG extends FwVersionConsole {
+
+    private static final String DEFAULT_BOARD_NAME = "BLUENRG OTA";
+    private static final String DEFAULT_MCU_NAME = "BLUENRG";
 
     private ImageFeature mRangeMem;
 
@@ -70,12 +74,15 @@ public class FwVersionConsoleBLUENRG extends FwVersionConsole {
         Feature.FeatureListener onImageFeature = new Feature.FeatureListener(){
             @Override
             public void onUpdate(Feature f, Feature.Sample sample) {
-                int protocolVer = mRangeMem.getProtocolVer(sample);
                 if(mCallback!=null) {
-                    int minor = protocolVer%16;
-                    int major = protocolVer/16;
-                    FwVersionBoard version = new FwVersionBoard("BLUENRG OTA", "BLUENRG", major, minor, 0);
-                    mCallback.onVersionRead(FwVersionConsoleBLUENRG.this, FirmwareType.BOARD_FW, version);
+                    FwVersion protocolVer = mRangeMem.getProtocolVer(sample);
+                    if(protocolVer!=null) {
+                        FwVersionBoard version = new FwVersionBoard(DEFAULT_BOARD_NAME, DEFAULT_MCU_NAME,
+                                protocolVer.getMajorVersion(), protocolVer.getMinorVersion(), protocolVer.getPatchVersion());
+                        mCallback.onVersionRead(FwVersionConsoleBLUENRG.this, FirmwareType.BOARD_FW, version);
+                    }else{
+                        mCallback.onVersionRead(FwVersionConsoleBLUENRG.this, FirmwareType.BOARD_FW,  null);
+                    }
                 }
                 mRangeMem.removeFeatureListener(this);
             }

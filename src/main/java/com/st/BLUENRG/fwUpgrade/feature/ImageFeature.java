@@ -35,82 +35,79 @@
  */
 package com.st.BLUENRG.fwUpgrade.feature;
 
-import com.st.BlueSTSDK.Feature;
+import android.support.annotation.Nullable;
+
 import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.Utils.NumberConversion;
 
 public class ImageFeature extends DeviceTimestampFeature {
-    private static final String FEATURE_NAME = "Read Range Memory";
+    private static final String FEATURE_NAME = "MemoryInfo";
     /** name of the exported data */
-    private static final String[] FEATURE_DATA_NAME = {"Flash_LB", "Flash_UB", "ProtocolVer"};
+    private static final String[] FEATURE_DATA_NAME = {"Flash_LB", "Flash_UB", "ProtocolVerMajor","ProtocolVerMinor"};
     /** max value of one component*/
     private static final long DATA_MAX = 0xFFFFFFFF;
     /** min value of one component*/
     private static final long DATA_MIN = 0;
 
-    /** index where you can find gyroscope value/description in the x direction */
-    private static final int Flash_LB_INDEX = 0;
-    /** index where you can find gyroscope value/description in the y direction*/
+    private static final int FLASH_LB_INDEX = 0;
     private static final int Flash_UB_INDEX = 1;
-    /** index where you can find gyroscope value/description in the y direction*/
-    private static final int ProtocolVer_INDEX = 2;
-
-    private int dataLength = 8;
+    private static final int PROTOCOL_VAR_MAJOR_INDEX = 2;
+    private static final int PROTOCOL_VER_MINOR_INDEX = 3;
 
     public ImageFeature(Node n){
         super(FEATURE_NAME,n,new Field[]{
-                new Field(FEATURE_DATA_NAME[Flash_LB_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
+                new Field(FEATURE_DATA_NAME[FLASH_LB_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
                 new Field(FEATURE_DATA_NAME[Flash_UB_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
-                new Field(FEATURE_DATA_NAME[ProtocolVer_INDEX],null, Field.Type.UInt8,255,DATA_MIN)
+                new Field(FEATURE_DATA_NAME[PROTOCOL_VAR_MAJOR_INDEX],null, Field.Type.UInt8,255,DATA_MIN),
+                new Field(FEATURE_DATA_NAME[PROTOCOL_VER_MINOR_INDEX],null, Field.Type.UInt8,255,DATA_MIN)
         });
     }
 
-    public static long getFlash_LB(Sample s){
-        if(hasValidIndex(s,Flash_LB_INDEX))
-            return s.data[Flash_LB_INDEX].longValue();
+    public static long getFlashLowerBound(Sample s){
+        if(hasValidIndex(s, FLASH_LB_INDEX))
+            return s.data[FLASH_LB_INDEX].longValue();
         //else
         return DATA_MAX;
     }
 
-    public static long getFlash_UB(Sample s){
+    public static long getFlashUpperBound(Sample s){
         if(hasValidIndex(s,Flash_UB_INDEX))
             return s.data[Flash_UB_INDEX].longValue();
         //else
         return DATA_MIN;
     }
 
-    public int getProtocolVer(Sample s){
-        if (dataLength >= 9) {//protocol version > 1.2
-            if(hasValidIndex(s,ProtocolVer_INDEX))
-                return s.data[ProtocolVer_INDEX].intValue();
-            else
-                return 0xFF;
-        }else {
-            return 0x10;// server
+    public @Nullable FwVersion getProtocolVer(Sample s){
+        if(hasValidIndex(s,PROTOCOL_VAR_MAJOR_INDEX)&& hasValidIndex(s,PROTOCOL_VER_MINOR_INDEX)){
+            return new FwVersion(s.data[PROTOCOL_VAR_MAJOR_INDEX].byteValue(),
+                    s.data[PROTOCOL_VER_MINOR_INDEX].byteValue(),0);
         }
+        return null;
     }
 
     @Override
     protected ExtractResult extractData(long timestamp, byte[] data, int dataOffset) {
-        int numByte = 8;
-
-        if (data.length - dataOffset < numByte)
+        final int availableData = data.length - dataOffset;
+        int readData = 8;
+        if ( availableData < readData)
             throw new IllegalArgumentException("There are byte available to read");
 
         long flash_LB = NumberConversion.BigEndian.bytesToUInt32(data,dataOffset);
         long flash_UB = NumberConversion.BigEndian.bytesToUInt32(data,dataOffset+4);
 
-        dataLength = data.length;
-
-        if (data.length >= 9) {//protocol version > 1.2
-            byte protocolVer = data[dataOffset + 8];
-            numByte++;// not supported
-            return new ExtractResult(new Sample(new Number[]{flash_LB, flash_UB, protocolVer}, getFieldsDesc()), numByte);
-        }else
-        {
-            return new ExtractResult(new Sample(new Number[]{flash_LB, flash_UB}, getFieldsDesc()), numByte);
+        int versionMajour = 1, versionMinor = 0;
+        if(availableData >=9){
+            versionMajour = data[dataOffset+8] / 16;
+            versionMinor = data[dataOffset+8] % 16;
+            readData++;
         }
+
+        return new ExtractResult(
+                new Sample(new Number[]{flash_LB, flash_UB,versionMajour,versionMinor},
+                getFieldsDesc()), readData);
+
     }
 }
