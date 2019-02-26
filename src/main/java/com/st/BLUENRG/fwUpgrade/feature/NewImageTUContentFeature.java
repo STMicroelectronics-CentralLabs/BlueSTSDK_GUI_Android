@@ -35,20 +35,16 @@
  */
 package com.st.BLUENRG.fwUpgrade.feature;
 
-import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
 
-import java.io.IOException;
-import java.io.InputStream;
 import com.st.BlueSTSDK.Utils.NumberConversion;
 
 public class NewImageTUContentFeature extends DeviceTimestampFeature {
 
     private static final String FEATURE_NAME = "Write byte sequence";
     private static final int OTA_SUPPORT_INFO_SIZE = 4; // Sequence Number (2 bytes), NeedsAcks (1 byte), Checksum (1 byte)
-    private static int image_Char_Len = 0;
 
     /**
      * build a new disabled feature, that doesn't need to be initialized in the node side
@@ -57,12 +53,15 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
      */
     public NewImageTUContentFeature(Node n) {
         super(FEATURE_NAME,n,new Field[]{
-                new Field("ReadParamBlueNRG2",null, Field.Type.UInt8,255,0)
+                new Field("ExpectedWriteLength",null, Field.Type.UInt8,255,0)
         });
     }
 
-    public static int getParamBlueNRG2(Sample s){
-        return image_Char_Len;
+    public static int getExpectedWriteLength(Sample s){
+        if(hasValidIndex(s,0)){
+            return s.data[0].intValue();
+        }
+        return -1;
     }
 
     private byte checkSum(byte message[], int start,int destPos){
@@ -116,7 +115,6 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
         int numByte = 1; // at least 1
         if (data.length - dataOffset < numByte)
             throw new IllegalArgumentException("There are byte available to read");
-        image_Char_Len = data.length;
-        return new ExtractResult(new Sample(new Number[]{data[dataOffset]},getFieldsDesc()),numByte);
+        return new ExtractResult(new Sample(new Number[]{data.length},getFieldsDesc()),data.length);
     }
 }

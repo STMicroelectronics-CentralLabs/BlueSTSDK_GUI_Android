@@ -59,32 +59,24 @@ public class ExpectedImageTUSeqNumberFeature extends DeviceTimestampFeature {
         FLASH_VERIFY_FAILED,
         CHECK_SUM_ERROR,
         SEQUENCE_ERROR,
-        GOOD,
+        NO_ERROR,
         UNKNOWN_ERROR;
 
-        public static ErrorCode buildErrorCode(byte ack) {
-            ErrorCode errorCode;
+        static ErrorCode buildErrorCode(byte ack) {
             switch (ack) {
                 case (byte)0xFF:
-                    errorCode = ErrorCode.FLASH_WRITE_FAILED;
-                    break;
+                    return ErrorCode.FLASH_WRITE_FAILED;
                 case (byte)0x3C:
-                    errorCode = ErrorCode.FLASH_VERIFY_FAILED;
-                    break;
+                    return ErrorCode.FLASH_VERIFY_FAILED;
                 case (byte)0x0F:
-                    errorCode = ErrorCode.CHECK_SUM_ERROR;
-                    break;
+                    return ErrorCode.CHECK_SUM_ERROR;
                 case (byte)0xF0:
-                    errorCode = ErrorCode.SEQUENCE_ERROR;
-                    break;
+                    return ErrorCode.SEQUENCE_ERROR;
                 case (byte)0:
-                    errorCode = ErrorCode.GOOD;
-                    break;
+                    return ErrorCode.NO_ERROR;
                 default:
-                    errorCode = ErrorCode.UNKNOWN_ERROR;
-                    break;
+                    return ErrorCode.UNKNOWN_ERROR;
             }
-            return errorCode;
         }
     }//ErrorCode
 
@@ -103,13 +95,11 @@ public class ExpectedImageTUSeqNumberFeature extends DeviceTimestampFeature {
     }
 
     public static ErrorCode getAck(Sample s){
-        byte ack = (byte) 0xFF;
-        if(hasValidIndex(s, ERROR_ACK_INDEX))
-            ack = s.data[ERROR_ACK_INDEX].byteValue();
-
-        ErrorCode errorCode = ErrorCode.buildErrorCode(ack);
-
-        return errorCode;
+        if(hasValidIndex(s, ERROR_ACK_INDEX)) {
+            byte ack = s.data[ERROR_ACK_INDEX].byteValue();
+            return ErrorCode.buildErrorCode(ack);
+        }
+        return ErrorCode.UNKNOWN_ERROR;
     }
 
     @Override

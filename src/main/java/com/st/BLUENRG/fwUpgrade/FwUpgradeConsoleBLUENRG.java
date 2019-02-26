@@ -51,7 +51,6 @@ import com.st.BLUENRG.fwUpgrade.feature.ImageFeature;
 import com.st.BLUENRG.fwUpgrade.feature.NewImageFeature;
 import com.st.BLUENRG.fwUpgrade.feature.NewImageTUContentFeature;
 import com.st.BLUENRG.fwUpgrade.feature.ExpectedImageTUSeqNumberFeature;
-import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -188,7 +187,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     }
                 }
                 break;
-            case GOOD:
+            case NO_ERROR:
                 SeqNum = nextExpectedCharBlock;
                 retriesForChecksumError = 0;
                 retriesForSequenceError = 0;
@@ -282,7 +281,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
         @Override
         public void onUpdate(Feature f, Feature.Sample sample) {
             // server/board read
-            int paramBlueNRG2 = NewImageTUContentFeature.getParamBlueNRG2(sample);
+            int paramBlueNRG2 = NewImageTUContentFeature.getExpectedWriteLength(sample);
             if(blueNRGclientType == 1) {
                 if (SDKversion310higher || ((!SDKversion310higher) && (paramBlueNRG2 <= DEFAULT_WRITE_DATA_LEN))) { // 20 byte
                     protocolState = ProtocolStatePhase.RANGE_FLASH_MEM;
