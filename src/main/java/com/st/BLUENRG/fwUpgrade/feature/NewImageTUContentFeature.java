@@ -48,6 +48,7 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
 
     private static final String FEATURE_NAME = "Write byte sequence";
     private static final int OTA_SUPPORT_INFO_SIZE = 4; // Sequence Number (2 bytes), NeedsAcks (1 byte), Checksum (1 byte)
+    private static int Image_Char_Len = 0;
 
     /**
      * build a new disabled feature, that doesn't need to be initialized in the node side
@@ -61,10 +62,7 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
     }
 
     public static int getParamBlueNRG2(Sample s){
-        if(hasValidIndex(s,0))
-            return s.data[0].intValue();
-        //else
-        return 0;
+        return Image_Char_Len;
     }
 
     private byte checkSum(byte message[], int start,int destPos){
@@ -75,7 +73,7 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
         return checksum;
     }
 
-    public void upload(byte imageToSend[] ,byte OTA_ACK_EVERY,byte lastOTA_ACK_EVERY, int fw_image_packet_size, short SeqNum){
+    public void upload(Runnable onLastWriteSequenceDone,byte imageToSend[] ,byte OTA_ACK_EVERY,byte lastOTA_ACK_EVERY, int fw_image_packet_size, short SeqNum){
         int Write_Data_Len = fw_image_packet_size + OTA_SUPPORT_INFO_SIZE;// Set number of bytes sent on a single write without response
         byte payload[] = new byte[fw_image_packet_size];
         byte temp[];
@@ -104,17 +102,21 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
             byte checksum = checkSum(message,start,destPos);
             message[0] = checksum;
 
-            writeData(message);
-            if(needsAck == 0)
+            if(needsAck == 0) {
+                writeData(message);
                 SeqNum++;
+            }else{
+                writeData(message,onLastWriteSequenceDone);
+            }
         }
     }
 
     @Override
     protected ExtractResult extractData(long timestamp, byte[] data, int dataOffset) {
-        int numByte = 1;
+        int numByte = 1; // at least 1
         if (data.length - dataOffset < numByte)
             throw new IllegalArgumentException("There are byte available to read");
+        Image_Char_Len = data.length;
         return new ExtractResult(new Sample(new Number[]{data[dataOffset]},getFieldsDesc()),numByte);
     }
 }

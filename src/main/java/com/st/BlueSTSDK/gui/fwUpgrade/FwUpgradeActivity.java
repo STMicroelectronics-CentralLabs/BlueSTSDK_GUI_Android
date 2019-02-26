@@ -53,6 +53,7 @@ import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.ConnectionOption;
 import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
+import com.st.BlueSTSDK.gui.NodeConnectionService;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
@@ -278,6 +279,9 @@ public class FwUpgradeActivity extends ActivityWithNode {
         @Override
         protected void onUploadFinished(float timeS) {
             super.onUploadFinished(timeS);
+            //NodeConnectionService.disconnect(requireContext(),mNode);
+            keepConnectionOpen(false,false);
+            NodeConnectionService.disconnect(FwUpgradeActivity.this,mNode);
             mFinalMessage.setText(String.format(getString(R.string.fwUpgrade_upgradeCompleteMessage),timeS));
         }
     }
