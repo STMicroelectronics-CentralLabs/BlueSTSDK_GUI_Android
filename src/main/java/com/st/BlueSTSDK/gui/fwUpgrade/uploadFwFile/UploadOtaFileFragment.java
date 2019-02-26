@@ -34,7 +34,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package com.st.STM32WB.fwUpgrade.uploadOtaFile;
+package com.st.BlueSTSDK.gui.fwUpgrade.uploadFwFile;
 
 import android.content.BroadcastReceiver;
 import android.content.Intent;
@@ -67,6 +67,7 @@ import com.st.BlueSTSDK.gui.util.SimpleFragmentDialog;
 public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActionReceiver.UploadFinishedListener{
 
     private static final String FW_URI_KEY = UploadOtaFileFragment.class.getCanonicalName()+".FW_URI_KEY";
+    private static final String SHOW_ADDRESS_KEY = UploadOtaFileFragment.class.getCanonicalName()+".SHOW_ADDRESS_KEY";
     private static final String ADDRESS_KEY = UploadOtaFileFragment.class.getCanonicalName()+".ADDRESS_KEY";
     private static final String UPLOAD_PROGRESS_VISIBILITY_KEY = UploadOtaFileFragment.class.getCanonicalName()+".UPLOAD_PROGRESS_VISIBILITY_KEY";
 
@@ -77,13 +78,21 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
     private static final int MIN_MEMORY_ADDRESS = 0x7000;
     private static final int MAX_MEMORY_ADDRESS = 0xFFFF;
 
-    public static UploadOtaFileFragment build(@NonNull Node node, @Nullable Uri file,@Nullable Long address){
+    public static UploadOtaFileFragment build(@NonNull Node node, @Nullable Uri file,
+                                              @Nullable Long address){
+        return build(node,file,address,true);
+    }
+
+    public static UploadOtaFileFragment build(@NonNull Node node, @Nullable Uri file,
+                                              @Nullable Long address, boolean showAddressField){
         Bundle args = new Bundle();
         args.putString(NODE_PARAM,node.getTag());
+        args.putBoolean(SHOW_ADDRESS_KEY,showAddressField);
         if(file!=null)
             args.putParcelable(FILE_PARAM,file);
+
         if(address!=null)
-            args.putLong(ADDRESS_PARAM,address);
+            args.putLong(ADDRESS_PARAM, address);
 
         UploadOtaFileFragment f = new UploadOtaFileFragment();
         f.setArguments(args);
@@ -120,6 +129,9 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
         setupStartUploadButton(mRootView.findViewById(R.id.otaUpload_startUploadButton));
         setupAddressText(mAddressText,mRootView.findViewById(R.id.otaUpload_addressTextLayout),
                 getFlashAddress(savedInstanceState,getArguments()));
+        if(showFleshAddress(getArguments())){
+            mAddressText.setVisibility(View.GONE);
+        }
         mRequestFile = new RequestFileUtil(this,mRootView);
         onFileSelected(getFirmwareLocation(savedInstanceState,getArguments()));
         return  mRootView;
@@ -155,6 +167,14 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
             return arguments.getLong(ADDRESS_PARAM);
         }
         return MIN_MEMORY_ADDRESS;
+    }
+
+    private boolean showFleshAddress(@Nullable Bundle arguments){
+        if(arguments!=null){
+            return arguments.getBoolean(SHOW_ADDRESS_KEY,false);
+        }else{
+            return false;
+        }
     }
 
     private @Nullable Uri getFirmwareLocation(@Nullable Bundle savedInstanceState, @Nullable Bundle arguments){
@@ -196,7 +216,6 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
     public void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(mMessageReceiver);
-
     }
 
     private Long getFwAddress(){
@@ -211,10 +230,10 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
 
     private void setupStartUploadButton(View button) {
         button.setOnClickListener(v -> {
-            Long addrres = getFwAddress();
+            Long address = getFwAddress();
             if(mSelectedFw!=null) {
-                if(addrres!=null) {
-                    startUploadFile(mSelectedFw, addrres);
+                if(address!=null) {
+                    startUploadFile(mSelectedFw, address);
                 }else{
                     Snackbar.make(mRootView,"Invalid address",Snackbar.LENGTH_SHORT).show();
                 }

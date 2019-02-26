@@ -38,15 +38,13 @@ package com.st.BlueSTSDK.gui.fwUpgrade;
 
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.LocalBroadcastManager;
-import android.view.View;
 import android.widget.TextView;
 
 import com.st.BlueSTSDK.Node;
@@ -57,6 +55,7 @@ import com.st.BlueSTSDK.gui.NodeConnectionService;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
+import com.st.BlueSTSDK.gui.fwUpgrade.uploadFwFile.UploadOtaFileFragment;
 import com.st.BlueSTSDK.gui.util.AlertAndFinishDialog;
 import com.st.BlueSTSDK.gui.util.DialogUtil;
 
@@ -65,9 +64,7 @@ import com.st.BlueSTSDK.gui.util.DialogUtil;
  */
 public class FwUpgradeActivity extends ActivityWithNode {
 
-    private static final FwVersionBoard MIN_COMPATIBILITY_VERSION[] = new FwVersionBoard[]{
-            new FwVersionBoard("BLUEMICROSYSTEM2","",2,0,1)
-    };
+
 
     private static final String FRAGMENT_DIALOG_TAG = "Dialog";
 
@@ -107,52 +104,12 @@ public class FwUpgradeActivity extends ActivityWithNode {
         return intent;
     }
 
-    private TextView mVersionBoardText;
-    private TextView mBoardTypeText;
-    private TextView mFwBoardName;
-    private TextView mFinalMessage;
-    private FwVersionBoard mVersion;
-    private RequestFileUtil mRequestFile;
-
     private Node.NodeStateListener mOnConnected = (node, newState, prevState) -> {
         if(newState==Node.State.Connected){
-            FwUpgradeActivity.this.runOnUiThread(this::initFwVersion);
+            FwUpgradeActivity.this.mViewModel.loadFwVersionFromNode(node);
         }
     };
 
-    private void displayVersion(FwVersionBoard version){
-        mVersion= version;
-        mVersionBoardText.setText(version.toString());
-        mBoardTypeText.setText(version.getMcuType());
-        mFwBoardName.setText(version.getName());
-    }
-
-    private ProgressDialog mLoadVersionProgressDialog;
-
-
-    private FwVersionConsole.FwVersionCallback mVersionConsoleListener = new FwVersionConsole.FwVersionCallback() {
-        @Override
-        public void onVersionRead(FwVersionConsole console,
-                                  @FirmwareType final int fwType,
-                                  @Nullable FwVersion version) {
-            FwUpgradeActivity.this.runOnUiThread(() -> {
-                DialogUtil.releaseDialog(mLoadVersionProgressDialog);
-                mLoadVersionProgressDialog=null;
-                if(version==null){
-                    displayFwUpgradeNotAvailableAndFinish();
-                    return;
-                }
-                if(fwType==FirmwareType.BOARD_FW) {
-                    FwVersionBoard boardVersion =(FwVersionBoard) version;
-                    if(checkFwIncompatibility(boardVersion)) {
-                        displayVersion(boardVersion);
-                        startExternalFwUpgrade();
-                    }
-                }
-            });
-            console.setLicenseConsoleListener(null);
-        }
-    };
 
     /**
      * if the intent contains the fw uri, and the permission are in place start the fw upload
@@ -161,7 +118,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
     private boolean startExternalFwUpgrade() {
         Intent intent = getIntent();
         Node node = getNode();
-        if(intent.hasExtra(EXTRA_FW_TO_LOAD) && mRequestFile.checkReadSDPermission() && node!=null){
+        if(intent.hasExtra(EXTRA_FW_TO_LOAD) && node!=null){
             Uri fwLocation = intent.getParcelableExtra(EXTRA_FW_TO_LOAD);
             FwUpgradeService.startUploadService(this,node,fwLocation,null);
             return true;
@@ -175,18 +132,6 @@ public class FwUpgradeActivity extends ActivityWithNode {
                 getString(R.string.FwUpgrade_notAvailableMsg), true);
         newFragment.show(getFragmentManager(), FRAGMENT_DIALOG_TAG);
 
-    }
-
-    private boolean checkFwIncompatibility(FwVersionBoard version){
-        for(FwVersionBoard knowBoard : MIN_COMPATIBILITY_VERSION){
-            if(version.getName().equals(knowBoard.getName())){
-                if(version.compareTo(knowBoard)<0){
-                    displayNeedNewFwAndFinish(knowBoard);
-                    return false;
-                }//if
-            }//if
-        }//for
-        return true;
     }
 
     private void displayNeedNewFwAndFinish(FwVersionBoard minVersion) {
@@ -204,53 +149,41 @@ public class FwUpgradeActivity extends ActivityWithNode {
         newFragment.show(getFragmentManager(), FRAGMENT_DIALOG_TAG);
     }
 
-    private  void initFwVersion(){
-        FwVersionConsole console = FwVersionConsole.getFwVersionConsole(mNode);
-        if(console !=null) {
-            mLoadVersionProgressDialog = new ProgressDialog(this);
-            mLoadVersionProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            mLoadVersionProgressDialog.setTitle(R.string.fwUpgrade_loading);
-            mLoadVersionProgressDialog.setMessage(getString(R.string.fwUpgrade_loadFwVersion));
 
-            console.setLicenseConsoleListener(mVersionConsoleListener);
-            mLoadVersionProgressDialog.show();
-            console.readVersion(FirmwareType.BOARD_FW);
-        }else{
-            displayNotSupportedAndFinish();
-        }
-
-    }
+    private FwVersionViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fw_upgrade);
-        View rootView = findViewById(R.id.activityFwRootView);
-        mVersionBoardText = findViewById(R.id.fwVersionValue);
-        mBoardTypeText = findViewById(R.id.boardTypeValue);
-        mFwBoardName = findViewById(R.id.fwName);
-        mFinalMessage =  findViewById(R.id.upgradeFinishMessage);
 
-        FloatingActionButton uploadButton = findViewById(R.id.startUpgradeButton);
-        if( uploadButton !=null) {
-            uploadButton.setOnClickListener(view -> startFwUpgrade());
-        }
+        mViewModel = ViewModelProviders.of(this).get(FwVersionViewModel.class);
 
-        if(savedInstanceState!=null) {
-            mVersion= savedInstanceState.getParcelable(VERSION);
-            if(mVersion!=null)
-                displayVersion(mVersion);
-            mFinalMessage.setText(savedInstanceState.getString(FINAL_MESSAGE,""));
-        }
+        mViewModel.getFwVersion().observe(this, fwVersion -> {
+            if(fwVersion==null){
+                displayFwUpgradeNotAvailableAndFinish();
+            }else {
+                startExternalFwUpgrade();
+            }
+        });
 
-        mRequestFile = new RequestFileUtil(this, rootView);
-    }
+        mViewModel.supportFwUpgrade().observe(this, isSupported -> {
+            if(isSupported == null)
+                return;
+            if(!isSupported){
+                displayNotSupportedAndFinish();
+            }
+        });
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(VERSION, mVersion);
-        outState.putString(FINAL_MESSAGE, mFinalMessage.getText().toString());
+        mViewModel.requireManualUpdateTo().observe(this, minSupportedVersion -> {
+            if(minSupportedVersion == null)
+                return;
+            displayNeedNewFwAndFinish(minSupportedVersion);
+        });
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fwUpgrade_uploadFileFragment,UploadOtaFileFragment.build(mNode,null,null),"changeme")
+                .commit();
     }
 
 
@@ -259,77 +192,19 @@ public class FwUpgradeActivity extends ActivityWithNode {
     protected void onPause() {
         super.onPause();
         mNode.removeNodeStateListener(mOnConnected);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
-        mMessageReceiver.releaseDialog();
-        DialogUtil.releaseDialog(mLoadVersionProgressDialog);
     }
-
-    private class FwUpgradeServiceActionReceiver extends com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeServiceActionReceiver{
-
-        FwUpgradeServiceActionReceiver(Context c) {
-            super(c);
-        }
-
-        @Override
-        protected void onUploadError(String msg) {
-            super.onUploadError(msg);
-            mFinalMessage.setText(msg);
-        }
-
-        @Override
-        protected void onUploadFinished(float timeS) {
-            super.onUploadFinished(timeS);
-            //NodeConnectionService.disconnect(requireContext(),mNode);
-            keepConnectionOpen(false,false);
-            NodeConnectionService.disconnect(FwUpgradeActivity.this,mNode);
-            mFinalMessage.setText(String.format(getString(R.string.fwUpgrade_upgradeCompleteMessage),timeS));
-        }
-    }
-
-
-    private FwUpgradeServiceActionReceiver mMessageReceiver;
 
     @Override
     public void onResume() {
         super.onResume();
-        mMessageReceiver = new FwUpgradeServiceActionReceiver(this);
-        // Register mMessageReceiver to receive messages.
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                FwUpgradeService.getServiceActionFilter());
 
-        if(mVersion==null){
-            if (mNode.isConnected()) {
-                initFwVersion();
-            } else {
-                mNode.addNodeStateListener(mOnConnected);
-            }
-        }
-
-    }
-
-    private void startFwUpgrade(){
-        keepConnectionOpen(true,false);
-        mRequestFile.openFileSelector();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
-        Uri selectedFile = mRequestFile.onActivityResult(requestCode, resultCode, data);
-        Node node = getNode();
-        if (selectedFile != null && node != null) {
-            FwUpgradeService.startUploadService(this, node, selectedFile, null);
+        if (mNode.isConnected()) {
+            mViewModel.loadFwVersionFromNode(mNode);
+        } else {
+            mNode.addNodeStateListener(mOnConnected);
         }
     }
 
 
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
-        mRequestFile.onRequestPermissionsResult(requestCode,permissions,grantResults);
-    }//onRequestPermissionsResult
 
 }

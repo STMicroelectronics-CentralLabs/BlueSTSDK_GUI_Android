@@ -134,7 +134,7 @@ public class RequestFileUtil {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         return intent;
-        //Intent i = Intent.createChooser(intent, "Open firmwere file");
+        //Intent i = Intent.createChooser(intent, "Open firmware file");
     }
 
 
@@ -145,9 +145,12 @@ public class RequestFileUtil {
      * @return name o the file inside the uri
      */
     public static @Nullable String getFileName(@NonNull Context context, @Nullable Uri uri) {
-        if(uri ==null)
+        if(uri == null)
             return null;
         String scheme = uri.getScheme();
+        if(scheme == null)
+            return null;
+
         if (scheme.equals("file")) {
             return uri.getLastPathSegment();
         }

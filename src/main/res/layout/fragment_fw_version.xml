@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".fwUpgrade.FwVersionFragment" >
+
+    <LinearLayout
+        android:id="@+id/fwVersion_loadingView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ProgressBar
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/fwVersion_loading" />
+    </LinearLayout>
+
+    <GridLayout
+        android:id="@+id/fwVersion_contentView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnCount="2"
+        android:rowCount="3"
+        android:visibility="gone">
+
+        <TextView android:text="@string/fwVersion_name" />
+
+        <TextView
+            android:id="@+id/fwVersion_nameValue"
+            tools:text="FP-NAME" />
+
+        <TextView android:text="@string/fwVersion_version" />
+
+        <TextView
+            android:id="@+id/fwVersion_versionValue"
+            tools:text="1.0.0" />
+
+        <TextView android:text="@string/fwVersion_mcu" />
+
+        <TextView
+            android:id="@+id/fwVersion_mcuTypeValue"
+            tools:text="MCU type" />
+
+    </GridLayout>
+</FrameLayout>

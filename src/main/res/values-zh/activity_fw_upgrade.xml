@@ -41,7 +41,7 @@
     <string name="fwUpgrade_loading">调取中…</string>
     <string name="fwUpgrade_version">版本: </string>
     <string name="fwUpgrade_board_type">Mcu 类型: </string>
-    <string name="fwUpgrade_loadFwVersion">正在调取固件版本</string>
+    <string name="fwVersion_loading">正在调取固件版本</string>
     <string name="fwUpgrade_formatting">格式化中</string>
     <string name="fwUpgrade_uploading">上传中</string>
     <string name="fwUpgrade_upgradeCompleteMessage">烧录完成在: %1$.2fs\n目标板复位中</string>

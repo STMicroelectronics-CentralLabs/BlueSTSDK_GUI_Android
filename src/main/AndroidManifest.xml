@@ -90,9 +90,6 @@
         <activity
             android:name="com.st.STM32WB.fwUpgrade.FwUpgradeSTM32WBActivity"
             android:label="@string/title_activity_fw_upgrade_stm32_wb"/>
-        <activity
-            android:name="com.st.BLUENRG.fwUpgrade.FwUpgradeBLUENRGActivity"
-            android:label="@string/title_activity_fw_upgrade_blueNrg"/>
 
         <activity android:name="com.st.STM32WB.p2pDemo.DemoSTM32WBActivity"/>
     </application>

@@ -57,7 +57,7 @@ import com.st.BlueSTSDK.gui.NodeConnectionService;
 import com.st.BlueSTSDK.gui.R;
 import com.st.STM32WB.fwUpgrade.feature.STM32OTASupport;
 import com.st.STM32WB.fwUpgrade.searchOtaNode.SearchOtaNodeFragment;
-import com.st.STM32WB.fwUpgrade.uploadOtaFile.UploadOtaFileFragment;
+import com.st.BlueSTSDK.gui.fwUpgrade.uploadFwFile.UploadOtaFileFragment;
 
 public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements SearchOtaNodeFragment.OnOtaNodeSearchCallback {
 
