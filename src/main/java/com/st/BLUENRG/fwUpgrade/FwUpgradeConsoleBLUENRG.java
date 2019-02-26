@@ -71,9 +71,9 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private static final int DEFAULT_WRITE_DATA_LEN = (DEFAULT_ATT_MTU_SIZE - ATT_MTU_SUPPORT_INFO_SIZE); // 20 bytes
     private static final int OTA_SUPPORT_INFO_SIZE = 4; // Sequence Number (2 bytes), NeedsAcks (1 byte), Checksum (1 byte)
     private static final int MAX_ATT_MTU = 220; // byte
-    private static final int retriesMax = 1000; // typical 80 times
-    private static final short retriesForChecksumErrorMax = 4;
-    private static final short retriesForSequenceErrorMax = 4;
+    private static final int RETRIESMAX = 1000; // typical 80 times
+    private static final short RETRIESFORCHECKSUMERRORMAX = 4;
+    private static final short RETRIESFORSEQUENCEERRORMAX = 4;
     private static final short retriesForMissedNotificationMax = 400;
     private short retriesForMissedNotification = 0;
     private short retriesForChecksumError = 0;
@@ -155,26 +155,26 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
         return (base_address >= flash_LB) && ((base_address + cntExtended) <= flash_UB) && ((base_address % 512) == 0);
     }
 
-    private boolean ackResult(short nextExpectedCharBlock,byte ack){
+    private boolean ackResult(short nextExpectedCharBlock,ExpectedImageTUSeqNumberFeature.ErrorCode ack){
 
         boolean result = false;
         switch (ack) {
-            case (byte)0xFF:
+            case FLASH_WRITE_FAILED:
                 //ERROR('FLASH WRITE FAILED ON TARGET DEVICE: Repeat FW upgrade procedure')
                 break;
-            case 0x3C:
-                //ERROR('FLASH WRITE FAILED ON TARGET DEVICE: Repeat FW upgrade procedure')
+            case FLASH_VERIFY_FAILED:
+                //ERROR('FLASH VERIFY FAILED ON TARGET DEVICE: Repeat FW upgrade procedure')
                 break;
-            case 0x0F:
-                if(retriesForChecksumError < retriesForChecksumErrorMax) {
+            case CHECK_SUM_ERROR:
+                if(retriesForChecksumError < RETRIESFORCHECKSUMERRORMAX) {
                     SeqNum = nextExpectedCharBlock;
                     result = true;
                     retriesForChecksumError++;
                     Log.d("BlueNRG1", "retriesForChecksumError: " + retriesForChecksumError);
                 }
                 break;
-            case (byte)0xF0:
-                if(retriesForSequenceError < retriesForSequenceErrorMax) {
+            case SEQUENCE_ERROR:
+                if(retriesForSequenceError < RETRIESFORSEQUENCEERRORMAX) {
                     SeqNum = nextExpectedCharBlock;
                     result = true;
                     retriesForSequenceError++;
@@ -188,13 +188,13 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     }
                 }
                 break;
-            case 0x00:
+            case GOOD:
                 SeqNum = nextExpectedCharBlock;
                 retriesForChecksumError = 0;
                 retriesForSequenceError = 0;
                 result = true;
                 break;
-            default:
+            case UNKNOWN_ERROR:
                 //ERROR('UNKNOWN ERROR ON TARGET DEVICE: Repeat FW upgrade procedure')
                 break;
         }
@@ -260,7 +260,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 if ((otaAckEveryRead != OTA_ACK_EVERY) || (imageSizeRead != cntExtended) || (baseAddressRead != base_address)) {
                     retries++;
                     Log.d("BlueNRG1", "retries: " + retries);
-                    if (retries >= retriesMax) {
+                    if (retries >= RETRIESMAX) {
                         mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
                         resultState = false;
                         retries = 0;
@@ -313,7 +313,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 protocolState = ProtocolStatePhase.FIRST_RECEIVED_NOTIFICATION;
                 EngineProtocolState();
             }else {
-                byte ack = ExpectedImageTUSeqNumberFeature.getAck(sample);
+                ExpectedImageTUSeqNumberFeature.ErrorCode ack = ExpectedImageTUSeqNumberFeature.getAck(sample);
                 short nextExpectedCharBlock = ExpectedImageTUSeqNumberFeature.getNextExpectedCharBlock(sample);
                 boolean good = ackResult(nextExpectedCharBlock, ack); // check ack answer
                 if (good) {
@@ -456,6 +456,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     EngineProtocolState();
                 }else {
                     if (resultState) {
+                        mNode.disconnect();
                         mCallback.onLoadFwComplete(FwUpgradeConsoleBLUENRG.this, fwFile);
                     }
                     onGoing = false;

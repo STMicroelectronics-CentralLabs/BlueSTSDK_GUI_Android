@@ -48,7 +48,7 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
 
     private static final String FEATURE_NAME = "Write byte sequence";
     private static final int OTA_SUPPORT_INFO_SIZE = 4; // Sequence Number (2 bytes), NeedsAcks (1 byte), Checksum (1 byte)
-    private static int Image_Char_Len = 0;
+    private static int image_Char_Len = 0;
 
     /**
      * build a new disabled feature, that doesn't need to be initialized in the node side
@@ -62,7 +62,7 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
     }
 
     public static int getParamBlueNRG2(Sample s){
-        return Image_Char_Len;
+        return image_Char_Len;
     }
 
     private byte checkSum(byte message[], int start,int destPos){
@@ -116,7 +116,7 @@ public class NewImageTUContentFeature extends DeviceTimestampFeature {
         int numByte = 1; // at least 1
         if (data.length - dataOffset < numByte)
             throw new IllegalArgumentException("There are byte available to read");
-        Image_Char_Len = data.length;
+        image_Char_Len = data.length;
         return new ExtractResult(new Sample(new Number[]{data[dataOffset]},getFieldsDesc()),numByte);
     }
 }

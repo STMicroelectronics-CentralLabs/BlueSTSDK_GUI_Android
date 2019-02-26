@@ -54,6 +54,39 @@ public class ExpectedImageTUSeqNumberFeature extends DeviceTimestampFeature {
     private static final int NEXT_EXPECTED_INDEX = 0;
     private static final int ERROR_ACK_INDEX = 1;
 
+    public enum ErrorCode {
+        FLASH_WRITE_FAILED,
+        FLASH_VERIFY_FAILED,
+        CHECK_SUM_ERROR,
+        SEQUENCE_ERROR,
+        GOOD,
+        UNKNOWN_ERROR;
+
+        public static ErrorCode buildErrorCode(byte ack) {
+            ErrorCode errorCode;
+            switch (ack) {
+                case (byte)0xFF:
+                    errorCode = ErrorCode.FLASH_WRITE_FAILED;
+                    break;
+                case (byte)0x3C:
+                    errorCode = ErrorCode.FLASH_VERIFY_FAILED;
+                    break;
+                case (byte)0x0F:
+                    errorCode = ErrorCode.CHECK_SUM_ERROR;
+                    break;
+                case (byte)0xF0:
+                    errorCode = ErrorCode.SEQUENCE_ERROR;
+                    break;
+                case (byte)0:
+                    errorCode = ErrorCode.GOOD;
+                    break;
+                default:
+                    errorCode = ErrorCode.UNKNOWN_ERROR;
+                    break;
+            }
+            return errorCode;
+        }
+    }//ErrorCode
 
     public ExpectedImageTUSeqNumberFeature(Node n){
         super(FEATURE_NAME,n,new Field[]{
@@ -69,11 +102,14 @@ public class ExpectedImageTUSeqNumberFeature extends DeviceTimestampFeature {
         return DATA_MAX;
     }
 
-    public static byte getAck(Sample s){
+    public static ErrorCode getAck(Sample s){
+        byte ack = (byte) 0xFF;
         if(hasValidIndex(s, ERROR_ACK_INDEX))
-            return s.data[ERROR_ACK_INDEX].byteValue();
-        //else
-        return (byte) 0xFF;
+            ack = s.data[ERROR_ACK_INDEX].byteValue();
+
+        ErrorCode errorCode = ErrorCode.buildErrorCode(ack);
+
+        return errorCode;
     }
 
     @Override

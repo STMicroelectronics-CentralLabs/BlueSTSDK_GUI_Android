@@ -53,14 +53,14 @@ public class ImageFeature extends DeviceTimestampFeature {
     private static final long DATA_MIN = 0;
 
     private static final int FLASH_LB_INDEX = 0;
-    private static final int Flash_UB_INDEX = 1;
+    private static final int FLASH_UB_INDEX = 1;
     private static final int PROTOCOL_VAR_MAJOR_INDEX = 2;
     private static final int PROTOCOL_VER_MINOR_INDEX = 3;
 
     public ImageFeature(Node n){
         super(FEATURE_NAME,n,new Field[]{
                 new Field(FEATURE_DATA_NAME[FLASH_LB_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
-                new Field(FEATURE_DATA_NAME[Flash_UB_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
+                new Field(FEATURE_DATA_NAME[FLASH_UB_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
                 new Field(FEATURE_DATA_NAME[PROTOCOL_VAR_MAJOR_INDEX],null, Field.Type.UInt8,255,DATA_MIN),
                 new Field(FEATURE_DATA_NAME[PROTOCOL_VER_MINOR_INDEX],null, Field.Type.UInt8,255,DATA_MIN)
         });
@@ -74,8 +74,8 @@ public class ImageFeature extends DeviceTimestampFeature {
     }
 
     public static long getFlashUpperBound(Sample s){
-        if(hasValidIndex(s,Flash_UB_INDEX))
-            return s.data[Flash_UB_INDEX].longValue();
+        if(hasValidIndex(s,FLASH_UB_INDEX))
+            return s.data[FLASH_UB_INDEX].longValue();
         //else
         return DATA_MIN;
     }
