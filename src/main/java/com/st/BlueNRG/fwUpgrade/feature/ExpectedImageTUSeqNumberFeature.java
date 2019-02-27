@@ -1,4 +1,5 @@
-/* Copyright (c) 2017  STMicroelectronics – All rights reserved
+/*
+ * Copyright (c) 2017  STMicroelectronics – All rights reserved
  * The STMicroelectronics corporate logo is a trademark of STMicroelectronics
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -33,81 +34,84 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package com.st.BLUENRG.fwUpgrade.feature;
-
-import android.support.annotation.Nullable;
+package com.st.BlueNRG.fwUpgrade.feature;
 
 import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
-import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.Utils.NumberConversion;
 
-public class ImageFeature extends DeviceTimestampFeature {
-    private static final String FEATURE_NAME = "MemoryInfo";
+public class ExpectedImageTUSeqNumberFeature extends DeviceTimestampFeature {
+
+    private static final String FEATURE_NAME = "Start ack notification";
     /** name of the exported data */
-    private static final String[] FEATURE_DATA_NAME = {"Flash_LB", "Flash_UB", "ProtocolVerMajor","ProtocolVerMinor"};
+    private static final String[] FEATURE_DATA_NAME = {"NextExpectedCharBlock", "ReadAck"};
     /** max value of one component*/
-    private static final long DATA_MAX = 0xFFFFFFFF;
+    private static final short DATA_MAX = (short) 0xFFFF;
     /** min value of one component*/
-    private static final long DATA_MIN = 0;
+    private static final short DATA_MIN = 0;
 
-    private static final int FLASH_LB_INDEX = 0;
-    private static final int FLASH_UB_INDEX = 1;
-    private static final int PROTOCOL_VAR_MAJOR_INDEX = 2;
-    private static final int PROTOCOL_VER_MINOR_INDEX = 3;
+    private static final int NEXT_EXPECTED_INDEX = 0;
+    private static final int ERROR_ACK_INDEX = 1;
 
-    public ImageFeature(Node n){
+    public enum ErrorCode {
+        FLASH_WRITE_FAILED,
+        FLASH_VERIFY_FAILED,
+        CHECK_SUM_ERROR,
+        SEQUENCE_ERROR,
+        NO_ERROR,
+        UNKNOWN_ERROR;
+
+        static ErrorCode buildErrorCode(byte ack) {
+            switch (ack) {
+                case (byte)0xFF:
+                    return ErrorCode.FLASH_WRITE_FAILED;
+                case (byte)0x3C:
+                    return ErrorCode.FLASH_VERIFY_FAILED;
+                case (byte)0x0F:
+                    return ErrorCode.CHECK_SUM_ERROR;
+                case (byte)0xF0:
+                    return ErrorCode.SEQUENCE_ERROR;
+                case (byte)0:
+                    return ErrorCode.NO_ERROR;
+                default:
+                    return ErrorCode.UNKNOWN_ERROR;
+            }
+        }
+    }//ErrorCode
+
+    public ExpectedImageTUSeqNumberFeature(Node n){
         super(FEATURE_NAME,n,new Field[]{
-                new Field(FEATURE_DATA_NAME[FLASH_LB_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
-                new Field(FEATURE_DATA_NAME[FLASH_UB_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
-                new Field(FEATURE_DATA_NAME[PROTOCOL_VAR_MAJOR_INDEX],null, Field.Type.UInt8,255,DATA_MIN),
-                new Field(FEATURE_DATA_NAME[PROTOCOL_VER_MINOR_INDEX],null, Field.Type.UInt8,255,DATA_MIN)
+                new Field(FEATURE_DATA_NAME[NEXT_EXPECTED_INDEX],null, Field.Type.UInt16,DATA_MAX,DATA_MIN),
+                new Field(FEATURE_DATA_NAME[ERROR_ACK_INDEX],null, Field.Type.UInt8,255,DATA_MIN)
         });
     }
 
-    public static long getFlashLowerBound(Sample s){
-        if(hasValidIndex(s, FLASH_LB_INDEX))
-            return s.data[FLASH_LB_INDEX].longValue();
+    public static short getNextExpectedCharBlock(Sample s){
+        if(hasValidIndex(s, NEXT_EXPECTED_INDEX))
+            return s.data[NEXT_EXPECTED_INDEX].shortValue();
         //else
         return DATA_MAX;
     }
 
-    public static long getFlashUpperBound(Sample s){
-        if(hasValidIndex(s,FLASH_UB_INDEX))
-            return s.data[FLASH_UB_INDEX].longValue();
-        //else
-        return DATA_MIN;
-    }
-
-    public @Nullable FwVersion getProtocolVer(Sample s){
-        if(hasValidIndex(s,PROTOCOL_VAR_MAJOR_INDEX)&& hasValidIndex(s,PROTOCOL_VER_MINOR_INDEX)){
-            return new FwVersion(s.data[PROTOCOL_VAR_MAJOR_INDEX].byteValue(),
-                    s.data[PROTOCOL_VER_MINOR_INDEX].byteValue(),0);
+    public static ErrorCode getAck(Sample s){
+        if(hasValidIndex(s, ERROR_ACK_INDEX)) {
+            byte ack = s.data[ERROR_ACK_INDEX].byteValue();
+            return ErrorCode.buildErrorCode(ack);
         }
-        return null;
+        return ErrorCode.UNKNOWN_ERROR;
     }
 
     @Override
     protected ExtractResult extractData(long timestamp, byte[] data, int dataOffset) {
-        final int availableData = data.length - dataOffset;
-        int readData = 8;
-        if ( availableData < readData)
+        int numByte = 3;
+
+        if (data.length - dataOffset < numByte)
             throw new IllegalArgumentException("There are byte available to read");
 
-        long flash_LB = NumberConversion.BigEndian.bytesToUInt32(data,dataOffset);
-        long flash_UB = NumberConversion.BigEndian.bytesToUInt32(data,dataOffset+4);
+        int nextExpectedCharBlock = NumberConversion.LittleEndian.bytesToUInt16(data,dataOffset); // unsigned short is saved as int
+        byte errorAck = data[dataOffset+2];
 
-        int versionMajour = 1, versionMinor = 0;
-        if(availableData >=9){
-            versionMajour = data[dataOffset+8] / 16;
-            versionMinor = data[dataOffset+8] % 16;
-            readData++;
-        }
-
-        return new ExtractResult(
-                new Sample(new Number[]{flash_LB, flash_UB,versionMajour,versionMinor},
-                getFieldsDesc()), readData);
-
+        return new ExtractResult(new Sample(new Number[]{nextExpectedCharBlock,errorAck},getFieldsDesc()),numByte);
     }
 }

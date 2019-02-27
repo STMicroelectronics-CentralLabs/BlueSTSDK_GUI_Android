@@ -34,9 +34,9 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package com.st.BLUENRG.fwUpgrade;
+package com.st.BlueNRG.fwUpgrade;
 
-import com.st.BLUENRG.fwUpgrade.feature.ImageFeature;
+import com.st.BlueNRG.fwUpgrade.feature.ImageFeature;
 import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.FwVersion;
@@ -44,7 +44,7 @@ import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
 
-public class FwVersionConsoleBLUENRG extends FwVersionConsole {
+public class FwVersionConsoleBlueNRG extends FwVersionConsole {
 
     private static final String DEFAULT_BOARD_NAME = "BLUENRG OTA";
     private static final String DEFAULT_MCU_NAME = "BLUENRG";
@@ -54,7 +54,7 @@ public class FwVersionConsoleBLUENRG extends FwVersionConsole {
     public static FwVersionConsole buildForNode(Node node){
         ImageFeature rangeMem = node.getFeature(ImageFeature.class);
         if(rangeMem!=null) {
-            return new FwVersionConsoleBLUENRG(null,rangeMem);
+            return new FwVersionConsoleBlueNRG(null,rangeMem);
         }
         return null;
     }
@@ -62,7 +62,7 @@ public class FwVersionConsoleBLUENRG extends FwVersionConsole {
     /**
      * @param callback object where notify the command answer
      */
-    private FwVersionConsoleBLUENRG(FwVersionCallback callback,ImageFeature rangeMem) {
+    private FwVersionConsoleBlueNRG(FwVersionCallback callback, ImageFeature rangeMem) {
         super(callback);
         mRangeMem = rangeMem;
 
@@ -79,9 +79,9 @@ public class FwVersionConsoleBLUENRG extends FwVersionConsole {
                     if(protocolVer!=null) {
                         FwVersionBoard version = new FwVersionBoard(DEFAULT_BOARD_NAME, DEFAULT_MCU_NAME,
                                 protocolVer.getMajorVersion(), protocolVer.getMinorVersion(), protocolVer.getPatchVersion());
-                        mCallback.onVersionRead(FwVersionConsoleBLUENRG.this, FirmwareType.BOARD_FW, version);
+                        mCallback.onVersionRead(FwVersionConsoleBlueNRG.this, FirmwareType.BOARD_FW, version);
                     }else{
-                        mCallback.onVersionRead(FwVersionConsoleBLUENRG.this, FirmwareType.BOARD_FW,  null);
+                        mCallback.onVersionRead(FwVersionConsoleBlueNRG.this, FirmwareType.BOARD_FW,  null);
                     }
                 }
                 mRangeMem.removeFeatureListener(this);

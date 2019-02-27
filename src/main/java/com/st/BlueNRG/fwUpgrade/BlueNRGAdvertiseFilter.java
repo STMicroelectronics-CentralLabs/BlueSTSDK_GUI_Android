@@ -1,4 +1,4 @@
-package com.st.BLUENRG.fwUpgrade;
+package com.st.BlueNRG.fwUpgrade;
 
 import android.support.annotation.Nullable;
 import android.util.SparseArray;

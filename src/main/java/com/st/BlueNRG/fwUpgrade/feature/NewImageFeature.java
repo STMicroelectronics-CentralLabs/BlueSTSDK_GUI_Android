@@ -34,84 +34,79 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package com.st.BLUENRG.fwUpgrade.feature;
+package com.st.BlueNRG.fwUpgrade.feature;
 
 import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.NumberConversion;
 
-public class ExpectedImageTUSeqNumberFeature extends DeviceTimestampFeature {
+public class NewImageFeature extends DeviceTimestampFeature {
 
-    private static final String FEATURE_NAME = "Start ack notification";
-    /** name of the exported data */
-    private static final String[] FEATURE_DATA_NAME = {"NextExpectedCharBlock", "ReadAck"};
+    private static final String FEATURE_NAME = "FwUpgradeSettings";
+    private static final String[] FEATURE_DATA_NAME = {"OtaAckEvery", "ImageSize", "BaseAddress"};
     /** max value of one component*/
-    private static final short DATA_MAX = (short) 0xFFFF;
+    private static final long DATA_MAX = 0xFFFFFFFF;
     /** min value of one component*/
-    private static final short DATA_MIN = 0;
+    private static final long DATA_MIN = 0;
 
-    private static final int NEXT_EXPECTED_INDEX = 0;
-    private static final int ERROR_ACK_INDEX = 1;
+    private static final int OTA_ACK_EVERY_INDEX = 0;
+    private static final int IMAGE_SIZE_INDEX = 1;
+    private static final int BASE_ADDRESS_INDEX = 2;
 
-    public enum ErrorCode {
-        FLASH_WRITE_FAILED,
-        FLASH_VERIFY_FAILED,
-        CHECK_SUM_ERROR,
-        SEQUENCE_ERROR,
-        NO_ERROR,
-        UNKNOWN_ERROR;
 
-        static ErrorCode buildErrorCode(byte ack) {
-            switch (ack) {
-                case (byte)0xFF:
-                    return ErrorCode.FLASH_WRITE_FAILED;
-                case (byte)0x3C:
-                    return ErrorCode.FLASH_VERIFY_FAILED;
-                case (byte)0x0F:
-                    return ErrorCode.CHECK_SUM_ERROR;
-                case (byte)0xF0:
-                    return ErrorCode.SEQUENCE_ERROR;
-                case (byte)0:
-                    return ErrorCode.NO_ERROR;
-                default:
-                    return ErrorCode.UNKNOWN_ERROR;
-            }
-        }
-    }//ErrorCode
-
-    public ExpectedImageTUSeqNumberFeature(Node n){
+    public NewImageFeature(Node n){
         super(FEATURE_NAME,n,new Field[]{
-                new Field(FEATURE_DATA_NAME[NEXT_EXPECTED_INDEX],null, Field.Type.UInt16,DATA_MAX,DATA_MIN),
-                new Field(FEATURE_DATA_NAME[ERROR_ACK_INDEX],null, Field.Type.UInt8,255,DATA_MIN)
+                new Field(FEATURE_DATA_NAME[OTA_ACK_EVERY_INDEX],null, Field.Type.UInt8,255,0),
+                new Field(FEATURE_DATA_NAME[IMAGE_SIZE_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
+                new Field(FEATURE_DATA_NAME[BASE_ADDRESS_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN)
         });
     }
 
-    public static short getNextExpectedCharBlock(Sample s){
-        if(hasValidIndex(s, NEXT_EXPECTED_INDEX))
-            return s.data[NEXT_EXPECTED_INDEX].shortValue();
+    public static byte getOtaAckEvery(Sample s){
+        if(hasValidIndex(s, OTA_ACK_EVERY_INDEX))
+            return s.data[OTA_ACK_EVERY_INDEX].byteValue();
+        //else
+        return 0;
+    }
+
+    public static long getImageSize(Sample s){
+        if(hasValidIndex(s, IMAGE_SIZE_INDEX))
+            return s.data[IMAGE_SIZE_INDEX].longValue();
+        //else
+        return 0;
+    }
+
+    public static long getBaseAddress(Sample s){
+        if(hasValidIndex(s, BASE_ADDRESS_INDEX))
+            return s.data[BASE_ADDRESS_INDEX].longValue();
         //else
         return DATA_MAX;
     }
 
-    public static ErrorCode getAck(Sample s){
-        if(hasValidIndex(s, ERROR_ACK_INDEX)) {
-            byte ack = s.data[ERROR_ACK_INDEX].byteValue();
-            return ErrorCode.buildErrorCode(ack);
-        }
-        return ErrorCode.UNKNOWN_ERROR;
+
+    public void writeParamMem(byte otaAckEvery,long imageSize, long baseAddress, Runnable onWriteParamFlashMemDone){
+        byte buffer[] = new byte[9];
+        buffer[0] = otaAckEvery;
+        byte temp[] = NumberConversion.LittleEndian.uint32ToBytes(imageSize);
+        System.arraycopy(temp,0,buffer,1,temp.length);
+        temp = NumberConversion.LittleEndian.uint32ToBytes(baseAddress);
+        System.arraycopy(temp,0,buffer,5,temp.length);
+
+        writeData(buffer,onWriteParamFlashMemDone);
     }
 
     @Override
     protected ExtractResult extractData(long timestamp, byte[] data, int dataOffset) {
-        int numByte = 3;
+        int numByte = 9;
 
         if (data.length - dataOffset < numByte)
             throw new IllegalArgumentException("There are byte available to read");
 
-        int nextExpectedCharBlock = NumberConversion.LittleEndian.bytesToUInt16(data,dataOffset); // unsigned short is saved as int
-        byte errorAck = data[dataOffset+2];
+        byte otaAckEvery = data[dataOffset];
+        long imageSize = NumberConversion.LittleEndian.bytesToUInt32(data,dataOffset+1);
+        long baseAddress = NumberConversion.LittleEndian.bytesToUInt32(data,dataOffset+5);
 
-        return new ExtractResult(new Sample(new Number[]{nextExpectedCharBlock,errorAck},getFieldsDesc()),numByte);
+        return new ExtractResult(new Sample(new Number[]{otaAckEvery,imageSize,baseAddress},getFieldsDesc()),numByte);
     }
 }

@@ -34,13 +34,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package com.st.BLUENRG.fwUpgrade.feature;
+package com.st.BlueNRG.fwUpgrade.feature;
 
 import com.st.BlueSTSDK.Utils.UUIDToFeatureMap;
 
 import java.util.UUID;
 
-public class BLUENRG_OTASupport{
+public class BlueNRG_OTASupport {
 
     public static UUIDToFeatureMap getOTAFeatures(){
         UUIDToFeatureMap featureMap = new UUIDToFeatureMap();

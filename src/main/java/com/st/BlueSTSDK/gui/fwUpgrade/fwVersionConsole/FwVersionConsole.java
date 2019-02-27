@@ -39,7 +39,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
 
 import android.support.annotation.Nullable;
 
-import com.st.BLUENRG.fwUpgrade.FwVersionConsoleBLUENRG;
+import com.st.BlueNRG.fwUpgrade.FwVersionConsoleBlueNRG;
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.FwVersion;
@@ -60,7 +60,7 @@ public abstract  class FwVersionConsole {
         if( stm32wbConsole!=null)
             return stm32wbConsole;
 
-        FwVersionConsole blueNRGConsole = FwVersionConsoleBLUENRG.buildForNode(node);
+        FwVersionConsole blueNRGConsole = FwVersionConsoleBlueNRG.buildForNode(node);
         if( blueNRGConsole!=null)
             return blueNRGConsole;
 

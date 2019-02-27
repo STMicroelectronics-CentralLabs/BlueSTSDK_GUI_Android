@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2017  STMicroelectronics – All rights reserved
+/* Copyright (c) 2017  STMicroelectronics – All rights reserved
  * The STMicroelectronics corporate logo is a trademark of STMicroelectronics
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -34,79 +33,81 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package com.st.BLUENRG.fwUpgrade.feature;
+package com.st.BlueNRG.fwUpgrade.feature;
+
+import android.support.annotation.Nullable;
 
 import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.Utils.NumberConversion;
 
-public class NewImageFeature extends DeviceTimestampFeature {
-
-    private static final String FEATURE_NAME = "FwUpgradeSettings";
-    private static final String[] FEATURE_DATA_NAME = {"OtaAckEvery", "ImageSize", "BaseAddress"};
+public class ImageFeature extends DeviceTimestampFeature {
+    private static final String FEATURE_NAME = "MemoryInfo";
+    /** name of the exported data */
+    private static final String[] FEATURE_DATA_NAME = {"Flash_LB", "Flash_UB", "ProtocolVerMajor","ProtocolVerMinor"};
     /** max value of one component*/
     private static final long DATA_MAX = 0xFFFFFFFF;
     /** min value of one component*/
     private static final long DATA_MIN = 0;
 
-    private static final int OTA_ACK_EVERY_INDEX = 0;
-    private static final int IMAGE_SIZE_INDEX = 1;
-    private static final int BASE_ADDRESS_INDEX = 2;
+    private static final int FLASH_LB_INDEX = 0;
+    private static final int FLASH_UB_INDEX = 1;
+    private static final int PROTOCOL_VAR_MAJOR_INDEX = 2;
+    private static final int PROTOCOL_VER_MINOR_INDEX = 3;
 
-
-    public NewImageFeature(Node n){
+    public ImageFeature(Node n){
         super(FEATURE_NAME,n,new Field[]{
-                new Field(FEATURE_DATA_NAME[OTA_ACK_EVERY_INDEX],null, Field.Type.UInt8,255,0),
-                new Field(FEATURE_DATA_NAME[IMAGE_SIZE_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
-                new Field(FEATURE_DATA_NAME[BASE_ADDRESS_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN)
+                new Field(FEATURE_DATA_NAME[FLASH_LB_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
+                new Field(FEATURE_DATA_NAME[FLASH_UB_INDEX],null, Field.Type.UInt32,DATA_MAX,DATA_MIN),
+                new Field(FEATURE_DATA_NAME[PROTOCOL_VAR_MAJOR_INDEX],null, Field.Type.UInt8,255,DATA_MIN),
+                new Field(FEATURE_DATA_NAME[PROTOCOL_VER_MINOR_INDEX],null, Field.Type.UInt8,255,DATA_MIN)
         });
     }
 
-    public static byte getOtaAckEvery(Sample s){
-        if(hasValidIndex(s, OTA_ACK_EVERY_INDEX))
-            return s.data[OTA_ACK_EVERY_INDEX].byteValue();
-        //else
-        return 0;
-    }
-
-    public static long getImageSize(Sample s){
-        if(hasValidIndex(s, IMAGE_SIZE_INDEX))
-            return s.data[IMAGE_SIZE_INDEX].longValue();
-        //else
-        return 0;
-    }
-
-    public static long getBaseAddress(Sample s){
-        if(hasValidIndex(s, BASE_ADDRESS_INDEX))
-            return s.data[BASE_ADDRESS_INDEX].longValue();
+    public static long getFlashLowerBound(Sample s){
+        if(hasValidIndex(s, FLASH_LB_INDEX))
+            return s.data[FLASH_LB_INDEX].longValue();
         //else
         return DATA_MAX;
     }
 
+    public static long getFlashUpperBound(Sample s){
+        if(hasValidIndex(s,FLASH_UB_INDEX))
+            return s.data[FLASH_UB_INDEX].longValue();
+        //else
+        return DATA_MIN;
+    }
 
-    public void writeParamMem(byte otaAckEvery,long imageSize, long baseAddress, Runnable onWriteParamFlashMemDone){
-        byte buffer[] = new byte[9];
-        buffer[0] = otaAckEvery;
-        byte temp[] = NumberConversion.LittleEndian.uint32ToBytes(imageSize);
-        System.arraycopy(temp,0,buffer,1,temp.length);
-        temp = NumberConversion.LittleEndian.uint32ToBytes(baseAddress);
-        System.arraycopy(temp,0,buffer,5,temp.length);
-
-        writeData(buffer,onWriteParamFlashMemDone);
+    public @Nullable FwVersion getProtocolVer(Sample s){
+        if(hasValidIndex(s,PROTOCOL_VAR_MAJOR_INDEX)&& hasValidIndex(s,PROTOCOL_VER_MINOR_INDEX)){
+            return new FwVersion(s.data[PROTOCOL_VAR_MAJOR_INDEX].byteValue(),
+                    s.data[PROTOCOL_VER_MINOR_INDEX].byteValue(),0);
+        }
+        return null;
     }
 
     @Override
     protected ExtractResult extractData(long timestamp, byte[] data, int dataOffset) {
-        int numByte = 9;
-
-        if (data.length - dataOffset < numByte)
+        final int availableData = data.length - dataOffset;
+        int readData = 8;
+        if ( availableData < readData)
             throw new IllegalArgumentException("There are byte available to read");
 
-        byte otaAckEvery = data[dataOffset];
-        long imageSize = NumberConversion.LittleEndian.bytesToUInt32(data,dataOffset+1);
-        long baseAddress = NumberConversion.LittleEndian.bytesToUInt32(data,dataOffset+5);
+        long flash_LB = NumberConversion.BigEndian.bytesToUInt32(data,dataOffset);
+        long flash_UB = NumberConversion.BigEndian.bytesToUInt32(data,dataOffset+4);
 
-        return new ExtractResult(new Sample(new Number[]{otaAckEvery,imageSize,baseAddress},getFieldsDesc()),numByte);
+        int versionMajour = 1, versionMinor = 0;
+        if(availableData >=9){
+            versionMajour = data[dataOffset+8] / 16;
+            versionMinor = data[dataOffset+8] % 16;
+            readData++;
+        }
+
+        return new ExtractResult(
+                new Sample(new Number[]{flash_LB, flash_UB,versionMajour,versionMinor},
+                getFieldsDesc()), readData);
+
     }
 }

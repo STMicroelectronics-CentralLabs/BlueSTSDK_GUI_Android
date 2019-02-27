@@ -34,7 +34,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package com.st.BLUENRG.fwUpgrade;
+package com.st.BlueNRG.fwUpgrade;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -47,16 +47,16 @@ import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
-import com.st.BLUENRG.fwUpgrade.feature.ImageFeature;
-import com.st.BLUENRG.fwUpgrade.feature.NewImageFeature;
-import com.st.BLUENRG.fwUpgrade.feature.NewImageTUContentFeature;
-import com.st.BLUENRG.fwUpgrade.feature.ExpectedImageTUSeqNumberFeature;
+import com.st.BlueNRG.fwUpgrade.feature.ImageFeature;
+import com.st.BlueNRG.fwUpgrade.feature.NewImageFeature;
+import com.st.BlueNRG.fwUpgrade.feature.NewImageTUContentFeature;
+import com.st.BlueNRG.fwUpgrade.feature.ExpectedImageTUSeqNumberFeature;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
+public class FwUpgradeConsoleBlueNRG extends FwUpgradeConsole {
 
     // smart phone androids, BLUENRG service
     private ImageFeature mRangeMem;
@@ -105,19 +105,19 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
     private boolean SDKVersion310higher = false;
     private Node mNode;
 
-    public static FwUpgradeConsoleBLUENRG buildForNode(Node node){
+    public static FwUpgradeConsoleBlueNRG buildForNode(Node node){
         ImageFeature rangeMem = node.getFeature(ImageFeature.class);
         NewImageFeature paramMem = node.getFeature(NewImageFeature.class);
         NewImageTUContentFeature chunkData = node.getFeature(NewImageTUContentFeature.class);
         ExpectedImageTUSeqNumberFeature startAckNotification = node.getFeature(ExpectedImageTUSeqNumberFeature.class);
 
         if(rangeMem!=null && paramMem!=null && startAckNotification!=null && chunkData!=null){
-            return new FwUpgradeConsoleBLUENRG(rangeMem,paramMem,chunkData,startAckNotification,node);
+            return new FwUpgradeConsoleBlueNRG(rangeMem,paramMem,chunkData,startAckNotification,node);
         }else{
             return null;
         }
     }
-    private FwUpgradeConsoleBLUENRG(@NonNull ImageFeature rangeMem,
+    private FwUpgradeConsoleBlueNRG(@NonNull ImageFeature rangeMem,
                                     @NonNull NewImageFeature paramMem,
                                     @NonNull NewImageTUContentFeature chunkData,
                                     @NonNull ExpectedImageTUSeqNumberFeature startAckNotification,
@@ -264,7 +264,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     retries++;
                     Log.d("BlueNRG1", "retries: " + retries);
                     if (retries >= RETRIES_MAX) {
-                        mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
+                        mCallback.onLoadFwError(FwUpgradeConsoleBlueNRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
                         resultState = false;
                         retries = 0;
                         protocolState = ProtocolStatePhase.CLOSURE;
@@ -293,7 +293,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                     EngineProtocolState();
                 } else {
                     // OTA server is from SDK 3.0.0 and it supports extended packet len (BlueNRG-2 SDK 3.0.0). OTA Client (not BlueNRG-2) cannot upgrade it.
-                    mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_WRONG_SDK_VERSION);
+                    mCallback.onLoadFwError(FwUpgradeConsoleBlueNRG.this, fwFile, FwUpgradeCallback.ERROR_WRONG_SDK_VERSION);
                     resultState = false;
                     protocolState = ProtocolStatePhase.CLOSURE;
                     EngineProtocolState();
@@ -323,7 +323,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 if (good) {
                         long sendData = cntExtended - SeqNum * fw_image_packet_size;
                         Log.d("OnProgress", "run: " + sendData);
-                        mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleBLUENRG.this, fwFile, sendData);
+                        mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleBlueNRG.this, fwFile, sendData);
                         if (sendData <= 0) {
                             protocolState = ProtocolStatePhase.CLOSURE;
                         } else if ((cntExtended - (SeqNum + OTA_ACK_EVERY) * fw_image_packet_size) < 0) { // if next sequence is the last one with residue size
@@ -333,7 +333,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                         EngineProtocolState();
                 } else {
                     if(!blueNRGClientTypeForce1) {
-                        mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_WRONG_SDK_VERSION_OR_ERROR_TRANSMISSION);
+                        mCallback.onLoadFwError(FwUpgradeConsoleBlueNRG.this, fwFile, FwUpgradeCallback.ERROR_WRONG_SDK_VERSION_OR_ERROR_TRANSMISSION);
                         resultState = false;
                     }
                     protocolState=ProtocolStatePhase.CLOSURE;
@@ -386,7 +386,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 if(cnt%fw_image_packet_size != 0) // // residue of fw_image_packet_size
                     cntExtended = (cnt/fw_image_packet_size+1)*fw_image_packet_size; // to have always cntExtended as multiple of fw_image_packet_size
                 if(!checkRangeFlashMemAddress()) {
-                    mCallback.onLoadFwError(FwUpgradeConsoleBLUENRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
+                    mCallback.onLoadFwError(FwUpgradeConsoleBlueNRG.this, fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
                     resultState =  false;
                 }else {
                     if(blueNRGClientType == 2)
@@ -461,7 +461,7 @@ public class FwUpgradeConsoleBLUENRG extends FwUpgradeConsole {
                 }else {
                     if (resultState) {
                         mNode.disconnect();
-                        mCallback.onLoadFwComplete(FwUpgradeConsoleBLUENRG.this, fwFile);
+                        mCallback.onLoadFwComplete(FwUpgradeConsoleBlueNRG.this, fwFile);
                     }
                     onGoing = false;
                     protocolState = ProtocolStatePhase.EXIT_PROTOCOL;

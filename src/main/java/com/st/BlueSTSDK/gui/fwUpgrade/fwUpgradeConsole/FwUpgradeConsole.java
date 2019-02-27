@@ -39,7 +39,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 
-import com.st.BLUENRG.fwUpgrade.FwUpgradeConsoleBLUENRG;
+import com.st.BlueNRG.fwUpgrade.FwUpgradeConsoleBlueNRG;
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
@@ -66,7 +66,7 @@ public abstract class FwUpgradeConsole {
         if( stm32wbConsole!=null)
             return stm32wbConsole;
 
-        FwUpgradeConsoleBLUENRG blueNrgConsole = FwUpgradeConsoleBLUENRG.buildForNode(node);
+        FwUpgradeConsoleBlueNRG blueNrgConsole = FwUpgradeConsoleBlueNRG.buildForNode(node);
         if( blueNrgConsole!=null)
             return blueNrgConsole;
 
