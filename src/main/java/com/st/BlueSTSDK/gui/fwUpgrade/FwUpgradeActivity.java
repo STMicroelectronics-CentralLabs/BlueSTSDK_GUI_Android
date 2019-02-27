@@ -45,6 +45,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.widget.TextView;
 
 import com.st.BlueSTSDK.Node;
@@ -63,13 +64,9 @@ import com.st.BlueSTSDK.gui.util.DialogUtil;
  * Activity where the user can see the current firware name and version and upload a new firmware
  */
 public class FwUpgradeActivity extends ActivityWithNode {
-
-
-
     private static final String FRAGMENT_DIALOG_TAG = "Dialog";
+    private static final String FRAGMENT_FILE_UPLOAD_TAG = "UploadFileFragment";
 
-    private static final String VERSION = FwUpgradeActivity.class.getName()+"FW_VERSION";
-    private static final String FINAL_MESSAGE = FwUpgradeActivity.class.getName()+"FINAL_MESSAGE";
     private static final String EXTRA_FW_TO_LOAD = FwUpgradeActivity.class.getName()+"EXTRA_FW_TO_LOAD";
 
     /**
@@ -181,17 +178,15 @@ public class FwUpgradeActivity extends ActivityWithNode {
             displayNeedNewFwAndFinish(minSupportedVersion);
         });
 
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fwUpgrade_uploadFileFragment,UploadOtaFileFragment.build(mNode,null,null),"changeme")
-                .commit();
-    }
 
-
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mNode.removeNodeStateListener(mOnConnected);
+        FragmentManager fm = getSupportFragmentManager();
+        if(fm.findFragmentByTag(FRAGMENT_FILE_UPLOAD_TAG)==null) {
+            fm.beginTransaction()
+              .add(R.id.fwUpgrade_uploadFileFragment,
+                      UploadOtaFileFragment.build(mNode, null, null,false),
+                      FRAGMENT_FILE_UPLOAD_TAG)
+              .commit();
+        }
     }
 
     @Override
@@ -205,6 +200,10 @@ public class FwUpgradeActivity extends ActivityWithNode {
         }
     }
 
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mNode.removeNodeStateListener(mOnConnected);
+    }
 
 }

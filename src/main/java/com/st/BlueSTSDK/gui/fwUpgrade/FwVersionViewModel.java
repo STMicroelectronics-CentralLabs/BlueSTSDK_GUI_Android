@@ -46,6 +46,8 @@ public class FwVersionViewModel extends ViewModel {
     }
 
     public void loadFwVersionFromNode(Node node){
+        if(mFwVersion.getValue()!=null)
+            return;
         FwVersionConsole console = FwVersionConsole.getFwVersionConsole(node);
         if(console != null){
             console.setLicenseConsoleListener((console1, type, version) -> {

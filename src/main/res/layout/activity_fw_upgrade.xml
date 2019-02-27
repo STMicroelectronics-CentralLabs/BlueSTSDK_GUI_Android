@@ -118,9 +118,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
         <fragment
-            android:id="@+id/fragment"
+            android:layout_margin="8dp"
             android:name="com.st.BlueSTSDK.gui.fwUpgrade.FwVersionFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
@@ -142,6 +141,7 @@
 
 
         <FrameLayout
+            android:layout_margin="8dp"
             android:id="@+id/fwUpgrade_uploadFileFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

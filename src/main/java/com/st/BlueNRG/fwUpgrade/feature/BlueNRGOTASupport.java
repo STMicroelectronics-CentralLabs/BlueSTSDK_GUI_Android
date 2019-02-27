@@ -40,7 +40,7 @@ import com.st.BlueSTSDK.Utils.UUIDToFeatureMap;
 
 import java.util.UUID;
 
-public class BlueNRG_OTASupport {
+public class BlueNRGOTASupport {
 
     public static UUIDToFeatureMap getOTAFeatures(){
         UUIDToFeatureMap featureMap = new UUIDToFeatureMap();

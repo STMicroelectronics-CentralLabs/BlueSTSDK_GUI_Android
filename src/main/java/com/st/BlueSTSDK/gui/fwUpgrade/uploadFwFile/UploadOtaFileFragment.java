@@ -66,6 +66,8 @@ import com.st.BlueSTSDK.gui.util.SimpleFragmentDialog;
 
 public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActionReceiver.UploadFinishedListener{
 
+    private static final String FINISH_DIALOG_TAG = UploadOtaFileFragment.class.getCanonicalName()+".FINISH_DIALOG_TAG";
+
     private static final String FW_URI_KEY = UploadOtaFileFragment.class.getCanonicalName()+".FW_URI_KEY";
     private static final String SHOW_ADDRESS_KEY = UploadOtaFileFragment.class.getCanonicalName()+".SHOW_ADDRESS_KEY";
     private static final String ADDRESS_KEY = UploadOtaFileFragment.class.getCanonicalName()+".ADDRESS_KEY";
@@ -129,7 +131,7 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
         setupStartUploadButton(mRootView.findViewById(R.id.otaUpload_startUploadButton));
         setupAddressText(mAddressText,mRootView.findViewById(R.id.otaUpload_addressTextLayout),
                 getFlashAddress(savedInstanceState,getArguments()));
-        if(showFleshAddress(getArguments())){
+        if(!showFleshAddress(getArguments())){
             mAddressText.setVisibility(View.GONE);
         }
         mRequestFile = new RequestFileUtil(this,mRootView);
@@ -235,10 +237,10 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
                 if(address!=null) {
                     startUploadFile(mSelectedFw, address);
                 }else{
-                    Snackbar.make(mRootView,"Invalid address",Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(mRootView,R.string.otaUpload_invalidMemoryAddress,Snackbar.LENGTH_SHORT).show();
                 }
             }else{
-                Snackbar.make(mRootView,"Invalid file",Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(mRootView,R.string.otaUpload_invalidFile,Snackbar.LENGTH_SHORT).show();
             }
         });
     }
@@ -280,7 +282,7 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
             //UploadOtaFileFragment.this
             NavUtils.navigateUpFromSameTask(requireActivity());
         });
-        dialog.show(requireFragmentManager(),"finisDialog");
+        dialog.show(requireFragmentManager(),FINISH_DIALOG_TAG);
     }
 
 }
