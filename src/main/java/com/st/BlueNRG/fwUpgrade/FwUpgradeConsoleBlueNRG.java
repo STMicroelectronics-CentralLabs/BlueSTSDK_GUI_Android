@@ -76,7 +76,7 @@ public class FwUpgradeConsoleBlueNRG extends FwUpgradeConsole {
     private static final short RETRIES_FOR_MISSED_NOTIFICATION_MAX = 400;
     private static final int FW_IMAGE_PACKET_SIZE_DEFAULT = 16;
     private static final byte OTA_ACK_EVERY = 8;
-    private static final int FW_UPLOAD_MSG_TIMEOUT_MS = 800; //8 msec instead of 7.5
+    private static final int FW_UPLOAD_MSG_TIMEOUT_MS = 8000; //8 msec instead of 7.5
 
     private int fw_image_packet_size = FW_IMAGE_PACKET_SIZE_DEFAULT;
     private short retriesForMissedNotification = 0;
@@ -99,7 +99,6 @@ public class FwUpgradeConsoleBlueNRG extends FwUpgradeConsole {
     private byte imageToSend[];
 
     private Handler mTimeout;
-    // todo: add ota client BlueNRG 1 or 2 test
     private byte blueNRGClientType = 1; // BLUENRG 1 or 2 (client or mart phone)
     private boolean blueNRGClientTypeForce1 = false;
     private boolean SDKVersion310higher = false;
