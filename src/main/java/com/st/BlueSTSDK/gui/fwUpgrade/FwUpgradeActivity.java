@@ -37,28 +37,24 @@
 package com.st.BlueSTSDK.gui.fwUpgrade;
 
 import android.app.DialogFragment;
-import android.app.ProgressDialog;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.widget.TextView;
+import android.support.v4.app.FragmentTransaction;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.ConnectionOption;
-import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.ActivityWithNode;
-import com.st.BlueSTSDK.gui.NodeConnectionService;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
-import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
 import com.st.BlueSTSDK.gui.fwUpgrade.uploadFwFile.UploadOtaFileFragment;
 import com.st.BlueSTSDK.gui.util.AlertAndFinishDialog;
-import com.st.BlueSTSDK.gui.util.DialogUtil;
 
 /**
  * Activity where the user can see the current firware name and version and upload a new firmware
@@ -117,7 +113,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
         Node node = getNode();
         if(intent.hasExtra(EXTRA_FW_TO_LOAD) && node!=null){
             Uri fwLocation = intent.getParcelableExtra(EXTRA_FW_TO_LOAD);
-            FwUpgradeService.startUploadService(this,node,fwLocation,null);
+            addFileUploadFragment(node,fwLocation);
             return true;
         }//if
         return false;
@@ -179,14 +175,20 @@ public class FwUpgradeActivity extends ActivityWithNode {
         });
 
 
+        addFileUploadFragment(mNode,null);
+    }
+
+    private void addFileUploadFragment(@NonNull Node node, @Nullable Uri file){
         FragmentManager fm = getSupportFragmentManager();
-        if(fm.findFragmentByTag(FRAGMENT_FILE_UPLOAD_TAG)==null) {
-            fm.beginTransaction()
-              .add(R.id.fwUpgrade_uploadFileFragment,
-                      UploadOtaFileFragment.build(mNode, null, null,false),
-                      FRAGMENT_FILE_UPLOAD_TAG)
-              .commit();
+        FragmentTransaction transaction = fm.beginTransaction();
+        Fragment prevFragment = fm.findFragmentByTag(FRAGMENT_FILE_UPLOAD_TAG);
+        if(prevFragment != null){
+            transaction.remove(prevFragment);
         }
+        Fragment newFragment = UploadOtaFileFragment.build(node, file, null,false);
+        transaction.add(R.id.fwUpgrade_uploadFileFragment,newFragment,FRAGMENT_FILE_UPLOAD_TAG);
+        transaction.commit();
+
     }
 
     @Override
