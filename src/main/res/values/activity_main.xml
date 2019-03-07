@@ -37,7 +37,7 @@
   -->
 
 <resources>
-    <string name="copyright">\u00A9 2018 STMicroelectronics</string>
+    <string name="copyright">\u00A9 2019 STMicroelectronics</string>
     <string name="version">Version: </string>
     <string name="startScanButton">Connect to a Device</string>
     <string name="startAboutButton">About</string>
