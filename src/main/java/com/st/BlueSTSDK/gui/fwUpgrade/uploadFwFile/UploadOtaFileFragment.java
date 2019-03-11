@@ -276,7 +276,8 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
 
     @Override
     public void onUploadFinished(float time_s) {
-        SimpleFragmentDialog dialog = SimpleFragmentDialog.newInstance(getString(R.string.otaUpload_finished,time_s));
+        SimpleFragmentDialog dialog = SimpleFragmentDialog.newInstance(R.string.otaUpload_completed,
+                getString(R.string.otaUpload_finished,time_s));
         dialog.setOnclickListener((dialog1, which) -> {
             NodeConnectionService.disconnect(requireContext(),mNode);
             //UploadOtaFileFragment.this
