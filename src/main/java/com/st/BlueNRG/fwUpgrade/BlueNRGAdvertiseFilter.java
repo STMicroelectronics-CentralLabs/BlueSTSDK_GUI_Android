@@ -38,13 +38,20 @@ public class BlueNRGAdvertiseFilter implements AdvertiseFilter {
         }
     }
 
+    private String getDeviceName(SparseArray<byte[]>  advData){
+        byte nameData[] = advData.get(AdvertiseParser.DEVICE_NAME_TYPE);
+        if(nameData!=null && nameData.length>0)
+            return  new String(nameData);
+        return DEFAULT_NAME;
+    }
+
     @Nullable
     @Override
     public BleAdvertiseInfo filter(byte[] advData) {
         SparseArray<byte[]> splitAdv = split(advData);
         byte[] exportedService = splitAdv.get(AdvertiseParser.INCOMPLETE_LIST_OF_128_UUID);
         if(exportedService!=null && Arrays.equals(OTA_SERVICE_UUID,exportedService)){
-            return new BlueNRGAdvertiseInfo(DEFAULT_NAME,(byte)0,null,0,
+            return new BlueNRGAdvertiseInfo(getDeviceName(splitAdv),(byte)0,null,0,
                     (byte)4,(short) 1,Node.Type.STEVAL_IDB008VX,
                     false,false,
                     UUID.nameUUIDFromBytes(OTA_SERVICE_UUID));
