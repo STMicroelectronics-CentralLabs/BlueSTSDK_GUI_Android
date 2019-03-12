@@ -113,7 +113,7 @@ public abstract class PreferenceFragmentWithNode extends PreferenceFragment {
         if (!mNode.isConnected()) {
             mNode.addNodeStateListener(new Node.NodeStateListener() {
                 @Override
-                public void onStateChange(Node node, Node.State newState, Node.State prevState) {
+                public void onStateChange(@NonNull Node node, @NonNull Node.State newState, @NonNull Node.State prevState) {
                     if(newState== Node.State.Connected) {
                         onNodeIsAvailable(node);
                         node.removeNodeStateListener(this);
