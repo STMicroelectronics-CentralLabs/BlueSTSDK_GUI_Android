@@ -36,6 +36,7 @@
  */
 package com.st.BlueNRG.fwUpgrade;
 
+import android.bluetooth.BluetoothGatt;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -361,6 +362,7 @@ public class FwUpgradeConsoleBlueNRG extends FwUpgradeConsole {
         switch (protocolState){
             case MTU_REQUEST:
                 mNode.addBleConnectionParamListener(onMtuChanged);
+                mNode.requestLowerConnectionInterval();
                 if(!mNode.requestNewMtu(MAX_ATT_MTU))
                 {
                     protocolState = ProtocolStatePhase.READ_PARAM_SDK_SERVER_VERSION;
