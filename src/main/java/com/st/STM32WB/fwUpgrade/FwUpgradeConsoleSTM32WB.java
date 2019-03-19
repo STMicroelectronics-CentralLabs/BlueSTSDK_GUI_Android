@@ -101,7 +101,6 @@ public class FwUpgradeConsoleSTM32WB extends FwUpgradeConsole {
                     @Override
                     public void run() {
                         long dataSent = sendData.addAndGet(-OTAFileUpload.CHUNK_LENGTH);
-                        Log.d("OnProgress", "run: "+sendData);
                         mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleSTM32WB.this,fwFile,dataSent);
                         if(dataSent<=0){
                             mControl.uploadFinished(() -> {

@@ -144,11 +144,17 @@ public class FwUpgradeConsoleBlueNRG extends FwUpgradeConsole {
                 blueNRGClientType = 2;
                 // Set number of 16-bytes blocks to be sent on a single OTA Client packet
                 int number_blocks_x_packet = ((mtu - OTA_SUPPORT_INFO_SIZE) / FW_IMAGE_PACKET_SIZE_DEFAULT);
+                if(number_blocks_x_packet == 1){
+                    //if the mtu extension is not available, try to use a lower connection interval to
+                    //seed up the upload
+                    mNode.requestLowerConnectionInterval();
+                }
                 // Increase single OTA packet ATT_MTU payload size within mtu size allowed range (BlueNRG-2, BLE stack >= 2.1)
                 fw_image_packet_size = FW_IMAGE_PACKET_SIZE_DEFAULT * number_blocks_x_packet;
                 protocolState = ProtocolStatePhase.READ_BLUENRG_SERVER_TYPE;
-            }else
+            }else {
                 protocolState = ProtocolStatePhase.READ_PARAM_SDK_SERVER_VERSION;
+            }
             EngineProtocolState();
         }
     };
@@ -184,6 +190,11 @@ public class FwUpgradeConsoleBlueNRG extends FwUpgradeConsole {
                     Log.d("BlueNRG1", "retriesForSequenceError: " + retriesForSequenceError+"   fw_image_packet_size: "+fw_image_packet_size);
                 }else{
                     if((nextExpectedCharBlock == 0)&&(fw_image_packet_size > FW_IMAGE_PACKET_SIZE_DEFAULT)){
+                        if(!blueNRGClientTypeForce1) {
+                            //we try with the extended mtu but we had an error, the fist time try also
+                            //to change the connection interval and use a smaller package length
+                            mNode.requestLowerConnectionInterval();
+                        }
                         fw_image_packet_size = FW_IMAGE_PACKET_SIZE_DEFAULT;
                         retriesForSequenceError = 0;
                         SeqNum = nextExpectedCharBlock;
@@ -322,7 +333,6 @@ public class FwUpgradeConsoleBlueNRG extends FwUpgradeConsole {
                 boolean good = ackResult(nextExpectedCharBlock, ack); // check ack answer
                 if (good) {
                         long sendData = cntExtended - SeqNum * fw_image_packet_size;
-                        Log.d("OnProgress", "run: " + sendData);
                         mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleBlueNRG.this, fwFile, sendData);
                         if (sendData <= 0) {
                             protocolState = ProtocolStatePhase.CLOSURE;
@@ -362,7 +372,6 @@ public class FwUpgradeConsoleBlueNRG extends FwUpgradeConsole {
         switch (protocolState){
             case MTU_REQUEST:
                 mNode.addBleConnectionParamListener(onMtuChanged);
-                mNode.requestLowerConnectionInterval();
                 if(!mNode.requestNewMtu(MAX_ATT_MTU))
                 {
                     protocolState = ProtocolStatePhase.READ_PARAM_SDK_SERVER_VERSION;
