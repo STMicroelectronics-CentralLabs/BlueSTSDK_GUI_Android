@@ -38,6 +38,8 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Utils.NumberConversion;
@@ -64,15 +66,15 @@ import java.util.zip.Checksum;
 public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
     /**
-     * for not stress the ble stack it sends 10 package at times, when the packages are sent
-     * it send a new set a package
+     *to avoid to stress the BLE Stack the message are send each 13ms that corrisponding to a connection
+     * inteval of 12.5 ms.
      */
-    private static final int BLOCK_PKG_SIZE = 10;
+    private static final int FW_PACKAGE_DELAY_MS = 13; // connection interval 10 * 12.5
     //every time there is a fail we decease the number of block to send
-    private static int sNFail=0;
+    private static int sNFail=1;
 
-    private static int getBlockPkgSize(){
-        return Math.max(1,BLOCK_PKG_SIZE/(1<<(sNFail)));
+    private static int getPackageDelay(){
+        return FW_PACKAGE_DELAY_MS * sNFail;
     }
 
     static private final byte[] UPLOAD_BOARD_FW={'u','p','g','r','a','d','e','F','w'};
@@ -156,7 +158,9 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
          */
         private byte[] mLastPackageSend = new byte[MAX_MSG_SIZE];
 
-        private int mNBlockPackage= getBlockPkgSize();
+        static private final int NOTIFY_EACH_PACKAGE = 10;
+
+        private Runnable mNextPackageSentTask;
 
         /**
          * if the timeout is rise, fire an error of type
@@ -165,6 +169,9 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         private Runnable onTimeout = () -> {
             onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
             sNFail++;
+            if(mNextPackageSentTask!=null){
+                mTimeout.removeCallbacks(mNextPackageSentTask);
+            }
         };
 
 
@@ -288,21 +295,34 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                 return false;
         }//sendFwPackage
 
+        private boolean transferIsComplete(){
+            return (mByteToSend-mByteSend) == 0;
+        }
+
         /**
          * send a block of message, the function will stop at the first error
          * @return true if all the message are send correctly
          */
-        private boolean sendPackageBlock(){
-            for(int i = 0; i< mNBlockPackage; i++){
-                if(!sendFwPackage())
-                    return false;
-            }//for
-            return true;
+        private void sendPackageBlock(){
+            sendFwPackage();
+            final int nPackageSent = mNPackageReceived;
+            mNextPackageSentTask = () -> {
+                if(transferIsComplete())
+                    return;
+                //if the message was sent
+                if (mNPackageReceived > nPackageSent) {
+                    sendPackageBlock(); //send the next one
+                } else { // wait a bit an try again
+                    mTimeout.postDelayed(mNextPackageSentTask, FW_PACKAGE_DELAY_MS);
+                }
+            };
+            mTimeout.postDelayed(mNextPackageSentTask, getPackageDelay());
+
         }//sendPackageBlock
 
 
         @Override
-        public void onStdOutReceived(Debug debug, String message) {
+        public void onStdOutReceived(@NonNull Debug debug, @NonNull String message) {
             if(!mNodeReadyToReceiveFile){
                 if(checkCrc(message)) {
                     mNodeReadyToReceiveFile = true;
@@ -325,16 +345,15 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         private void notifyNodeReceivedFwMessage(){
             mNPackageReceived++;
             //if we finish to send all the message
-            if(mNPackageReceived % mNBlockPackage ==0){
+            if(mNPackageReceived % NOTIFY_EACH_PACKAGE ==0){
                 if(mCallback!=null)
                     mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleNucleo.this,mFile,
                             mByteToSend-mByteSend);
-                sendPackageBlock();
             }//if
         }
 
         @Override
-        public void onStdInSent(Debug debug, String message, boolean writeResult) {
+        public void onStdInSent(@NonNull Debug debug, @NonNull String message, boolean writeResult) {
             if(writeResult){
                 if(mNodeReadyToReceiveFile){
                     //reset the timeout
@@ -348,7 +367,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         }
 
         @Override
-        public void onStdErrReceived(Debug debug, String message) { }
+        public void onStdErrReceived(@NonNull Debug debug, @NonNull String message) { }
     }
 
     /**
