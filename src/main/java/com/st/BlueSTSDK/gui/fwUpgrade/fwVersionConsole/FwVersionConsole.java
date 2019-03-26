@@ -39,6 +39,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
 
 import android.support.annotation.Nullable;
 
+import com.st.BlueNRG.fwUpgrade.FwVersionConsoleBlueNRG;
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.FwVersion;
@@ -59,6 +60,10 @@ public abstract  class FwVersionConsole {
         if( stm32wbConsole!=null)
             return stm32wbConsole;
 
+        FwVersionConsole blueNRGConsole = FwVersionConsoleBlueNRG.buildForNode(node);
+        if( blueNRGConsole!=null)
+            return blueNRGConsole;
+
         Debug debug = node.getDebug();
         if (debug == null)
             return null;
@@ -69,6 +74,7 @@ public abstract  class FwVersionConsole {
             case BLUE_COIN:
             case STEVAL_BCN002V1:
             case SENSOR_TILE_101:
+            case DISCOVERY_IOT01A:
                 return new FwVersionConsoleNucleo(debug);
         }
         return null;

@@ -41,6 +41,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.widget.Toast;
 
 import com.st.BlueSTSDK.Node;
@@ -87,7 +88,7 @@ public abstract class DemoFragment extends Fragment {
     public void onAttach(Context activity) {
         super.onAttach(activity);
         try {
-            DemosActivity  temp= (DemosActivity) activity;
+            DemosActivity temp = (DemosActivity) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must extend DemosActivity");
         }//try
@@ -147,6 +148,28 @@ public abstract class DemoFragment extends Fragment {
         }
     };
 
+    private void recursiveStopDemo(){
+        FragmentManager fm = getChildFragmentManager();
+        Class<DemoFragment> demoFragmentClass = DemoFragment.class;
+        for(Fragment child : fm.getFragments()){
+            //child extends DemoFragment
+            if(demoFragmentClass.isAssignableFrom(child.getClass())){
+                ((DemoFragment) child).stopDemo();
+            }
+        }
+    }
+
+    private void recursiveStartDemo(){
+        FragmentManager fm = getChildFragmentManager();
+        Class<DemoFragment> demoFragmentClass = DemoFragment.class;
+        for(Fragment child : fm.getFragments()){
+            //child extends DemoFragment
+            if(demoFragmentClass.isAssignableFrom(child.getClass())){
+                ((DemoFragment) child).startDemo();
+            }
+        }
+    }
+
     /**
      * method called for start the demo, it will check that the node is connect and call the
      * enableNeededNotification method
@@ -160,6 +183,7 @@ public abstract class DemoFragment extends Fragment {
             enableNeededNotification(node);
         //we add the listener for restart restart the demo in the case of reconnection
         node.addNodeStateListener(mNodeStatusListener);
+        recursiveStartDemo();
         mIsRunning = true;
     }//startDemo
 
@@ -176,6 +200,7 @@ public abstract class DemoFragment extends Fragment {
         if (mIsRunning && node.isConnected()) {
             disableNeedNotification(node);
         }//if
+        recursiveStopDemo();
         mIsRunning = false;
     }//stopDemo
 

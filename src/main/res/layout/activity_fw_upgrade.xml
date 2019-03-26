@@ -36,7 +36,7 @@
   ~ OF SUCH DAMAGE.
   -->
 
-<android.support.design.widget.CoordinatorLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -45,72 +45,42 @@
     tools:context=".fwUpgrade.FwUpgradeActivity"
     android:id="@+id/activityFwRootView">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/fwName" android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" android:text="@string/fwUpgrade_loading"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/fwUpgrade_version"
-            android:id="@+id/fwVersionBoardLabel"
-            android:layout_below="@+id/fwName"
-            android:layout_alignParentStart="true" android:layout_marginTop="16dp"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/fwUpgrade_board_type"
-            android:id="@+id/boardTypeLabel"
-            android:layout_below="@+id/fwVersionBoardLabel"
-            android:layout_alignParentStart="true"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/fwVersionValue"
-            android:maxLines="1"
-            android:layout_toEndOf="@+id/fwVersionBoardLabel"
-            android:layout_alignBaseline="@+id/fwVersionBoardLabel"
-            android:layout_marginStart="8dp"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/boardTypeValue"
-            android:maxLines="1"
-            android:layout_toEndOf="@+id/boardTypeLabel"
-            android:layout_alignBaseline="@+id/boardTypeLabel"
-            android:layout_marginStart="8dp"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/upgradeFinishMessage" android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:textAlignment="center"/>
-    </RelativeLayout>
-
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/startUpgradeButton"
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.CardView
+        android:id="@+id/fwUpgrade_boardInfoCard"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_upload_license_white_24dp"/>
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <fragment
+            android:layout_margin="8dp"
+            android:name="com.st.BlueSTSDK.gui.fwUpgrade.FwVersionFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-</android.support.design.widget.CoordinatorLayout>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fwUpgrade_boardInfoCard">
+
+
+        <FrameLayout
+            android:layout_margin="8dp"
+            android:id="@+id/fwUpgrade_uploadFileFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </android.support.v7.widget.CardView>
+</android.support.constraint.ConstraintLayout>

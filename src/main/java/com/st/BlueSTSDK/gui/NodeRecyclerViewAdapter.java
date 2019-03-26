@@ -71,7 +71,7 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
          * function call when a node is selected by the user
          * @param n node selected
          */
-        void onNodeSelected(Node n);
+        void onNodeSelected(@NonNull Node n);
     }
 
     /**
@@ -83,7 +83,7 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
          * @param n node to display
          * @return true if the node must be displayed, false otherwise
          */
-        boolean displayNode(Node n);
+        boolean displayNode(@NonNull  Node n);
     }
 
     private OnNodeSelectedListener mListener;

@@ -50,8 +50,12 @@ import com.st.STM32WB.fwUpgrade.feature.OTAFileUpload;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class FwUpgradeConsoleSTM32WB extends FwUpgradeConsole {
+
+    // todo: try it and then replicated it for new blueNrgConsole
+    // smart phone androids, stm32wb board
 
 
     public static FwUpgradeConsoleSTM32WB buildForNode(Node node){
@@ -85,21 +89,20 @@ public class FwUpgradeConsoleSTM32WB extends FwUpgradeConsole {
                 mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32WB.this,fwFile);
             else
                 mCallback.onLoadFwError(FwUpgradeConsoleSTM32WB.this,fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
-            mReset.getParentNode().disableNotification(mReset);
+            mReset.disableNotification();
         };
         mReset.addFeatureListener(onBoardWillReboot);
-        mReset.getParentNode().enableNotification(mReset);
+        mReset.enableNotification();
         mControl.startUpload(type,startAddress);
         try {
 
             Runnable onProgress = new Runnable() {
-                    private long sendData = fwFile.getLength();
+                    private AtomicLong sendData = new AtomicLong(fwFile.getLength());
                     @Override
                     public void run() {
-                        sendData-=OTAFileUpload.CHUNK_LENGTH;
-                        Log.d("OnProgress", "run: "+sendData);
-                        mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleSTM32WB.this,fwFile,sendData);
-                        if(sendData<=0){
+                        long dataSent = sendData.addAndGet(-OTAFileUpload.CHUNK_LENGTH);
+                        mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleSTM32WB.this,fwFile,dataSent);
+                        if(dataSent<=0){
                             mControl.uploadFinished(() -> {
                             //    mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32WB.this,fwFile);
                             //    mReset.removeFeatureListener(onBoardWillReboot);

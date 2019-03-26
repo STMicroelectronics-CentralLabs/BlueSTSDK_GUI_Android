@@ -34,37 +34,61 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package com.st.STM32WB.fwUpgrade;
+package com.st.BlueNRG.fwUpgrade;
 
+import com.st.BlueNRG.fwUpgrade.feature.ImageFeature;
+import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionConsole;
-import com.st.STM32WB.fwUpgrade.feature.OTAControlFeature;
 
-public class FwVersionConsoleSTM32WB extends FwVersionConsole {
+public class FwVersionConsoleBlueNRG extends FwVersionConsole {
 
-    private static final  FwVersionBoard DEFAULT_VERSION = new
-            FwVersionBoard("STM32WB OTA","STM32WB",1,0,0);
+    private static final String DEFAULT_BOARD_NAME = "BLUENRG OTA";
+    private static final String DEFAULT_MCU_NAME = "BLUENRG";
+
+    private ImageFeature mRangeMem;
 
     public static FwVersionConsole buildForNode(Node node){
-        if(node.getFeature(OTAControlFeature.class)!=null)
-            return new FwVersionConsoleSTM32WB(null);
+        ImageFeature rangeMem = node.getFeature(ImageFeature.class);
+        if(rangeMem!=null) {
+            return new FwVersionConsoleBlueNRG(null,rangeMem);
+        }
         return null;
     }
 
     /**
      * @param callback object where notify the command answer
      */
-    private FwVersionConsoleSTM32WB(FwVersionCallback callback) {
+    private FwVersionConsoleBlueNRG(FwVersionCallback callback, ImageFeature rangeMem) {
         super(callback);
+        mRangeMem = rangeMem;
+
     }
+
 
     @Override
     public boolean readVersion(@FirmwareType int type) {
-        if(mCallback==null)
-            return true;
-        mCallback.onVersionRead(this,type,DEFAULT_VERSION);
+        Feature.FeatureListener onImageFeature = new Feature.FeatureListener(){
+            @Override
+            public void onUpdate(Feature f, Feature.Sample sample) {
+                if(mCallback!=null) {
+                    FwVersion protocolVer = mRangeMem.getProtocolVer(sample);
+                    if(protocolVer!=null) {
+                        FwVersionBoard version = new FwVersionBoard(DEFAULT_BOARD_NAME, DEFAULT_MCU_NAME,
+                                protocolVer.getMajorVersion(), protocolVer.getMinorVersion(), protocolVer.getPatchVersion());
+                        mCallback.onVersionRead(FwVersionConsoleBlueNRG.this, FirmwareType.BOARD_FW, version);
+                    }else{
+                        mCallback.onVersionRead(FwVersionConsoleBlueNRG.this, FirmwareType.BOARD_FW,  null);
+                    }
+                }
+                mRangeMem.removeFeatureListener(this);
+            }
+        };
+        mRangeMem.addFeatureListener(onImageFeature); // remember to removeFeatureListener when it is the last
+        mRangeMem.getParentNode().readFeature(mRangeMem);
         return true;
     }
 }

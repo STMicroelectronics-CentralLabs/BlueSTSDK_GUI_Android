@@ -41,7 +41,7 @@
     <string name="fwUpgrade_loading">Loading…</string>
     <string name="fwUpgrade_version">Version: </string>
     <string name="fwUpgrade_board_type">Mcu Type: </string>
-    <string name="fwUpgrade_loadFwVersion">Loading firmware version</string>
+
     <string name="fwUpgrade_formatting">Formatting</string>
     <string name="fwUpgrade_uploading">Uploading</string>
     <string name="fwUpgrade_upgradeNumberFormat" translatable="false">%1$d/%2$d Bytes</string>

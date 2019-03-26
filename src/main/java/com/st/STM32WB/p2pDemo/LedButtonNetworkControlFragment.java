@@ -239,14 +239,6 @@ public class LedButtonNetworkControlFragment extends RssiDemoFragment {
         super.disableNeedNotification(node);
     }
 
-
-
-    @Override
-    public void onTxPowerChange(Node node, int newPower) {}
-
-
-
-
     public static class STM32WBDeviceStatusRecyclerViewAdapter extends
             RecyclerView.Adapter<STM32WBDeviceStatusRecyclerViewAdapter.ViewHolder>{
 

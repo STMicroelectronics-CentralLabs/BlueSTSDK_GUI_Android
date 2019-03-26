@@ -51,7 +51,7 @@ public class ConnectionStatusController implements  LifecycleObserver {
 
     private Node.NodeStateListener mNodeStateListener = new Node.NodeStateListener() {
         @Override
-        public void onStateChange(Node node, Node.State newState, Node.State prevState) {
+        public void onStateChange(@NonNull Node node, @NonNull Node.State newState, @NonNull Node.State prevState) {
             switch (newState){
                 case Connecting:
                     mView.showConnecting(node.getName());

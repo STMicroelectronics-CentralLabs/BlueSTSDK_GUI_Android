@@ -34,4 +34,21 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
+package com.st.BlueNRG.fwUpgrade.feature;
 
+import com.st.BlueSTSDK.Utils.UUIDToFeatureMap;
+
+import java.util.UUID;
+
+public class BlueNRGOTASupport {
+
+    public static UUIDToFeatureMap getOTAFeatures(){
+        UUIDToFeatureMap featureMap = new UUIDToFeatureMap();
+        featureMap.put(UUID.fromString("122e8cc0-8508-11e3-baa7-0800200c9a66"), ImageFeature.class); // ReadRangeMemFeature
+        featureMap.put(UUID.fromString("210f99f0-8508-11e3-baa7-0800200c9a66"), NewImageFeature.class); // WriteAndReadParamMemFeature
+        featureMap.put(UUID.fromString("2691aa80-8508-11e3-baa7-0800200c9a66"), NewImageTUContentFeature.class); // WriteDataWithoutRespFeature, but also used for read into BLUENRG2
+        featureMap.put(UUID.fromString("2bdc5760-8508-11e3-baa7-0800200c9a66"), ExpectedImageTUSeqNumberFeature.class); // StartUpLoadWithResp, but resp is managed inside write(), so it is without
+        return featureMap;
+    }
+
+}

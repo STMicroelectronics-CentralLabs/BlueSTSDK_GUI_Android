@@ -68,4 +68,14 @@
         <item name="colorAccent">@color/colorPrimaryDark</item>
     </style>
 
+    <style name="DialogWithTitle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowNoTitle">false</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
+    <style name="DialogWithOutTitle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
 </resources>

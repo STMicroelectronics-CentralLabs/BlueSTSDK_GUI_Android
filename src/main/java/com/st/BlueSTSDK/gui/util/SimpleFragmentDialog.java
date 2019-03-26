@@ -72,6 +72,15 @@ public class SimpleFragmentDialog extends DialogFragment {
         return frag;
     }
 
+    public static SimpleFragmentDialog newInstance(@StringRes int title,@NonNull String message) {
+        SimpleFragmentDialog frag = new SimpleFragmentDialog();
+        Bundle args = new Bundle();
+        args.putString(MESSAGE_STR, message);
+        args.putInt(TITLE_ID, title);
+        frag.setArguments(args);
+        return frag;
+    }
+
     public static SimpleFragmentDialog newInstance(@NonNull String message) {
         SimpleFragmentDialog frag = new SimpleFragmentDialog();
         Bundle args = new Bundle();

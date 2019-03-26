@@ -2,9 +2,11 @@
 <resources>
     <string name="otaUpload_invalidHex">Invalid Hex number</string>
     <string name="otaUpload_invalidMemoryAddress">Invalid memory address</string>
+    <string name="otaUpload_invalidFile">Select a file to flash</string>
     <string name="otaUpload_address">Address</string>
     <string name="otaUpload_start">Upload Start</string>
     <string name="otaUpload_status">Uploaded %d bytes</string>
+    <string name="otaUpload_completed">Upload completed</string>
     <string name="otaUpload_finished">Upload finished in %.2f seconds\nThe board is resetting, please switch off the radio before reconnect</string>
     <string name="otaUpload_error">Upload Error: %s</string>
 </resources>

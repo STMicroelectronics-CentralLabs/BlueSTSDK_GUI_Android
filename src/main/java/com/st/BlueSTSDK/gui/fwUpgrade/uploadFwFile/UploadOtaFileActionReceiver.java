@@ -34,7 +34,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package com.st.STM32WB.fwUpgrade.uploadOtaFile;
+package com.st.BlueSTSDK.gui.fwUpgrade.uploadFwFile;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

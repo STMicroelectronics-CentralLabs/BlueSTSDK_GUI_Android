@@ -51,6 +51,8 @@ public class FragmentUtil {
      * @param task task to run in the activity ui thread
      */
     public static void runOnUiThread(Fragment f, Runnable task){
+        if(f.isDetached())
+            return;
         Activity activity = f.getActivity();
         if(activity!=null && !activity.isFinishing())
             activity.runOnUiThread(task);

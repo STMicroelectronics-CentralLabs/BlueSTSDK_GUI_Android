@@ -329,7 +329,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      */
     private Node.NodeStateListener mBuildDemoAdapterOnConnection = new Node.NodeStateListener() {
         @Override
-        public void onStateChange(final Node node, Node.State newState, Node.State
+        public void onStateChange(@NonNull final Node node, @NonNull Node.State newState, @NonNull Node.State
                 prevState) {
             if(newState==Node.State.Connected) {
                 runOnUiThread(() -> {

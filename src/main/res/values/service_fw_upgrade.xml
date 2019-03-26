@@ -43,6 +43,8 @@
     <string name="fwUpgrade_error_corrupted_file">Transmitted data are corrupted</string>
     <string name="fwUpgrade_error_transmission">Error sending the data</string>
     <string name="fwUpgrade_error_unknown">Unknown Error</string>
+    <string name="fwUpgrade_error_wrong_sdk">Cannot uploading, server or board must be at least BlueNRG-2 SDK 3.1.0</string>
+    <string name="fwUpgrade_error_wrong_sdk_or_error_transmission">Cannot uploading, server or board must be at least BlueNRG-2 SDK 3.1.0 or error transmission</string>
     <string name="fwUpgrade_error_invalid_file">Error while opening the file</string>
 
     <string name="fwUpgrade_errorNotificationTitle">Error</string>

@@ -39,6 +39,7 @@ package com.st.BlueSTSDK.gui.util;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.st.BlueSTSDK.Node;
@@ -78,7 +79,7 @@ public class ConnectProgressDialog extends ProgressDialog implements Node.NodeSt
      * @param prevState previous node status
      */
     @Override
-    public void onStateChange(final Node node, final Node.State newState, Node.State prevState) {
+    public void onStateChange(@NonNull final Node node, @NonNull final Node.State newState, @NonNull Node.State prevState) {
         if(mMainThread!=null){
             mMainThread.post(() -> setState(newState,prevState));
         }

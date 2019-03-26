@@ -43,6 +43,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
@@ -122,7 +123,7 @@ public class NodeContainerFragment extends Fragment implements NodeContainer {
      */
     private Node.NodeStateListener mNodeStateListener = new Node.NodeStateListener() {
         @Override
-        public void onStateChange(final Node node, Node.State newState, Node.State prevState) {
+        public void onStateChange(@NonNull final Node node, @NonNull Node.State newState, @NonNull Node.State prevState) {
             final Activity activity = NodeContainerFragment.this.getActivity();
             //we connect -> hide the dialog
             if ((newState == Node.State.Connected) && activity != null) {

@@ -39,6 +39,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 
+import com.st.BlueNRG.fwUpgrade.FwUpgradeConsoleBlueNRG;
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
@@ -65,6 +66,10 @@ public abstract class FwUpgradeConsole {
         if( stm32wbConsole!=null)
             return stm32wbConsole;
 
+        FwUpgradeConsoleBlueNRG blueNrgConsole = FwUpgradeConsoleBlueNRG.buildForNode(node);
+        if( blueNrgConsole!=null)
+            return blueNrgConsole;
+
         Debug debug = node.getDebug();
 
         if(debug !=null) {
@@ -74,6 +79,7 @@ public abstract class FwUpgradeConsole {
                 case BLUE_COIN:
                 case STEVAL_BCN002V1:
                 case SENSOR_TILE_101:
+                case DISCOVERY_IOT01A:
                     return new FwUpgradeConsoleNucleo(debug);
             }
         }
@@ -123,7 +129,7 @@ public abstract class FwUpgradeConsole {
         /**
          * enum with the possible upload error
          */
-        @IntDef({ERROR_CORRUPTED_FILE, ERROR_TRANSMISSION,ERROR_INVALID_FW_FILE,ERROR_UNKNOWN})
+        @IntDef({ERROR_CORRUPTED_FILE, ERROR_TRANSMISSION,ERROR_INVALID_FW_FILE,ERROR_WRONG_SDK_VERSION,ERROR_WRONG_SDK_VERSION_OR_ERROR_TRANSMISSION,ERROR_UNKNOWN})
         @Retention(RetentionPolicy.SOURCE)
         @interface UpgradeErrorType {}
 
@@ -145,9 +151,16 @@ public abstract class FwUpgradeConsole {
         int ERROR_INVALID_FW_FILE=2;
 
         /**
+         * the node firmware has a wrong version
+         */
+        int ERROR_WRONG_SDK_VERSION=3;
+
+        int ERROR_WRONG_SDK_VERSION_OR_ERROR_TRANSMISSION=4;
+
+        /**
          * unknown error
          */
-        int ERROR_UNKNOWN=3;
+        int ERROR_UNKNOWN=5;
 
         /**
          * called when the loadFw finish correctly
@@ -172,22 +185,6 @@ public abstract class FwUpgradeConsole {
          * @param loadBytes bytes loaded to the board
          */
         void onLoadFwProgressUpdate(FwUpgradeConsole console, FwFileDescriptor fwFile, long loadBytes);
-    }
-
-    /**
-     * Utility class that implement the {@link FwUpgradeCallback} interface with empty methods
-     */
-    public static class SimpleFwUpgradeCallback implements FwUpgradeCallback{
-
-        @Override
-        public void onLoadFwComplete(FwUpgradeConsole console, FwFileDescriptor fwFile) {  }
-
-        @Override
-        public void onLoadFwError(FwUpgradeConsole console, FwFileDescriptor fwFile,
-                                  @UpgradeErrorType int error) {       }
-
-        @Override
-        public void onLoadFwProgressUpdate(FwUpgradeConsole console, FwFileDescriptor fwFile, long loadBytes) { }
     }
 
 }
