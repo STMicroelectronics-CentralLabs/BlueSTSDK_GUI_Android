@@ -7,6 +7,7 @@ import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.advertise.AdvertiseFilter;
 import com.st.BlueSTSDK.Utils.advertise.AdvertiseParser;
 import com.st.BlueSTSDK.Utils.advertise.BleAdvertiseInfo;
+import com.st.BlueSTSDK.Utils.advertise.BlueSTSDKAdvertiseInfo;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -22,19 +23,63 @@ public class BlueNRGAdvertiseFilter implements AdvertiseFilter {
                     (byte)0x66};
 
 
-    public class BlueNRGAdvertiseInfo extends BleAdvertiseInfo{
+    public class BlueNRGAdvertiseInfo implements BleAdvertiseInfo {
 
+        private String mName;
         private UUID mExportedService;
 
-        public BlueNRGAdvertiseInfo(String mName, byte mTxPower, String mAddress, int mFeatureMap, byte mDeviceId,
-                                    short mProtocolVersion, Node.Type mBoardType, boolean mBoardSleeping, boolean mHasGeneralPurpose,
-                                    UUID exportedService) {
-            super(mName, mTxPower, mAddress, mFeatureMap, mDeviceId, mProtocolVersion, mBoardType, mBoardSleeping, mHasGeneralPurpose);
+        public BlueNRGAdvertiseInfo(String name, UUID exportedService) {
+            mName = name;
             mExportedService = exportedService;
         }
 
         public UUID getExportedService() {
             return mExportedService;
+        }
+
+        @Override
+        public String getName() {
+            return mName;
+        }
+
+        @Override
+        public byte getTxPower() {
+            return 0;
+        }
+
+        @Override
+        public String getAddress() {
+            return null;
+        }
+
+        @Override
+        public int getFeatureMap() {
+            return 0;
+        }
+
+        @Override
+        public byte getDeviceId() {
+            return 4;
+        }
+
+        @Override
+        public short getProtocolVersion() {
+            return 1;
+        }
+
+        @Override
+        public Node.Type getBoardType() {
+            return Node.Type.STEVAL_IDB008VX;
+        }
+
+        @Override
+        public boolean isBoardSleeping() {
+            return false;
+        }
+
+        @Override
+        public boolean isHasGeneralPurpose() {
+            return false;
         }
     }
 
@@ -51,9 +96,7 @@ public class BlueNRGAdvertiseFilter implements AdvertiseFilter {
         SparseArray<byte[]> splitAdv = split(advData);
         byte[] exportedService = splitAdv.get(AdvertiseParser.INCOMPLETE_LIST_OF_128_UUID);
         if(exportedService!=null && Arrays.equals(OTA_SERVICE_UUID,exportedService)){
-            return new BlueNRGAdvertiseInfo(getDeviceName(splitAdv),(byte)0,null,0,
-                    (byte)4,(short) 1,Node.Type.STEVAL_IDB008VX,
-                    false,false,
+            return new BlueNRGAdvertiseInfo(getDeviceName(splitAdv),
                     UUID.nameUUIDFromBytes(OTA_SERVICE_UUID));
         }
         return null;
