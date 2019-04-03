@@ -326,6 +326,8 @@ public class DebugConsoleActivity extends ActivityWithNode {
             case SENSOR_TILE:
             case BLUE_COIN:
             case NUCLEO:
+            case DISCOVERY_IOT01A:
+            case STEVAL_BCN002V1:
                 return NUCLEO_HELP_MESSAGE;
             case GENERIC:
             default:
