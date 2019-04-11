@@ -55,6 +55,7 @@ import com.st.BlueSTSDK.gui.ConnectionStatusView.ConnectionStatusController;
 import com.st.BlueSTSDK.gui.ConnectionStatusView.ConnectionStatusView;
 import com.st.BlueSTSDK.gui.NodeConnectionService;
 import com.st.BlueSTSDK.gui.R;
+import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.STM32WB.fwUpgrade.feature.STM32OTASupport;
 import com.st.STM32WB.fwUpgrade.searchOtaNode.SearchOtaNodeFragment;
 import com.st.BlueSTSDK.gui.fwUpgrade.uploadFwFile.UploadOtaFileFragment;
@@ -65,28 +66,35 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
     private static final String NODE_ADDRESS_PARAM = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".NODE_ADDRESS_PARAM";
     private static final String FILE_PARAM = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".FILE_PARAM";
     private static final String ADDRESS_PARAM = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".ADDRESS_PARAM";
-
+    private static final String FW_TYPE = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".ASK_FW_TYPE";
     private static final String SEARCH_NODE_TAG = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".SEARCH_NODE_TAG";
     private static final String UPLOAD_NODE_TAG = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".UPLOAD_NODE_TAG";
 
     public static Intent getStartIntent(@NonNull Context context, @Nullable Node node, @Nullable Uri file,
-                                        @Nullable Long address){
+                                        @Nullable Long address,@Nullable Integer fwType){
         Intent fwUpgradeActivity = new Intent(context, FwUpgradeSTM32WBActivity.class);
+
         if(node!=null){
             fwUpgradeActivity.putExtra(NODE_PARAM,node.getTag());
         }
+
         if(file!=null){
             fwUpgradeActivity.putExtra(FILE_PARAM,file);
         }
+
         if(address!=null) {
             fwUpgradeActivity.putExtra(ADDRESS_PARAM, address);
+        }
+
+        if(fwType!=null){
+            fwUpgradeActivity.putExtra(FW_TYPE,fwType);
         }
 
         return fwUpgradeActivity;
     }
 
     public static Intent getStartIntent(@NonNull Context context, @NonNull String nodeAddress, @Nullable Uri file,
-                                        @Nullable Long address){
+                                        @Nullable Long address,@Nullable Integer fwType){
         Intent fwUpgradeActivity = new Intent(context, FwUpgradeSTM32WBActivity.class);
 
         fwUpgradeActivity.putExtra(NODE_ADDRESS_PARAM,nodeAddress);
@@ -94,8 +102,13 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
         if(file!=null){
             fwUpgradeActivity.putExtra(FILE_PARAM,file);
         }
+
         if(address!=null) {
             fwUpgradeActivity.putExtra(ADDRESS_PARAM, address);
+        }
+
+        if(fwType!=null){
+            fwUpgradeActivity.putExtra(FW_TYPE,fwType);
         }
 
         return fwUpgradeActivity;
@@ -104,12 +117,13 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
     private Node mNode;
     private ConnectionStatusView mConnectionStatus;
 
-    private static @Nullable String getNodeTag(Intent startIntent,@Nullable Bundle salvedIntansceState){
+    private static @Nullable String getNodeTag(Intent startIntent,
+                                               @Nullable Bundle salvedInstanceState){
         if(startIntent.hasExtra(NODE_PARAM)){
             return startIntent.getStringExtra(NODE_PARAM);
         }else{
-            if(salvedIntansceState!=null)
-                return salvedIntansceState.getString(NODE_PARAM);
+            if(salvedInstanceState!=null)
+                return salvedInstanceState.getString(NODE_PARAM);
             else
                 return null;
         }
@@ -145,7 +159,10 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
             Uri file = startIntent.getParcelableExtra(FILE_PARAM);
             Long address = startIntent.hasExtra(ADDRESS_PARAM) ?
                     startIntent.getLongExtra(ADDRESS_PARAM, 0) : null;
-            UploadOtaFileFragment fragment = UploadOtaFileFragment.build(node, file, address);
+            Integer fwType = startIntent.hasExtra(FW_TYPE) ?
+                    startIntent.getIntExtra(FW_TYPE,FirmwareType.BOARD_FW) : null;
+            UploadOtaFileFragment fragment = UploadOtaFileFragment.build(node, file, address,
+                    true, fwType,true);
 
             FragmentTransaction transaction = fm.beginTransaction();
             if (fm.findFragmentByTag(SEARCH_NODE_TAG) != null)

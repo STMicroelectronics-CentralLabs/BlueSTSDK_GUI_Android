@@ -66,7 +66,6 @@ import com.st.BlueSTSDK.gui.util.InputChecker.CheckHexNumber;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckNumberRange;
 import com.st.BlueSTSDK.gui.util.SimpleFragmentDialog;
 
-
 public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActionReceiver.UploadFinishedListener{
 
     private static final String FINISH_DIALOG_TAG = UploadOtaFileFragment.class.getCanonicalName()+".FINISH_DIALOG_TAG";
@@ -171,7 +170,7 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
             mFirmwareTypeView.setVisibility(View.GONE);
         }
 
-        @IdRes int selected = getSelectedFwType(savedInstance,args) == FirmwareType.BLE_FW ? R.id.otaUpload_bleType : R.id.otaUpload_firmware;
+        @IdRes int selected = getSelectedFwType(savedInstance,args) == FirmwareType.BLE_FW ? R.id.otaUpload_bleType : R.id.otaUpload_applicationType;
         mFirmwareTypeView.check(selected);
     }
 

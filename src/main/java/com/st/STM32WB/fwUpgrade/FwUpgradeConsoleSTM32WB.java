@@ -54,10 +54,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class FwUpgradeConsoleSTM32WB extends FwUpgradeConsole {
 
-    // todo: try it and then replicated it for new blueNrgConsole
-    // smart phone androids, stm32wb board
-
-
     public static FwUpgradeConsoleSTM32WB buildForNode(Node node){
         OTAControlFeature control = node.getFeature(OTAControlFeature.class);
         OTAFileUpload upload = node.getFeature(OTAFileUpload.class);

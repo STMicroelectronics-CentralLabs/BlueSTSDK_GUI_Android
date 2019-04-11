@@ -58,14 +58,14 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/otaReboot_appMemory" />
-    <!--
+
                 <RadioButton
                     android:id="@+id/otaReboot_bleMemory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/otaReboot_bleMemory" />
-    -->
+
                 <RadioButton
                     android:id="@+id/otaReboot_customMemory"
                     android:layout_width="wrap_content"

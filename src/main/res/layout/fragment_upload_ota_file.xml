@@ -30,9 +30,7 @@
             android:id="@+id/otaUpload_fwTypeSelector"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:checkedButton="@+id/otaUpload_applicationType"
             android:orientation="horizontal"
@@ -42,7 +40,7 @@
             app:layout_constraintTop_toBottomOf="@+id/otaUpload_addressTextLayout">
 
             <RadioButton
-                android:id="@+id/otaUpload_applicationType"
+                android:id="@id/otaUpload_applicationType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

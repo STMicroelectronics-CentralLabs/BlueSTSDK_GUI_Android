@@ -7,7 +7,6 @@ import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.advertise.AdvertiseFilter;
 import com.st.BlueSTSDK.Utils.advertise.AdvertiseParser;
 import com.st.BlueSTSDK.Utils.advertise.BleAdvertiseInfo;
-import com.st.BlueSTSDK.Utils.advertise.BlueSTSDKAdvertiseInfo;
 
 import java.util.Arrays;
 import java.util.UUID;
