@@ -89,7 +89,7 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
     }
 
     private static final MemoryLayout APPLICATION_MEMORY = new MemoryLayout((short)0x07,(short) 0x7F);
-    private static final MemoryLayout BLE_MEMORY = new MemoryLayout((short)0x07,(short) 0x7F);
+    private static final MemoryLayout BLE_MEMORY = new MemoryLayout((short)0xF0,(short) 0x7F);
 
     private StartOtaConfigContract.Presenter mPresenter;
     private RequestFileUtil mRequestFileUtil;
@@ -213,7 +213,7 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
         if(mBleMemory.isChecked() || mSectorTextLayout.getEditText() == null){
             return BLE_MEMORY.fistSector;
         }
-        return Short.parseShort( mSectorTextLayout.getEditText().getText().toString(),16);
+        return Short.parseShort( mSectorTextLayout.getEditText().getText().toString(),10);
     }
 
     @Override
@@ -222,7 +222,7 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
             return APPLICATION_MEMORY.nSector;
         if(mBleMemory.isChecked() || mLengthTextLayout.getEditText() == null)
             return BLE_MEMORY.nSector;
-        return Short.parseShort(mLengthTextLayout.getEditText().getText().toString(),16);
+        return Short.parseShort(mLengthTextLayout.getEditText().getText().toString(),10);
     }
 
     private @FirmwareType int getSelectedFwType(){
