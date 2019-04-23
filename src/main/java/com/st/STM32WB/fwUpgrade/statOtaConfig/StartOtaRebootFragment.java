@@ -89,7 +89,7 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
     }
 
     private static final MemoryLayout APPLICATION_MEMORY = new MemoryLayout((short)0x07,(short) 0x7F);
-    private static final MemoryLayout BLE_MEMORY = new MemoryLayout((short)0xF0,(short) 0x7F);
+    private static final MemoryLayout BLE_MEMORY = new MemoryLayout((short)0x0F,(short) 0x7F);
 
     private StartOtaConfigContract.Presenter mPresenter;
     private RequestFileUtil mRequestFileUtil;
