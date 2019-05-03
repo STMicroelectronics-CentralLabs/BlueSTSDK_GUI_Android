@@ -144,7 +144,7 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
     }
 
     @Override
-    public void onDiscoveryChange(Manager m, boolean enabled) {
+    public void onDiscoveryChange(@NonNull Manager m, boolean enabled) {
 
     }
 
@@ -162,20 +162,10 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         notifyDataSetChanged();
     }
 
-    /**
-     * disconnect al connected node manage by this adapter
-     */
-    public void disconnectAllNodes() {
-        for(Node n: mValues){
-            if (n.isConnected())
-                n.disconnect();
-        }//for
-    }//disconnectAllNodes
-
     private Handler mUIThread = new Handler(Looper.getMainLooper());
 
     @Override
-    public void onNodeDiscovered(Manager m,final Node node) {
+    public void onNodeDiscovered(@NonNull Manager m, @NonNull final Node node) {
         if(mFilterNode.displayNode(node)){
             mUIThread.post(() -> {
                 mValues.add(node);
