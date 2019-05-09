@@ -51,6 +51,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeService;
@@ -80,6 +81,7 @@ public class DownloadFwFileService extends IntentService {
         Context appContext = c.getApplicationContext();
         NotificationManager notificationManager = (NotificationManager)
                 appContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
         if(notificationManager==null)
             return;
 
@@ -107,6 +109,7 @@ public class DownloadFwFileService extends IntentService {
                 .setSmallIcon(R.drawable.ic_cloud_fw_upgrade_24dp);
 
         notificationManager.notify(FW_UPGRADE_NOTIFICATION_ID, notificationBuilder.build());
+        Log.i("check","notify Manager");
     }
 
     /**
