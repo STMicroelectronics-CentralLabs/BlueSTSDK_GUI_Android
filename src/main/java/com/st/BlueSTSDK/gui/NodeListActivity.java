@@ -184,7 +184,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
      * with new discover nodes and start the node discovery
      */
     @Override
-    protected void onStart() {
+    protected void onResume() {
         //add the listener that will hide the progress indicator when the first device is discovered
         mManager.addListener(mUpdateDiscoverGui);
         //disconnect all the already discovered device
@@ -193,14 +193,14 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         mManager.addListener(mAdapter);
         resetNodeList();
         startNodeDiscovery();
-        super.onStart();
+        super.onResume();
     }//onListViewIsDisplayed
 
     /**
      * stop the discovery and remove all the lister that we attach to the manager
      */
     @Override
-    protected void onStop() {
+    protected void onPause() {
 
         //remove the listener add by this class
         mManager.removeListener(mUpdateDiscoverGui);
@@ -208,7 +208,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
 
         if (mManager.isDiscovering())
             stopNodeDiscovery();
-        super.onStop();
+        super.onPause();
     }
 
     /**
