@@ -333,10 +333,8 @@ public class NodeConnectionService extends Service {
     private void disconnectAll(){
         //disconnect all the nodes and remove the notification
         for(Node n : mConnectedNodes){
-            if(n.isConnected()){
-                n.disconnect();
-                n.removeNodeStateListener(mStateListener);
-            }
+            n.disconnect();
+            n.removeNodeStateListener(mStateListener);
         }
         mConnectedNodes.clear();
         removeConnectionNotification();
