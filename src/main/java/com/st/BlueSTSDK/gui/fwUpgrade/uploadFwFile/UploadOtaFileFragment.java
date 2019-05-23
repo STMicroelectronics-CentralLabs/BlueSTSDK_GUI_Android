@@ -63,6 +63,7 @@ import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeService;
 import com.st.BlueSTSDK.gui.fwUpgrade.RequestFileUtil;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckHexNumber;
+import com.st.BlueSTSDK.gui.util.InputChecker.CheckMultipleOf;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckNumberRange;
 import com.st.BlueSTSDK.gui.util.SimpleFragmentDialog;
 
@@ -84,7 +85,7 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
     private static final String ADDRESS_PARAM = UploadOtaFileFragment.class.getCanonicalName()+".ADDRESS_PARAM";
 
     private static final int MIN_MEMORY_ADDRESS = 0x7000;
-    private static final int MAX_MEMORY_ADDRESS = 0xFFFF;
+    private static final int MAX_MEMORY_ADDRESS = 0x089000;
 
     public static UploadOtaFileFragment build(@NonNull Node node, @Nullable Uri file,
                                               @Nullable Long address){
@@ -244,9 +245,11 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
     }
 
     private void setupAddressText(TextView addressText, TextInputLayout addressLayout, long initialValue) {
-        addressText.addTextChangedListener(new CheckHexNumber(addressLayout,R.string.otaUpload_invalidHex));
+        addressText.addTextChangedListener(new CheckMultipleOf(addressLayout,R.string.otaUpload_invalidBlockAddress,
+                0x1000));
         addressText.addTextChangedListener(new CheckNumberRange(addressLayout,R.string.otaUpload_invalidMemoryAddress,
                 MIN_MEMORY_ADDRESS, MAX_MEMORY_ADDRESS));
+        addressText.addTextChangedListener(new CheckHexNumber(addressLayout,R.string.otaUpload_invalidHex));
 
         addressText.setText("0x"+Long.toHexString(initialValue));
 

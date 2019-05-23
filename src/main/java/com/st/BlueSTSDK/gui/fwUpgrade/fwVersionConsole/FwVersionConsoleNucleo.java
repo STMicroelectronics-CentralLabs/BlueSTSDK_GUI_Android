@@ -38,6 +38,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Utils.FwVersion;
@@ -124,7 +125,7 @@ public class FwVersionConsoleNucleo extends FwVersionConsole {
         }
 
         @Override
-        public void onStdOutReceived(Debug debug, String message) {
+        public void onStdOutReceived(@NonNull Debug debug, @NonNull String message) {
             mBuffer.append(message);
             if (isCompleteLine(mBuffer)) {
                 //remove time out
@@ -156,10 +157,10 @@ public class FwVersionConsoleNucleo extends FwVersionConsole {
         }
 
         @Override
-        public void onStdErrReceived(Debug debug, String message) { }
+        public void onStdErrReceived(@NonNull Debug debug, @NonNull String message) { }
 
         @Override
-        public void onStdInSent(Debug debug, String message, boolean writeResult) {
+        public void onStdInSent(@NonNull Debug debug, @NonNull String message, boolean writeResult) {
             mTimeout.postDelayed(onTimeout,LOST_MSG_TIMEOUT_MS);
         }
     }

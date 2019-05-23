@@ -73,8 +73,12 @@ public abstract class InputChecker implements TextWatcher {
     }
 
     private void hideErrorMessage(){
-        mTextInputLayout.setError(null);
-        mTextInputLayout.setErrorEnabled(false);
+        CharSequence currentError = mTextInputLayout.getError();
+        if(currentError!=null && currentError.equals(mErrorMsg)){
+            mTextInputLayout.setError(null);
+            mTextInputLayout.setErrorEnabled(false);
+        }
+
     }
 
 
