@@ -47,6 +47,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
@@ -112,6 +113,11 @@ public class DownloadFwFileService extends IntentService {
         Log.i("check","notify Manager");
     }
 
+    public static DialogFragment buildAvailableFwNotificationDialog(Context c, Uri firmwareRemoteLocation){
+        DownloadFwFileService.removeNotification(c);
+        return DownloadNewFwDialog.buildDialogForUri(firmwareRemoteLocation);
+    }
+
     /**
      * remove the notificaiton that ask to upgrade the fw
      * @param c context used to show the notification
@@ -137,12 +143,7 @@ public class DownloadFwFileService extends IntentService {
         return intent;
     }
 
-    /**
-     * Starts this service to perform action Foo with the given parameters. If
-     * the service is already performing a task this action will be queued.
-     *
-     * @see IntentService
-     */
+
     public static void startDownloadFwFile(Context context, Uri location) {
         context.startService(downloadFwFile(context,location));
     }
@@ -225,7 +226,6 @@ public class DownloadFwFileService extends IntentService {
                     if(manager==null)
                         return;
                     Uri file = manager.getUriForDownloadedFile(mDownloadRequestId);
-
                     LocalBroadcastManager.getInstance(context).sendBroadcast(getCompleteDownloadIntent(file));
 
                     context.unregisterReceiver(this);

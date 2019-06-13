@@ -35,62 +35,59 @@
  * OF SUCH DAMAGE.
  */
 
-package com.st.BlueSTSDK.gui.fwUpgrade.download;
+package com.st.BlueSTSDK.gui.fwUpgrade.download
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.Uri;
-import android.support.v4.content.LocalBroadcastManager;
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.net.Uri
+import android.support.v4.content.LocalBroadcastManager
 
-import com.st.BlueSTSDK.Node;
-import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeActivity;
-import com.st.BlueSTSDK.gui.fwUpgrade.download.DownloadFwFileService;
+import com.st.BlueSTSDK.Node
+import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeActivity
 
 /**
  * Wait the fw file download ends and start the fw upgrade activity when the file is downloaded
  */
-public class DownloadFwFileCompletedReceiver extends BroadcastReceiver {
+class DownloadFwFileCompletedReceiver(
+        private val context: Context,
+        private val mNode: Node) : BroadcastReceiver(), LifecycleObserver {
 
-    private static final IntentFilter sReceiverFilter = new IntentFilter(DownloadFwFileService.ACTION_DOWNLOAD_COMPLETE);
-
-    private Node mNode;
-
-    /**
-     * @param node where upload the fw
-     */
-    public DownloadFwFileCompletedReceiver(Node node){
-        mNode=node;
-    }
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        String action = intent.getAction();
-        if(action!=null && action.equals(DownloadFwFileService.ACTION_DOWNLOAD_COMPLETE)){
-            Uri file = intent.getParcelableExtra(DownloadFwFileService.EXTRA_DOWNLOAD_LOCATION);
-            Intent startFwActivity = FwUpgradeActivity.getStartIntent(context,mNode,true,file);
-            startFwActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(startFwActivity);
+    override fun onReceive(context: Context, intent: Intent) {
+        val action = intent.action
+        if (action != null && action == DownloadFwFileService.ACTION_DOWNLOAD_COMPLETE) {
+            val file = intent.getParcelableExtra<Uri>(DownloadFwFileService.EXTRA_DOWNLOAD_LOCATION)
+            val startFwActivity = FwUpgradeActivity.getStartIntent(context, mNode, true, file)
+            startFwActivity.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(startFwActivity)
         }
     }
 
     /**
      * register the receiver to the local broadcast
-     * @param c context used to retrieve the application context
      */
-    public void registerReceiver(Context c){
-        LocalBroadcastManager.getInstance(c.getApplicationContext())
-                .registerReceiver(this,sReceiverFilter);
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    fun registerReceiver() {
+        LocalBroadcastManager.getInstance(context.applicationContext)
+                .registerReceiver(this, DOWNLOAD_COMPLETE_FILTER)
     }
 
     /**
      * unregister the receiver to the local broadcast
-     * @param c context used to retreive the application context
      */
-    public void unregisterReceiver(Context c){
-        LocalBroadcastManager.getInstance(c.getApplicationContext())
-                .unregisterReceiver(this);
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    fun unregisterReceiver() {
+        LocalBroadcastManager.getInstance(context.applicationContext)
+                .unregisterReceiver(this)
+    }
+
+    companion object {
+
+        private val DOWNLOAD_COMPLETE_FILTER = IntentFilter(DownloadFwFileService.ACTION_DOWNLOAD_COMPLETE)
     }
 
 }
