@@ -113,9 +113,9 @@ public class DownloadFwFileService extends IntentService {
         Log.i("check","notify Manager");
     }
 
-    public static DialogFragment buildAvailableFwNotificationDialog(Context c, Uri firmwareRemoteLocation){
+    public static DialogFragment buildAvailableFwNotificationDialog(Context c, Uri firmwareRemoteLocation, boolean forceFwUpgrade){
         DownloadFwFileService.removeNotification(c);
-        return DownloadNewFwDialog.buildDialogForUri(firmwareRemoteLocation);
+        return DownloadNewFwDialog.buildDialogForUri(firmwareRemoteLocation,forceFwUpgrade);
     }
 
     /**

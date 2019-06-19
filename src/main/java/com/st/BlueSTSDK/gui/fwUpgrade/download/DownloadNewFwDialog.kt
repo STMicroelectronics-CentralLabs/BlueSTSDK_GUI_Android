@@ -11,12 +11,14 @@ class DownloadNewFwDialog : DialogFragment() {
 
     companion object{
         private const val ARG_FW_LOCATION = "EXTRA_FW_LOCATION"
+        private const val ARG_FORCE_FW = "ARG_FORCE_FW"
 
         @JvmStatic
-        fun buildDialogForUri(firmwareRemoteLocation:Uri):DialogFragment{
+        fun buildDialogForUri(firmwareRemoteLocation:Uri, forceFwUpgrade:Boolean):DialogFragment{
             return DownloadNewFwDialog().apply {
                 arguments = Bundle().apply {
                     putParcelable(ARG_FW_LOCATION,firmwareRemoteLocation)
+                    putByte(ARG_FORCE_FW,if(forceFwUpgrade) 0 else 1 )
                 }
             }
         }
@@ -29,6 +31,7 @@ class DownloadNewFwDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val fwLocation = arguments?.getParcelable(ARG_FW_LOCATION) as Uri
+        val forceFwUpgrade = (arguments?.getByte(ARG_FORCE_FW) ?: 0) == 0.toByte()
         val message = buildDialogMessage(fwLocation)
         return AlertDialog.Builder(requireContext()).apply {
 
@@ -38,7 +41,8 @@ class DownloadNewFwDialog : DialogFragment() {
             setPositiveButton(R.string.cloudLog_fwUpgrade_startUpgrade){ _, _ ->
                 DownloadFwFileService.startDownloadFwFile(requireContext(),fwLocation)
             }
-            setNegativeButton(android.R.string.cancel){_,_ -> dismiss()}
+            if(!forceFwUpgrade)
+                setNegativeButton(android.R.string.cancel){_,_ -> dismiss()}
 
         }.create()
 

@@ -37,11 +37,13 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.st.BlueNRG.fwUpgrade.FwUpgradeConsoleBlueNRG;
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
 
@@ -61,7 +63,7 @@ public abstract class FwUpgradeConsole {
      * @param node node where upload the firmware
      * @return null if isn't possible upload the firmware in the node, or a class for do it
      */
-    static public @Nullable FwUpgradeConsole getFwUpgradeConsole(Node node){
+    static public @Nullable FwUpgradeConsole getFwUpgradeConsole(@NonNull Node node,@Nullable FwVersion version){
         FwUpgradeConsoleSTM32WB stm32wbConsole = FwUpgradeConsoleSTM32WB.buildForNode(node);
         if( stm32wbConsole!=null)
             return stm32wbConsole;
@@ -74,11 +76,17 @@ public abstract class FwUpgradeConsole {
 
         if(debug !=null) {
             switch (node.getType()) {
+                case SENSOR_TILE_BOX:
+                    if(version!=null && version.compareTo(new FwVersion(3,0,15)) >=0){
+                        return new FwUpgradeConsoleNucleo2(debug);
+                    }else{
+                        return new FwUpgradeConsoleNucleo(debug);
+                    }
                 case NUCLEO:
                 case SENSOR_TILE:
                 case BLUE_COIN:
                 case STEVAL_BCN002V1:
-                case SENSOR_TILE_BOX:
+
                 case DISCOVERY_IOT01A:
                     return new FwUpgradeConsoleNucleo(debug);
             }

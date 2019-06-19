@@ -36,6 +36,8 @@
  */
 package com.st.BlueSTSDK.gui.fwUpgrade.uploadFwFile;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.net.Uri;
@@ -57,10 +59,12 @@ import android.widget.TextView;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.NodeConnectionService;
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeService;
+import com.st.BlueSTSDK.gui.fwUpgrade.FwVersionViewModel;
 import com.st.BlueSTSDK.gui.fwUpgrade.RequestFileUtil;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckHexNumber;
 import com.st.BlueSTSDK.gui.util.InputChecker.CheckMultipleOf;
@@ -135,6 +139,8 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
     private View mProgressViewGroup;
     private RadioGroup mFirmwareTypeView;
 
+    private FwVersionViewModel mVersionViewModel;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -163,7 +169,13 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
         return  mRootView;
     }
 
-    private void setupFwTypeSelector(RadioGroup selector,Bundle savedInstance, Bundle args) {
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mVersionViewModel = ViewModelProviders.of(requireActivity()).get(FwVersionViewModel.class);
+    }
+
+    private void setupFwTypeSelector(RadioGroup selector, Bundle savedInstance, Bundle args) {
         mFirmwareTypeView = selector;
         if(showFwTypeSelector(args)){
             mFirmwareTypeView.setVisibility(View.VISIBLE);
@@ -293,9 +305,10 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
         button.setOnClickListener(v -> {
             Long address = getFwAddress();
             @FirmwareType int selectedType = getSelectedFwType();
+            FwVersion currentVersion = mVersionViewModel.getFwVersion().getValue();
             if(mSelectedFw!=null) {
                 if(address!=null) {
-                    startUploadFile(mSelectedFw, selectedType,address);
+                    startUploadFile(mSelectedFw, selectedType,address,currentVersion);
                 }else{
                     Snackbar.make(mRootView,R.string.otaUpload_invalidMemoryAddress,Snackbar.LENGTH_SHORT).show();
                 }
@@ -312,8 +325,9 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
             return FirmwareType.BOARD_FW;
     }
 
-    private void startUploadFile(@NonNull Uri selectedFile,@FirmwareType int type, long address) {
-        FwUpgradeService.startUploadService(requireContext(),mNode,selectedFile,type,address);
+    private void startUploadFile(@NonNull Uri selectedFile, @FirmwareType int type,
+                                 long address,@Nullable FwVersion currentVersion) {
+        FwUpgradeService.startUploadService(requireContext(),mNode,selectedFile,type,address,currentVersion);
         mProgressViewGroup.setVisibility(View.VISIBLE);
     }
 
