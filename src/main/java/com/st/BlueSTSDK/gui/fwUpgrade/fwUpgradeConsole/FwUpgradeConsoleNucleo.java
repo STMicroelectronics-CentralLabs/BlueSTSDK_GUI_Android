@@ -69,7 +69,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      *to avoid to stress the BLE Stack the message are send each 13ms that corrisponding to a connection
      * inteval of 12.5 ms.
      */
-    private static final int FW_PACKAGE_DELAY_MS = 13; // connection interval 10 * 12.5
+    private static final int FW_PACKAGE_DELAY_MS = 13; // connection interval 12.5
     //every time there is a fail we decease the number of block to send
     private static int sNFail=1;
 
@@ -327,7 +327,8 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                 if(checkCrc(message)) {
                     mNodeReadyToReceiveFile = true;
                     mNPackageReceived=0;
-                    sendPackageBlock();
+                    //wait update of the connection interval
+                    mTimeout.postDelayed(this::sendPackageBlock,500);
                 }else
                     onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
             }else { //transfer complete
