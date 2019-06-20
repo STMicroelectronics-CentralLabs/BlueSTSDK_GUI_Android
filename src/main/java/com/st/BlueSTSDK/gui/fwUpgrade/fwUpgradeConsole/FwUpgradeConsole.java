@@ -47,6 +47,7 @@ import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
 
+import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
 import com.st.STM32WB.fwUpgrade.FwUpgradeConsoleSTM32WB;
 
 import java.lang.annotation.Retention;
@@ -57,6 +58,16 @@ import java.lang.annotation.RetentionPolicy;
  * it can handle the upgrade of the node firmware and the bluetooth firmware
  */
 public abstract class FwUpgradeConsole {
+
+    private static FwVersionBoard STBOX_NEW_FW_UPGRADE_PROTOCOL = new FwVersionBoard("SENSORTILE.BOX","L4R9",3,0,15);
+
+    private static boolean stBoxHasNewFwUpgradeProtocol(@Nullable FwVersion version){
+        if (version instanceof FwVersionBoard){
+            return ((FwVersionBoard) version).getName().equals(STBOX_NEW_FW_UPGRADE_PROTOCOL.getName()) &&
+                    version.compareTo(STBOX_NEW_FW_UPGRADE_PROTOCOL)>=0;
+        }
+        return false;
+    }
 
     /**
      * get an instance of this class that works with the node
@@ -77,7 +88,7 @@ public abstract class FwUpgradeConsole {
         if(debug !=null) {
             switch (node.getType()) {
                 case SENSOR_TILE_BOX:
-                    if(version!=null && version.compareTo(new FwVersion(3,0,15)) >=0){
+                    if(stBoxHasNewFwUpgradeProtocol(version)){
                         return new FwUpgradeConsoleNucleo2(debug);
                     }else{
                         return new FwUpgradeConsoleNucleo(debug);
