@@ -324,8 +324,11 @@ public class DebugConsoleActivity extends ActivityWithNode {
             case STEVAL_WESU1:
                 return WESU_HELP_MESSAGE;
             case SENSOR_TILE:
+            case SENSOR_TILE_BOX:
             case BLUE_COIN:
             case NUCLEO:
+            case DISCOVERY_IOT01A:
+            case STEVAL_BCN002V1:
                 return NUCLEO_HELP_MESSAGE;
             case GENERIC:
             default:

@@ -44,6 +44,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -132,8 +133,20 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
     /**
      * key used in the intent for create this service, to store the node where upload the file
      */
+    private static final String FW_VERSION_TAG =
+            FwUpgradeService.class.getCanonicalName() + "extra.currentFwVersion";
+
+    /**
+     * key used in the intent for create this service, to store the node where upload the file
+     */
     private static final String FW_ADDRESS_DESTINATION =
             FwUpgradeService.class.getCanonicalName() + "extra.fwDestinationAddresss";
+
+    /**
+     * key used in the intent for create this service, to store the file to upload
+     */
+    private static final String FW_TYPE =
+            FwUpgradeService.class.getCanonicalName() + "extra.fwType";
 
 
     /**
@@ -193,11 +206,16 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
      * @param node node where upload the file
      * @param fwFile file to upload
      */
-    public static void startUploadService(Context context, Node node, Uri fwFile, Long address) {
+    public static void startUploadService(@NonNull Context context, @NonNull  Node node, @NonNull  Uri fwFile,
+                                          @FirmwareType int fwType, @Nullable Long address, @Nullable FwVersion currentVersion) {
         Intent intent = new Intent(context, FwUpgradeService.class);
         intent.setAction(UPLOAD_FW);
         intent.putExtra(FW_FILE_URI, fwFile);
         intent.putExtra(NODE_TAG, node.getTag());
+        intent.putExtra(FW_TYPE,fwType);
+        if(currentVersion!=null) {
+            intent.putExtra(FW_VERSION_TAG, currentVersion);
+        }
         if(address!=null){
             intent.putExtra(FW_ADDRESS_DESTINATION,address);
         }
@@ -264,7 +282,7 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
     /**
      * crate the notification for display the upload status
      * @return object that will build the notification
-     * @param notificationManager
+     * @param notificationManager object to use to display the notification
      */
     private NotificationCompat.Builder buildUploadNotification(NotificationManager notificationManager) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this,
@@ -332,9 +350,18 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
                 final Uri file = intent.getParcelableExtra(FW_FILE_URI);
                 final Node node = getNode(intent.getStringExtra(NODE_TAG));
                 final Long address = extractAddress(intent);
-                handleActionUpload(file, node,address);
+                final FwVersion currentVersion = extractCurrentFwVersion(intent);
+                final @FirmwareType int fwType = intent.getIntExtra(FW_TYPE,FirmwareType.BOARD_FW);
+                handleActionUpload(file, node,fwType,address,currentVersion);
             }
         }
+    }
+
+    private @Nullable FwVersion extractCurrentFwVersion(Intent intent) {
+        if(intent.hasExtra(FW_VERSION_TAG))
+            return intent.getParcelableExtra(FW_VERSION_TAG);
+        else
+            return null;
     }
 
     /**
@@ -350,21 +377,24 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
      * Service constructor
      * @param file file to upload
      * @param node node where upload the file
+     * @param fwType type of fw to load into the node
+     * @param currentVersion
      */
-    void handleActionUpload(Uri file, Node node,Long address) {
+    void handleActionUpload(Uri file, Node node, @FirmwareType int fwType,
+                            @Nullable Long address,@Nullable FwVersion currentVersion) {
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
         mNotification = buildUploadNotification(mNotificationManager);
-        FwUpgradeConsole console = FwUpgradeConsole.getFwUpgradeConsole(node);
+        FwUpgradeConsole console = FwUpgradeConsole.getFwUpgradeConsole(node,currentVersion);
         if (console != null) {
             console.setLicenseConsoleListener(this);
             mBroadcastManager.sendBroadcast(getFwUpgradeStartIntent());
             mNotificationManager.notify(NOTIFICATION_ID, mNotification.build());
             if(address!=null) {
-                console.loadFw(FirmwareType.BOARD_FW, new FwFileDescriptor(getContentResolver(),
+                console.loadFw(fwType, new FwFileDescriptor(getContentResolver(),
                         file), address);
             }else{
-                console.loadFw(FirmwareType.BOARD_FW, new FwFileDescriptor(getContentResolver(),
+                console.loadFw(fwType, new FwFileDescriptor(getContentResolver(),
                         file));
             }
         }//if console

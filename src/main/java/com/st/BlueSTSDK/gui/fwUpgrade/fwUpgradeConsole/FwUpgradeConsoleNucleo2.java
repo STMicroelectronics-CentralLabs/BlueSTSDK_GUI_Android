@@ -63,7 +63,7 @@ import java.util.zip.Checksum;
  * mobile: file data, the file is spited in message of 16bytes
  * node: when all the byte are write return 1 if the crc is ok, -1 otherwise
  */
-public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
+public class FwUpgradeConsoleNucleo2 extends FwUpgradeConsole {
 
     /**
      *to avoid to stress the BLE Stack the message are send each 13ms that corrisponding to a connection
@@ -71,11 +71,6 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      */
     private static final int FW_PACKAGE_DELAY_MS = 13; // connection interval 12.5
     //every time there is a fail we decease the number of block to send
-    private static int sNFail=1;
-
-    private static int getPackageDelay(){
-        return FW_PACKAGE_DELAY_MS * sNFail;
-    }
 
     static private final byte[] UPLOAD_BOARD_FW={'u','p','g','r','a','d','e','F','w'};
     static private final byte[] UPLOAD_BLE_FW={'u','p','g','r','a','d','e','B','l','e'};
@@ -126,7 +121,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         /**
          * buffer where we are reading the file
          */
-        private InputStream mFileData;
+        private byte[] mFileData;
 
         /**
          * number of byte send to the node
@@ -151,12 +146,14 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         /**
          * counter of package that are sent
          */
-        private int mNPackageReceived;
+        private long mNPackageReceived;
+
+        private long nSentPackage;
 
         /**
          * size of the last package send
          */
-        private byte[] mLastPackageSend = new byte[MAX_MSG_SIZE];
+        private byte[] mLastPackageSend = new byte[MAX_MSG_SIZE+4];
 
         static private final int NOTIFY_EACH_PACKAGE = 10;
 
@@ -164,11 +161,10 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
         /**
          * if the timeout is rise, fire an error of type
-         * {@link FwUpgradeConsole.FwUpgradeCallback#ERROR_TRANSMISSION}
+         * {@link FwUpgradeCallback#ERROR_TRANSMISSION}
          */
         private Runnable onTimeout = () -> {
             onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
-            sNFail++;
             if(mNextPackageSentTask!=null){
                 mTimeout.removeCallbacks(mNextPackageSentTask);
             }
@@ -181,7 +177,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
          */
         private void onLoadFail(@FwUpgradeCallback.UpgradeErrorType int errorCode){
             if(mCallback!=null)
-                mCallback.onLoadFwError(FwUpgradeConsoleNucleo.this,mFile,errorCode);
+                mCallback.onLoadFwError(FwUpgradeConsoleNucleo2.this,mFile,errorCode);
             setConsoleListener(null);
         }
 
@@ -190,13 +186,13 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
          */
         private void onLoadComplete(){
             if(mCallback!=null)
-                mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo.this,mFile);
+                mCallback.onLoadFwComplete(FwUpgradeConsoleNucleo2.this,mFile);
             setConsoleListener(null);
         }
 
         private long computeCrc32(FwFileDescriptor file) throws FileNotFoundException {
             Checksum crc = new STM32Crc32();
-            byte buffer[] = new byte[4];
+            byte[] buffer = new byte[4];
             BufferedInputStream inputStream = new BufferedInputStream(file.openFile());
             //the file must be multiple of 32bit,
             long fileSize = file.getLength() - file.getLength()%4;
@@ -233,7 +229,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                 command =new byte[offset+8];
                 System.arraycopy(UPLOAD_BOARD_FW,0,command,0,offset);
             }
-            byte temp[] = NumberConversion.LittleEndian.uint32ToBytes(fileSize);
+            byte[] temp = NumberConversion.LittleEndian.uint32ToBytes(fileSize);
             System.arraycopy(temp,0,command,offset,temp.length);
             offset+=temp.length;
             temp = NumberConversion.LittleEndian.uint32ToBytes(fileCrc);
@@ -252,11 +248,18 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             mFile=file;
             mNodeReadyToReceiveFile =false;
             mByteToSend = file.getLength();
-
+            nSentPackage = 0;
             try {
                 mCrc = computeCrc32(file);
-                mFileData = file.openFile();
+                InputStream fileStream = file.openFile();
+                mFileData = new byte[(int)mByteToSend];
+                if(mByteToSend!= fileStream.read(mFileData)){
+                    onLoadFail(FwUpgradeCallback.ERROR_INVALID_FW_FILE);
+                }
             } catch (FileNotFoundException e) {
+                onLoadFail(FwUpgradeCallback.ERROR_INVALID_FW_FILE);
+                return;
+            }catch (IOException e){
                 onLoadFail(FwUpgradeCallback.ERROR_INVALID_FW_FILE);
                 return;
             }
@@ -269,30 +272,34 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
          * @return true if the message contain the crc code that we have send
          */
         private boolean checkCrc(String message){
-            byte rcvCrc[] = message.getBytes(Charset.forName("ISO-8859-1"));
-            byte myCrc[] = NumberConversion.LittleEndian.uint32ToBytes(mCrc);
+            byte[] rcvCrc = message.getBytes(Charset.forName("ISO-8859-1"));
+            byte[] myCrc = NumberConversion.LittleEndian.uint32ToBytes(mCrc);
             return Arrays.equals(rcvCrc,myCrc);
         }
+
+        boolean firtTime = true;
 
         /**
          * read the data from the file and send it to the node
          * @return true if the package is correctly sent
          */
-        private boolean sendFwPackage(){
+        private void sendFwPackage(){
+            mByteSend = nSentPackage * MAX_MSG_SIZE;
             int lastPackageSize = (int) Math.min(mByteToSend - mByteSend, MAX_MSG_SIZE);
-            int byteRead;
-            try {
-                byteRead = mFileData.read(mLastPackageSend, 0, lastPackageSize);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
+
+            Log.d("fwUpgrade", "send: "+nSentPackage + " size: "+lastPackageSize + "sent: "+mByteSend+"/"+mByteToSend );
+            if(lastPackageSize<0){
+                return;
+
             }
-            if (lastPackageSize == byteRead) {
-                mByteSend += byteRead;
-                return mConsole.write(mLastPackageSend, 0, lastPackageSize)==lastPackageSize;
-            } else
-                //it read an unexpected number of byte, something bad happen
-                return false;
+            System.arraycopy(mFileData,(int)mByteSend,mLastPackageSend,0,lastPackageSize);
+
+            byte[] packageId = NumberConversion.LittleEndian.uint32ToBytes(nSentPackage);
+            System.arraycopy(packageId,0,mLastPackageSend,lastPackageSize,packageId.length);
+            lastPackageSize += packageId.length;
+            nSentPackage += 1;
+            mConsole.write(mLastPackageSend, 0, lastPackageSize);
+
         }//sendFwPackage
 
         private boolean transferIsComplete(){
@@ -301,22 +308,21 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
 
         /**
          * send a block of message, the function will stop at the first error
-         * @return true if all the message are send correctly
          */
         private void sendPackageBlock(){
             sendFwPackage();
-            final int nPackageSent = mNPackageReceived;
+            final long nPackageSent2 = mNPackageReceived;
             mNextPackageSentTask = () -> {
                 if(transferIsComplete())
                     return;
                 //if the message was sent
-                if (mNPackageReceived > nPackageSent) {
+                if (mNPackageReceived > nPackageSent2) {
                     sendPackageBlock(); //send the next one
                 } else { // wait a bit an try again
                     mTimeout.postDelayed(mNextPackageSentTask, FW_PACKAGE_DELAY_MS);
                 }
             };
-            mTimeout.postDelayed(mNextPackageSentTask, getPackageDelay());
+            mTimeout.postDelayed(mNextPackageSentTask, FW_PACKAGE_DELAY_MS);
 
         }//sendPackageBlock
 
@@ -328,7 +334,9 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
                     mNodeReadyToReceiveFile = true;
                     mNPackageReceived=0;
                     //wait update of the connection interval
+                    Log.d("fwupgrade","board crc ok");
                     mTimeout.postDelayed(this::sendPackageBlock,500);
+
                 }else
                     onLoadFail(FwUpgradeCallback.ERROR_TRANSMISSION);
             }else { //transfer complete
@@ -348,7 +356,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
             //if we finish to send all the message
             if(mNPackageReceived % NOTIFY_EACH_PACKAGE ==0){
                 if(mCallback!=null)
-                    mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleNucleo.this,mFile,
+                    mCallback.onLoadFwProgressUpdate(FwUpgradeConsoleNucleo2.this,mFile,
                             mByteToSend-mByteSend);
             }//if
         }
@@ -368,7 +376,22 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
         }
 
         @Override
-        public void onStdErrReceived(@NonNull Debug debug, @NonNull String message) { }
+        public void onStdErrReceived(@NonNull Debug debug, @NonNull String message) {
+            byte[] msgData = Debug.stringToByte(message);
+            if( msgData[0]!= 0x01){
+                return;
+            }
+            mTimeout.removeCallbacks(onTimeout);
+            final  long requestPackage = NumberConversion.LittleEndian.bytesToUInt32(msgData,1);
+            Log.d("fwUpgrade","request: "+requestPackage);
+            mTimeout.post(() ->{
+                Log.d("fwUpgrade","Set request: "+requestPackage);
+                nSentPackage = requestPackage+1;
+
+            });
+
+
+        }
     }
 
     /**
@@ -385,7 +408,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      * build a debug console without a callback
      * @param console console to use for send the command
      */
-    FwUpgradeConsoleNucleo(Debug console){
+    FwUpgradeConsoleNucleo2(Debug console){
         this(console,null);
     }
 
@@ -394,7 +417,7 @@ public class FwUpgradeConsoleNucleo extends FwUpgradeConsole {
      * @param console console where send the command
      * @param callback object where notify the command answer
      */
-    private FwUpgradeConsoleNucleo(Debug console, FwUpgradeConsole.FwUpgradeCallback callback) {
+    private FwUpgradeConsoleNucleo2(Debug console, FwUpgradeCallback callback) {
         super(callback);
         mConsole = console;
         mTimeout = new Handler(Looper.getMainLooper());

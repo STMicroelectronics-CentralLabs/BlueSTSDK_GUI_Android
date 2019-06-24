@@ -61,7 +61,7 @@ public abstract  class FwVersionConsole {
             return stm32wbConsole;
 
         FwVersionConsole blueNRGConsole = FwVersionConsoleBlueNRG.buildForNode(node);
-        if( blueNRGConsole!=null)
+        if( blueNRGConsole!=null && node.getType()!= Node.Type.STEVAL_BCN002V1)
             return blueNRGConsole;
 
         Debug debug = node.getDebug();
@@ -73,7 +73,7 @@ public abstract  class FwVersionConsole {
             case SENSOR_TILE:
             case BLUE_COIN:
             case STEVAL_BCN002V1:
-            case SENSOR_TILE_101:
+            case SENSOR_TILE_BOX:
             case DISCOVERY_IOT01A:
                 return new FwVersionConsoleNucleo(debug);
         }

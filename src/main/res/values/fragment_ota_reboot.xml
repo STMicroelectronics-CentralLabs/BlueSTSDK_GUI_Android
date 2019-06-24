@@ -2,8 +2,8 @@
 <resources>
     <string name="otaReboot_title">Reboot options</string>
     <string name="otaReboot_desc">Select the sector to delete during the reboot</string>
-    <string name="otaReboot_appMemory">Application</string>
-    <string name="otaReboot_bleMemory">Radio firmware</string>
+    <string name="otaReboot_appMemory">Application Coprocessor Binary</string>
+    <string name="otaReboot_bleMemory">Wireless Coprocessor Binary</string>
     <string name="otaReboot_customMemory">Custom</string>
     <string name="otaReboot_sectorDesc">First Sector to delete</string>
     <string name="otaReboot_lengthDesc">Number of sector to delete</string>
@@ -11,6 +11,6 @@
     <string name="otaReboot_sectorOutOfRange">Sector out of range</string>
     <string name="otaReboot_lengthOutOfRange">Length out of range</string>
     <string name="otaReboot_rebootDialog">The board is resetting, please switch off the radio before reconnect</string>
-    <string name="otaReboot_firmware">Firmware:</string>
+    <string name="otaReboot_firmware">Selected firmware:</string>
     <string name="otaReboot_selectFileButton">select file</string>
 </resources>

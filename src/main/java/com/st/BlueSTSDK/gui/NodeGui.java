@@ -49,7 +49,7 @@ public class NodeGui {
             case STEVAL_WESU1:
                 return R.drawable.board_steval_wesu1;
             case SENSOR_TILE:
-            case SENSOR_TILE_101:
+            case SENSOR_TILE_BOX:
                 return R.drawable.board_sensor_tile;
             case BLUE_COIN:
                 return R.drawable.board_bluecoin;

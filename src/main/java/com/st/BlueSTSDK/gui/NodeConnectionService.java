@@ -67,6 +67,7 @@ import java.util.Set;
 public class NodeConnectionService extends Service {
 
     private static final String DISCONNECT_ACTION = NodeConnectionService.class.getName() + ".DISCONNECT";
+    private static final String DISCONNECT_ALL_ACTION = NodeConnectionService.class.getName() + ".DISCONNECT_ALL";
     private static final String CONNECT_ACTION = NodeConnectionService.class.getName() + ".CONNECT";
     private static final String NODE_TAG_ARG = NodeConnectionService.class.getName() + ".NODE_TAG";
     private static final String CONNECTION_PARAM_ARG = NodeConnectionService.class.getName() + ".CONNECTION_PARAM_ARG";
@@ -132,12 +133,31 @@ public class NodeConnectionService extends Service {
     }
 
     /**
+     * build the intent that will ask to disconnect the node
+     * @param c context used for crate the intent
+     * @return intent that will disconnect the node
+     */
+    private static Intent buildDisconnectAllIntent(Context c){
+        Intent i = new Intent(c,NodeConnectionService.class);
+        i.setAction(DISCONNECT_ALL_ACTION);
+        return i;
+    }
+
+    /**
      * ask to the service to disconnect the node
      * @param c context used for crate the intent
      * @param n node to disconnect
      */
     static public void disconnect(Context c, Node n){
         c.startService(buildDisconnectIntent(c,n));
+    }
+
+    /**
+     * ask to the service to disconnect the node
+     * @param c context used for crate the intent
+     */
+    static public void disconnectAllNodes(Context c){
+        c.startService(buildDisconnectAllIntent(c));
     }
 
 
@@ -179,7 +199,10 @@ public class NodeConnectionService extends Service {
             connect(startId,intent);
         }else if (DISCONNECT_ACTION.equals(action)) {
             disconnect(intent);
+        }else if (DISCONNECT_ALL_ACTION.equals(action)){
+            disconnectAll();
         }
+
 
         return START_STICKY;
     }
@@ -310,10 +333,8 @@ public class NodeConnectionService extends Service {
     private void disconnectAll(){
         //disconnect all the nodes and remove the notification
         for(Node n : mConnectedNodes){
-            if(n.isConnected()){
-                n.disconnect();
-                n.removeNodeStateListener(mStateListener);
-            }
+            n.disconnect();
+            n.removeNodeStateListener(mStateListener);
         }
         mConnectedNodes.clear();
         removeConnectionNotification();

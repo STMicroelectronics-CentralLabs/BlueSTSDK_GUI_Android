@@ -37,6 +37,7 @@
 package com.st.BlueSTSDK.gui;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -66,7 +67,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
          * @param enabled true if a new discovery start, false otherwise
          */
         @Override
-        public void onDiscoveryChange(Manager m, boolean enabled) {
+        public void onDiscoveryChange(@NonNull Manager m, boolean enabled) {
             Log.d(TAG, "onDiscoveryChange " + enabled);
             if (!enabled)
                 //run
@@ -80,7 +81,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
          * @param node new node discovered
          */
         @Override
-        public void onNodeDiscovered(Manager m, Node node) {
+        public void onNodeDiscovered(@NonNull Manager m, Node node) {
             Log.d(TAG, "onNodeDiscovered " + node.getTag());
             runOnUiThread(() -> mSwipeLayout.setRefreshing(false));
         }//onNodeDiscovered
@@ -145,7 +146,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
 
         mAdapter = getNodeAdapter();
         //disconnect all the already discovered device
-        mAdapter.disconnectAllNodes();
+        NodeConnectionService.disconnectAllNodes(this);
 
         setContentView(R.layout.activity_node_list);
 
@@ -183,23 +184,23 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
      * with new discover nodes and start the node discovery
      */
     @Override
-    protected void onStart() {
+    protected void onResume() {
         //add the listener that will hide the progress indicator when the first device is discovered
         mManager.addListener(mUpdateDiscoverGui);
         //disconnect all the already discovered device
-        mAdapter.disconnectAllNodes();
+        NodeConnectionService.disconnectAllNodes(this);
         //add as listener for the new nodes
         mManager.addListener(mAdapter);
         resetNodeList();
         startNodeDiscovery();
-        super.onStart();
+        super.onResume();
     }//onListViewIsDisplayed
 
     /**
      * stop the discovery and remove all the lister that we attach to the manager
      */
     @Override
-    protected void onStop() {
+    protected void onPause() {
 
         //remove the listener add by this class
         mManager.removeListener(mUpdateDiscoverGui);
@@ -207,7 +208,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
 
         if (mManager.isDiscovering())
             stopNodeDiscovery();
-        super.onStop();
+        super.onPause();
     }
 
     /**

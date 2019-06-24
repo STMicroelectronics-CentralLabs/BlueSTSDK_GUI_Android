@@ -47,6 +47,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.ConnectionOption;
@@ -98,6 +99,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
     }
 
     private Node.NodeStateListener mOnConnected = (node, newState, prevState) -> {
+        Log.d("fwUpgrade","State: "+newState);
         if(newState==Node.State.Connected){
             FwUpgradeActivity.this.mViewModel.loadFwVersionFromNode(node);
         }
@@ -196,8 +198,10 @@ public class FwUpgradeActivity extends ActivityWithNode {
         super.onResume();
 
         if (mNode.isConnected()) {
+            Log.d("fwUpgrade","directly load version");
             mViewModel.loadFwVersionFromNode(mNode);
         } else {
+            Log.d("fwUpgrade","wait connection");
             mNode.addNodeStateListener(mOnConnected);
         }
     }

@@ -35,67 +35,59 @@
  * OF SUCH DAMAGE.
  */
 
-package com.st.BlueSTSDK.gui.util.InputChecker;
+package com.st.BlueSTSDK.gui.fwUpgrade.download
 
-import android.support.annotation.StringRes;
-import android.support.design.widget.TextInputLayout;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.net.Uri
+import android.support.v4.content.LocalBroadcastManager
 
+import com.st.BlueSTSDK.Node
+import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeActivity
 
 /**
- * Class used to check that a TextInputLayout contains a valid value,
- * if not an error is shown
+ * Wait the fw file download ends and start the fw upgrade activity when the file is downloaded
  */
-public abstract class InputChecker implements TextWatcher {
+class DownloadFwFileCompletedReceiver(
+        private val context: Context,
+        private val mNode: Node) : BroadcastReceiver(), LifecycleObserver {
 
-    private TextInputLayout mTextInputLayout;
-    private String mErrorMsg;
-
-    public InputChecker(TextInputLayout textInputLayout, @StringRes int errorMessageId){
-        mTextInputLayout = textInputLayout;
-        mErrorMsg = textInputLayout.getContext().getString(errorMessageId);
-    }
-
-    @Override
-    public void afterTextChanged(Editable editable) {
-        String input = editable.toString();
-        if(validate(input)){
-            hideErrorMessage();
-        }else{
-            showErrorMessage();
+    override fun onReceive(context: Context, intent: Intent) {
+        val action = intent.action
+        if (action != null && action == DownloadFwFileService.ACTION_DOWNLOAD_COMPLETE) {
+            val file = intent.getParcelableExtra<Uri>(DownloadFwFileService.EXTRA_DOWNLOAD_LOCATION)
+            val startFwActivity = FwUpgradeActivity.getStartIntent(context, mNode, true, file)
+            startFwActivity.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(startFwActivity)
         }
     }
 
-    private void showErrorMessage(){
-        mTextInputLayout.setErrorEnabled(true);
-        mTextInputLayout.setError(mErrorMsg);
-    }
-
-    private void hideErrorMessage(){
-        CharSequence currentError = mTextInputLayout.getError();
-        if(currentError!=null && currentError.equals(mErrorMsg)){
-            mTextInputLayout.setError(null);
-            mTextInputLayout.setErrorEnabled(false);
-        }
-
-    }
-
-
-    @Override
-    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-    }
-
-    @Override
-    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-    }
     /**
-     * vaidate the user input
-     * @param input user input
-     * @return true if the string is correct, false otherwise
+     * register the receiver to the local broadcast
      */
-    protected abstract boolean validate(String input);
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    fun registerReceiver() {
+        LocalBroadcastManager.getInstance(context.applicationContext)
+                .registerReceiver(this, DOWNLOAD_COMPLETE_FILTER)
+    }
+
+    /**
+     * unregister the receiver to the local broadcast
+     */
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    fun unregisterReceiver() {
+        LocalBroadcastManager.getInstance(context.applicationContext)
+                .unregisterReceiver(this)
+    }
+
+    companion object {
+
+        private val DOWNLOAD_COMPLETE_FILTER = IntentFilter(DownloadFwFileService.ACTION_DOWNLOAD_COMPLETE)
+    }
 
 }

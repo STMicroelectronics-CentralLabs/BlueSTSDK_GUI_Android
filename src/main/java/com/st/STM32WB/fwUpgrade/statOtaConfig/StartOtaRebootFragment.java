@@ -57,6 +57,7 @@ import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.BlueSTSDK.gui.demos.DemoFragment;
 
+import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.STM32WB.fwUpgrade.FwUpgradeSTM32WBActivity;
 import com.st.BlueSTSDK.gui.fwUpgrade.RequestFileUtil;
 import com.st.STM32WB.fwUpgrade.feature.RebootOTAModeFeature;
@@ -88,12 +89,12 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
     }
 
     private static final MemoryLayout APPLICATION_MEMORY = new MemoryLayout((short)0x07,(short) 0x7F);
-    //private static final MemoryLayout BLE_MEMORY = new MemoryLayout((short)0x07,(short) 0x7F);
+    private static final MemoryLayout BLE_MEMORY = new MemoryLayout((short)0x0F,(short) 0x7F);
 
     private StartOtaConfigContract.Presenter mPresenter;
     private RequestFileUtil mRequestFileUtil;
     private CompoundButton mApplicationMemory;
-    //private CompoundButton mBleMemory;
+    private CompoundButton mBleMemory;
     private CompoundButton mCustomMemory;
     private View mCustomAddressView;
 
@@ -110,7 +111,7 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
         View mRootView = inflater.inflate(R.layout.fragment_ota_reboot, container, false);
 
         mApplicationMemory = mRootView.findViewById(R.id.otaReboot_appMemory);
-        //mBleMemory = mRootView.findViewById(R.id.otaReboot_bleMemory);
+        mBleMemory = mRootView.findViewById(R.id.otaReboot_bleMemory);
         mCustomMemory = mRootView.findViewById(R.id.otaReboot_customMemory);
 
         mCustomAddressView = mRootView.findViewById(R.id.otaReboot_customAddrView);
@@ -209,16 +210,38 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
     public short getSectorToDelete() {
         if(mApplicationMemory.isChecked() || mSectorTextLayout.getEditText() == null)
             return APPLICATION_MEMORY.fistSector;
-        return Short.parseShort( mSectorTextLayout.getEditText().getText().toString(),16);
+        if(mBleMemory.isChecked() || mSectorTextLayout.getEditText() == null){
+            return BLE_MEMORY.fistSector;
+        }
+        try {
+            return Short.parseShort(mSectorTextLayout.getEditText().getText().toString(), 10);
+        }catch (NumberFormatException e){
+            return APPLICATION_MEMORY.fistSector;
+        }
+
     }
 
     @Override
     public short getNSectorToDelete() {
         if(mApplicationMemory.isChecked() || mLengthTextLayout.getEditText() == null)
             return APPLICATION_MEMORY.nSector;
-        return Short.parseShort(mLengthTextLayout.getEditText().getText().toString(),16);
+        if(mBleMemory.isChecked() || mLengthTextLayout.getEditText() == null)
+            return BLE_MEMORY.nSector;
+        try{
+            return Short.parseShort(mLengthTextLayout.getEditText().getText().toString(),10);
+        }catch (NumberFormatException e){
+            return APPLICATION_MEMORY.nSector;
+        }
+
     }
 
+    private @FirmwareType int getSelectedFwType(){
+        if(mBleMemory.isChecked()){
+            return FirmwareType.BLE_FW;
+        }else{
+            return FirmwareType.BOARD_FW;
+        }
+    }
 
     @Override
     public void openFileSelector() {
@@ -235,7 +258,7 @@ public class StartOtaRebootFragment extends DemoFragment implements StartOtaConf
         long address = sectorToAddress(getSectorToDelete());
         startActivity(FwUpgradeSTM32WBActivity.getStartIntent(requireContext(),
                 STM32OTASupport.getOtaAddressForNode(getNode()),
-                mSelectedFw,address));
+                mSelectedFw,address,getSelectedFwType()));
     }
 
     private long sectorToAddress(short sectorToDelete) {

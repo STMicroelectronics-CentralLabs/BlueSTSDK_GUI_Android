@@ -92,6 +92,11 @@
             android:label="@string/title_activity_fw_upgrade_stm32_wb"/>
 
         <activity android:name="com.st.STM32WB.p2pDemo.DemoSTM32WBActivity"/>
+
+        <service
+            android:name="com.st.BlueSTSDK.gui.fwUpgrade.download.DownloadFwFileService"
+            android:exported="false" />
+
     </application>
 
 </manifest>

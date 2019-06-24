@@ -37,14 +37,17 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.st.BlueNRG.fwUpgrade.FwUpgradeConsoleBlueNRG;
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.FwVersion;
 import com.st.BlueSTSDK.gui.fwUpgrade.FirmwareType;
 import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util.FwFileDescriptor;
 
+import com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole.FwVersionBoard;
 import com.st.STM32WB.fwUpgrade.FwUpgradeConsoleSTM32WB;
 
 import java.lang.annotation.Retention;
@@ -56,12 +59,22 @@ import java.lang.annotation.RetentionPolicy;
  */
 public abstract class FwUpgradeConsole {
 
+    private static FwVersionBoard STBOX_NEW_FW_UPGRADE_PROTOCOL = new FwVersionBoard("SENSORTILE.BOX","L4R9",3,0,15);
+
+    private static boolean stBoxHasNewFwUpgradeProtocol(@Nullable FwVersion version){
+        if (version instanceof FwVersionBoard){
+            return ((FwVersionBoard) version).getName().equals(STBOX_NEW_FW_UPGRADE_PROTOCOL.getName()) &&
+                    version.compareTo(STBOX_NEW_FW_UPGRADE_PROTOCOL)>=0;
+        }
+        return false;
+    }
+
     /**
      * get an instance of this class that works with the node
      * @param node node where upload the firmware
      * @return null if isn't possible upload the firmware in the node, or a class for do it
      */
-    static public @Nullable FwUpgradeConsole getFwUpgradeConsole(Node node){
+    static public @Nullable FwUpgradeConsole getFwUpgradeConsole(@NonNull Node node,@Nullable FwVersion version){
         FwUpgradeConsoleSTM32WB stm32wbConsole = FwUpgradeConsoleSTM32WB.buildForNode(node);
         if( stm32wbConsole!=null)
             return stm32wbConsole;
@@ -74,11 +87,17 @@ public abstract class FwUpgradeConsole {
 
         if(debug !=null) {
             switch (node.getType()) {
+                case SENSOR_TILE_BOX:
+                    if(stBoxHasNewFwUpgradeProtocol(version)){
+                        return new FwUpgradeConsoleNucleo2(debug);
+                    }else{
+                        return new FwUpgradeConsoleNucleo(debug);
+                    }
                 case NUCLEO:
                 case SENSOR_TILE:
                 case BLUE_COIN:
                 case STEVAL_BCN002V1:
-                case SENSOR_TILE_101:
+
                 case DISCOVERY_IOT01A:
                     return new FwUpgradeConsoleNucleo(debug);
             }
