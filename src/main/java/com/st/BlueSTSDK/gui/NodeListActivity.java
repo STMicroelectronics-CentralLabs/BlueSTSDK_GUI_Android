@@ -185,12 +185,6 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
      */
     @Override
     protected void onResume() {
-        //add the listener that will hide the progress indicator when the first device is discovered
-        mManager.addListener(mUpdateDiscoverGui);
-        //disconnect all the already discovered device
-        NodeConnectionService.disconnectAllNodes(this);
-        //add as listener for the new nodes
-        mManager.addListener(mAdapter);
         resetNodeList();
         startNodeDiscovery();
         super.onResume();
@@ -201,13 +195,8 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
      */
     @Override
     protected void onPause() {
-
         //remove the listener add by this class
-        mManager.removeListener(mUpdateDiscoverGui);
-        mManager.removeListener(mAdapter);
-
-        if (mManager.isDiscovering())
-            stopNodeDiscovery();
+        stopNodeDiscovery();
         super.onPause();
     }
 
@@ -262,6 +251,12 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
      */
     private void startNodeDiscovery() {
         setRefreshing(mSwipeLayout, true);
+        //add the listener that will hide the progress indicator when the first device is discovered
+        mManager.addListener(mUpdateDiscoverGui);
+        //disconnect all the already discovered device
+        NodeConnectionService.disconnectAllNodes(this);
+        //add as listener for the new nodes
+        mManager.addListener(mAdapter);
         super.startNodeDiscovery(SCAN_TIME_MS);
         mStartStopButton.setImageResource(R.drawable.ic_close_24dp);
         //mManager.addVirtualNode();
@@ -273,6 +268,8 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
     @Override
     public void stopNodeDiscovery() {
         super.stopNodeDiscovery();
+        mManager.removeListener(mUpdateDiscoverGui);
+        mManager.removeListener(mAdapter);
         mStartStopButton.setImageResource(R.drawable.ic_search_24dp);
         setRefreshing(mSwipeLayout, false);
     }
