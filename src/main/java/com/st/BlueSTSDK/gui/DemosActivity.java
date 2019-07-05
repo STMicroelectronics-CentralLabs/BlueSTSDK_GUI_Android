@@ -486,7 +486,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      */
     private Debug.DebugOutputListener mDebugListener = new Debug.DebugOutputListener() {
         @Override
-        public void onStdOutReceived(Debug debug, final String message) {
+        public void onStdOutReceived(@NonNull Debug debug, @NonNull final String message) {
             DemosActivity.this.runOnUiThread(() -> {
                 mConsoleText.append(message);
                 mConsoleView.fullScroll(View.FOCUS_DOWN);
@@ -494,7 +494,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         }
 
         @Override
-        public void onStdErrReceived(Debug debug, final String message) {
+        public void onStdErrReceived(@NonNull Debug debug, @NonNull final String message) {
             DemosActivity.this.runOnUiThread(() -> {
                 mConsoleText.append(message);
                 mConsoleView.fullScroll(View.FOCUS_DOWN);
@@ -502,7 +502,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         }
 
         @Override
-        public void onStdInSent(Debug debug, String message, boolean writeResult) {
+        public void onStdInSent(@NonNull Debug debug, @NonNull String message, boolean writeResult) {
         }
     };
 
@@ -644,7 +644,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
             //check that we have all the feature in the requeareAll field
             //return false if one feature is missing
-            Class<? extends Feature> requireAll[] = desc.requareAll();
+            Class<? extends Feature>[] requireAll = desc.requareAll();
             for (Class<? extends Feature> f : requireAll) {
                 if (node.getFeature(f) == null)
                     return false;
@@ -652,7 +652,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
             //check that we have all the feature in the requeareOne field
             //return true if we have almost one feature
-            Class<? extends Feature> requireOneOf[] = desc.requareOneOf();
+            Class<? extends Feature>[] requireOneOf = desc.requareOneOf();
             for (Class<? extends Feature> f : requireOneOf) {
                 if (node.getFeature(f)  != null)
                     return true;
