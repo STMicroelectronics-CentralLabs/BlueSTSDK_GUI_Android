@@ -66,7 +66,7 @@ class DownloadNewFwDialog : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val fwLocation = arguments?.getParcelable(ARG_FW_LOCATION) as Uri
+        val fwLocation = arguments?.getParcelable<Uri>(ARG_FW_LOCATION)!!
         val forceFwUpgrade = (arguments?.getByte(ARG_FORCE_FW) ?: 0) == 0.toByte()
         val message = buildDialogMessage(fwLocation)
         return AlertDialog.Builder(requireContext()).apply {
