@@ -195,7 +195,7 @@ public class NodeConnectionService extends Service {
         }
 
         String action = intent.getAction();
-
+        Log.d("ConnectionService","id: "+startId+" action:"+action);
         if(CONNECT_ACTION.equals(action)){
             connect(startId,intent);
         }else if (DISCONNECT_ACTION.equals(action)) {
@@ -203,7 +203,6 @@ public class NodeConnectionService extends Service {
         }else if (DISCONNECT_ALL_ACTION.equals(action)){
             disconnectAll(startId);
         }
-
 
         return START_STICKY;
     }
@@ -217,7 +216,7 @@ public class NodeConnectionService extends Service {
      * if present remove the connection notification
      */
     private void removeConnectionNotification() {
-        ServiceCompat.stopForeground(this,STOP_FOREGROUND_REMOVE);
+        ServiceCompat.stopForeground(this,ServiceCompat.STOP_FOREGROUND_REMOVE);
     }
 
     @Override
