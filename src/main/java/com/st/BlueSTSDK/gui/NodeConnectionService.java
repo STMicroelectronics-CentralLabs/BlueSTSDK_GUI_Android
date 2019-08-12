@@ -116,7 +116,7 @@ public class NodeConnectionService extends Service {
         if(option==null)
             option = ConnectionOption.builder().build();
         i.putExtra(CONNECTION_PARAM_ARG,option);
-        c.startService(i);
+        ContextCompat.startForegroundService(c,i);
     }
 
     /**
@@ -149,7 +149,7 @@ public class NodeConnectionService extends Service {
      * @param n node to disconnect
      */
     static public void disconnect(Context c, Node n){
-        c.startService(buildDisconnectIntent(c,n));
+        ContextCompat.startForegroundService(c,buildDisconnectIntent(c,n));
     }
 
     /**
@@ -157,7 +157,7 @@ public class NodeConnectionService extends Service {
      * @param c context used for crate the intent
      */
     static public void disconnectAllNodes(Context c){
-        c.startService(buildDisconnectAllIntent(c));
+        ContextCompat.startForegroundService(c,buildDisconnectAllIntent(c));
     }
 
 
