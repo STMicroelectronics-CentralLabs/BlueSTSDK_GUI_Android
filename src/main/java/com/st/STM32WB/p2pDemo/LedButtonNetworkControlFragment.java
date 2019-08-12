@@ -87,7 +87,7 @@ public class LedButtonNetworkControlFragment extends RssiDemoFragment {
     private Feature.FeatureListener mButtonListener = new  Feature.FeatureListener () {
 
         @Override
-        public void onUpdate(Feature f, Feature.Sample sample) {
+        public void onUpdate(@NonNull Feature f, @NonNull Feature.Sample sample) {
             final DeviceID deviceId = FeatureSwitchStatus.getDeviceSelection(sample);
             final boolean isPressed = FeatureSwitchStatus.isSwitchOn(sample);
 

@@ -45,7 +45,6 @@
     <string name="openDebugConsole">打开调试窗口</string>
     <string name="showDebugConsole">显示串口界面</string>
     <string name="hideDebugConsole">隐藏串口界面</string>
-    <string name="demos_menu_licenseManager">许可证管理</string>
 
     <string name="debugNotAvailable">不支持调试服务</string>
 

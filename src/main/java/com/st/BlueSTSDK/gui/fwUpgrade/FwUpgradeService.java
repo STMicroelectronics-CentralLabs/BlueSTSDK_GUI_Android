@@ -382,6 +382,8 @@ public class FwUpgradeService extends IntentService implements FwUpgradeConsole.
      */
     void handleActionUpload(Uri file, Node node, @FirmwareType int fwType,
                             @Nullable Long address,@Nullable FwVersion currentVersion) {
+        if(node == null)
+            return;
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
         mNotification = buildUploadNotification(mNotificationManager);

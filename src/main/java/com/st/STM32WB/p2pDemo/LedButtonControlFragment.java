@@ -97,7 +97,7 @@ public class LedButtonControlFragment extends RssiDemoFragment {
     private Feature.FeatureListener mButtonListener = new  Feature.FeatureListener () {
 
         @Override
-        public void onUpdate(Feature f, Feature.Sample sample) {
+        public void onUpdate(@NonNull Feature f, @NonNull Feature.Sample sample) {
             if(mCurrentDevice==null){ //first time
                 mCurrentDevice = FeatureSwitchStatus.getDeviceSelection(sample);
                 updateGui(()-> showDeviceDetected(mCurrentDevice));

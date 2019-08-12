@@ -75,7 +75,7 @@ public class FwVersionConsoleBlueNRG extends FwVersionConsole {
     public boolean readVersion(@FirmwareType int type) {
         Feature.FeatureListener onImageFeature = new Feature.FeatureListener(){
             @Override
-            public void onUpdate(@NonNull Feature f, Feature.Sample sample) {
+            public void onUpdate(@NonNull Feature f, @NonNull Feature.Sample sample) {
                 if(mCallback!=null) {
                     FwVersion protocolVer = mRangeMem.getProtocolVer(sample);
                     if(protocolVer!=null) {
