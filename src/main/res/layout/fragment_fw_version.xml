@@ -35,9 +35,11 @@
         android:layout_height="match_parent"
         android:columnCount="2"
         android:rowCount="3"
+
         android:visibility="visible">
 
         <TextView
+
             android:layout_width="match_parent"
             android:layout_columnSpan="2"
             android:gravity="center"
@@ -49,6 +51,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
         <TextView
+            android:layout_marginStart="8dp"
             android:id="@+id/fwVersion_nameValue"
             tools:text="FP-NAME"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
@@ -57,14 +60,17 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
         <TextView
+            android:layout_marginStart="8dp"
             android:id="@+id/fwVersion_versionValue"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             tools:text="1.0.0" />
 
-        <TextView android:text="@string/fwVersion_mcu"
+        <TextView
+            android:text="@string/fwVersion_mcu"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
         <TextView
+            android:layout_marginStart="8dp"
             android:id="@+id/fwVersion_mcuTypeValue"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             tools:text="MCU type" />
