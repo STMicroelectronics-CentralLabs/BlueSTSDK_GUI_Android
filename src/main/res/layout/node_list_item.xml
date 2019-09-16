@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:padding="8dp">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:id="@+id/nodeBoardIcon"

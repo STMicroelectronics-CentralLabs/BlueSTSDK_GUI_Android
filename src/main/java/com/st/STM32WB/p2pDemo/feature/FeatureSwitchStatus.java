@@ -36,8 +36,7 @@
  */
 package com.st.STM32WB.p2pDemo.feature;
 
-
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;

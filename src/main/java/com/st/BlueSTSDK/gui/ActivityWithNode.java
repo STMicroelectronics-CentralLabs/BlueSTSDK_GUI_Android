@@ -39,10 +39,11 @@ package com.st.BlueSTSDK.gui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 
@@ -75,7 +76,7 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
     private ConnectionStatusView mConnectionStatusView;
 
     protected static Intent getStartIntent(Context c, @NonNull Class activity, @NonNull Node
-            node,boolean keepConnectionOpen){
+            node, boolean keepConnectionOpen){
         return getStartIntent(c,activity,node,keepConnectionOpen,null);
     }
 

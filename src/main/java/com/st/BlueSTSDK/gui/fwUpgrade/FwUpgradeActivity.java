@@ -36,18 +36,19 @@
  */
 package com.st.BlueSTSDK.gui.fwUpgrade;
 
-import android.app.DialogFragment;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.ConnectionOption;
@@ -125,7 +126,7 @@ public class FwUpgradeActivity extends ActivityWithNode {
         DialogFragment newFragment = AlertAndFinishDialog.newInstance(
                 getString(R.string.FwUpgrade_dialogTitle),
                 getString(R.string.FwUpgrade_notAvailableMsg), true);
-        newFragment.show(getFragmentManager(), FRAGMENT_DIALOG_TAG);
+        newFragment.show(getSupportFragmentManager(), FRAGMENT_DIALOG_TAG);
 
     }
 
@@ -134,14 +135,14 @@ public class FwUpgradeActivity extends ActivityWithNode {
         DialogFragment newFragment = AlertAndFinishDialog.newInstance(
                 getString(R.string.FwUpgrade_dialogTitle),
                 getString(R.string.FwUpgrade_needUpdateMsg, minVersion), true);
-        newFragment.show(getFragmentManager(), FRAGMENT_DIALOG_TAG);
+        newFragment.show(getSupportFragmentManager(), FRAGMENT_DIALOG_TAG);
     }
 
     private void displayNotSupportedAndFinish(){
         DialogFragment newFragment = AlertAndFinishDialog.newInstance(
                 getString(R.string.FwUpgrade_dialogTitle),
                 getString(R.string.fwUpgrade_notSupportedMsg), true);
-        newFragment.show(getFragmentManager(), FRAGMENT_DIALOG_TAG);
+        newFragment.show(getSupportFragmentManager(), FRAGMENT_DIALOG_TAG);
     }
 
 

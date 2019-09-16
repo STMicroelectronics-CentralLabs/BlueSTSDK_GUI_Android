@@ -38,7 +38,7 @@ package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.st.BlueSTSDK.Debug;
 import com.st.BlueSTSDK.Utils.FwVersion;

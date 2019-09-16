@@ -40,7 +40,7 @@
     android:layout_height="match_parent"
     android:id="@+id/mainDemoLayout"
     android:fitsSystemWindows="true">
-    <android.support.v4.widget.DrawerLayout
+    <androidx.drawerlayout.widget.DrawerLayout
         android:fitsSystemWindows="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -50,7 +50,7 @@
                       android:layout_height="match_parent"
                       android:orientation="vertical">
 
-            <android.support.v4.view.ViewPager
+            <androidx.viewpager.widget.ViewPager
                 android:id="@+id/pager"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -74,13 +74,13 @@
 
         </LinearLayout>
 
-        <android.support.design.widget.NavigationView
+        <com.google.android.material.navigation.NavigationView
             android:id="@+id/demoNavigationView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start"/>
 
-    </android.support.v4.widget.DrawerLayout>
+    </androidx.drawerlayout.widget.DrawerLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

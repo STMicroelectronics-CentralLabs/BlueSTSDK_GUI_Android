@@ -39,12 +39,14 @@ package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.annotation.RawRes;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RawRes;
 
 public class LibLicense implements Parcelable{
 
     @RawRes public final int licenseFile;
+
     @NonNull public final String name;
 
 

@@ -36,13 +36,13 @@
  */
 package com.st.BlueSTSDK.gui.util.InputChecker;
 
-import android.support.annotation.StringRes;
-import android.support.design.widget.TextInputLayout;
+import androidx.annotation.StringRes;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class CheckMultipleOf extends InputChecker {
     final private long multiple;
 
-    public CheckMultipleOf(TextInputLayout textInputLayout, @StringRes int errorMessageId,long multiple){
+    public CheckMultipleOf(TextInputLayout textInputLayout, @StringRes int errorMessageId, long multiple){
         super(textInputLayout,errorMessageId);
         this.multiple = multiple;
     }

@@ -38,7 +38,8 @@ package com.st.STM32WB.p2pDemo;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.ConnectionOption;

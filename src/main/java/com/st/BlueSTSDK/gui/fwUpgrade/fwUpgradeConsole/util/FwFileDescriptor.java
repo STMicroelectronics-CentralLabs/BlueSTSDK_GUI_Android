@@ -37,10 +37,9 @@
 package com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.util;
 
 import android.content.ContentResolver;
-import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
-import android.support.annotation.IntDef;
+
+import androidx.annotation.IntDef;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

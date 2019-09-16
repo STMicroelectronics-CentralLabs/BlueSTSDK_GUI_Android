@@ -37,8 +37,9 @@
 
 package com.st.BlueSTSDK.gui.util.InputChecker;
 
-import android.support.annotation.StringRes;
-import android.support.design.widget.TextInputLayout;
+import androidx.annotation.StringRes;
+
+import com.google.android.material.textfield.TextInputLayout;
 
 /**
  * check that the user input is a number and is included in a range [min,max]

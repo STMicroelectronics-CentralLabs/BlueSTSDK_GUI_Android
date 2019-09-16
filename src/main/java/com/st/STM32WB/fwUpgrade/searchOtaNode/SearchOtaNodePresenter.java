@@ -36,8 +36,7 @@
  */
 package com.st.STM32WB.fwUpgrade.searchOtaNode;
 
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
+import androidx.annotation.Nullable;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;

@@ -37,7 +37,7 @@
 
 package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.List;
 

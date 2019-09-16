@@ -37,8 +37,10 @@
 
 package com.st.BlueSTSDK.gui.util.InputChecker;
 
-import android.support.annotation.StringRes;
-import android.support.design.widget.TextInputLayout;
+
+import androidx.annotation.StringRes;
+
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.regex.Pattern;
 

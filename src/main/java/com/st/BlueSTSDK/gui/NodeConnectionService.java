@@ -47,11 +47,12 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.ServiceCompat;
-import android.support.v4.content.ContextCompat;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.ServiceCompat;
+import androidx.core.content.ContextCompat;
 import android.util.Log;
 
 import com.st.BlueSTSDK.Manager;
@@ -216,7 +217,7 @@ public class NodeConnectionService extends Service {
      * if present remove the connection notification
      */
     private void removeConnectionNotification() {
-        ServiceCompat.stopForeground(this,ServiceCompat.STOP_FOREGROUND_REMOVE);
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE);
     }
 
     @Override

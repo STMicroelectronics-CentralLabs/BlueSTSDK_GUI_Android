@@ -43,12 +43,13 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicense;
 import com.st.BlueSTSDK.gui.thirdPartyLibLicense.LibLicenseActivity;

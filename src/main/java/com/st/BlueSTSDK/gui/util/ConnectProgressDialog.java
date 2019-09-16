@@ -39,7 +39,7 @@ package com.st.BlueSTSDK.gui.util;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Handler;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.widget.Toast;
 
 import com.st.BlueSTSDK.Node;

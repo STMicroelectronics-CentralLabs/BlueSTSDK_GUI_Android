@@ -35,11 +35,9 @@
         android:layout_height="match_parent"
         android:columnCount="2"
         android:rowCount="3"
-
         android:visibility="visible">
 
         <TextView
-
             android:layout_width="match_parent"
             android:layout_columnSpan="2"
             android:gravity="center"

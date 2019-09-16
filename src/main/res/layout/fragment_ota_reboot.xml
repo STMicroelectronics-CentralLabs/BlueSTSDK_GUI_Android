@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,7 +9,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -75,7 +75,7 @@
             </RadioGroup>
 
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/otaReboot_sectorLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -85,16 +85,16 @@
                 app:layout_constraintStart_toStartOf="@+id/otaReboot_fwTypeGroup"
                 app:layout_constraintTop_toBottomOf="@+id/otaReboot_fwTypeGroup">
 
-                <android.support.design.widget.TextInputEditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/otaReboot_sectorDesc"
                     android:inputType="number" />
 
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/otaReboot_lengthLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -104,14 +104,14 @@
                 app:layout_constraintStart_toStartOf="@+id/otaReboot_fwTypeGroup"
                 app:layout_constraintTop_toBottomOf="@+id/otaReboot_sectorLayout">
 
-                <android.support.design.widget.TextInputEditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/otaReboot_lengthDesc"
                     android:inputType="number" />
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <android.support.constraint.Group
+            <androidx.constraintlayout.widget.Group
                 android:id="@+id/otaReboot_customAddrView"
                 android:visibility="gone"
                 android:layout_width="wrap_content"
@@ -155,13 +155,13 @@
                 app:layout_constraintStart_toEndOf="@+id/otaReboot_fwFileName"
                 app:layout_constraintTop_toBottomOf="@+id/otaReboot_lengthLayout" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/otaReboot_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_restart_24dp" />
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

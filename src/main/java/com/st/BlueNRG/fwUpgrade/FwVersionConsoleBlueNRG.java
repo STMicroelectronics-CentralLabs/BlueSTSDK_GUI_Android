@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017  STMicroelectronics – All rights reserved
+ * Copyright (c) 2019  STMicroelectronics – All rights reserved
  * The STMicroelectronics corporate logo is a trademark of STMicroelectronics
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,7 +36,7 @@
  */
 package com.st.BlueNRG.fwUpgrade;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.st.BlueNRG.fwUpgrade.feature.ImageFeature;
 import com.st.BlueSTSDK.Feature;

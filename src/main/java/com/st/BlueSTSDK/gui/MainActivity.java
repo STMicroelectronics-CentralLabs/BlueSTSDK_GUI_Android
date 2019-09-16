@@ -36,9 +36,7 @@
  */
 package com.st.BlueSTSDK.gui;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -47,14 +45,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.fragment.app.DialogFragment;
 
 import java.net.URL;
 
@@ -228,12 +229,12 @@ public class MainActivity extends AppCompatActivity {
     private void displayPrivacyDialog(){
         URL page = getPrivacyPolicyUrl();
         if(page!=null)
-            PrivacyDialog.newInstance(page).show(getFragmentManager(),PRIVACY_DIALOG_SHOWN_TAG);
+            PrivacyDialog.newInstance(page).show(getSupportFragmentManager(),PRIVACY_DIALOG_SHOWN_TAG);
 
     }
 
     private boolean privacyDialogIsCurrentlyDisplayed(){
-        return getFragmentManager().findFragmentByTag(PRIVACY_DIALOG_SHOWN_TAG)!=null;
+        return getSupportFragmentManager().findFragmentByTag(PRIVACY_DIALOG_SHOWN_TAG)!=null;
     }
 
     @Override

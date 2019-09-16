@@ -40,11 +40,12 @@ package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.util.LoadFileAsyncTask;

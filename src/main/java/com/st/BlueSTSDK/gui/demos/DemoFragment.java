@@ -37,12 +37,13 @@
 package com.st.BlueSTSDK.gui.demos;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.gui.DemosActivity;
@@ -113,7 +114,8 @@ public abstract class DemoFragment extends Fragment {
         FragmentUtil.runOnUiThread(this,task);
     }
 
-    protected @Nullable Node getNode(){
+    protected @Nullable
+    Node getNode(){
         DemosActivity act = (DemosActivity) getActivity();
         if(act!=null)
             return act.getNode();

@@ -36,7 +36,7 @@
  */
 package com.st.STM32WB.fwUpgrade.feature;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.UUIDToFeatureMap;

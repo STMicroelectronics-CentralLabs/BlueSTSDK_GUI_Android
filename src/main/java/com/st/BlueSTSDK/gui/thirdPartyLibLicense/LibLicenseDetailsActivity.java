@@ -40,10 +40,11 @@ package com.st.BlueSTSDK.gui.thirdPartyLibLicense;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.st.BlueSTSDK.gui.R;
 
@@ -55,7 +56,7 @@ public class LibLicenseDetailsActivity extends AppCompatActivity {
     private static final String DETAILS = LibLicenseDetailsActivity.class.getCanonicalName()+".DETAILS";
 
     @VisibleForTesting
-    public static Intent getStartLicenseDetailActivityIntent(@NonNull Context c,@NonNull LibLicense lib){
+    public static Intent getStartLicenseDetailActivityIntent(@NonNull Context c, @NonNull LibLicense lib){
         Intent intent = new Intent(c,LibLicenseDetailsActivity.class);
         intent.putExtra(DETAILS,lib);
         return intent;

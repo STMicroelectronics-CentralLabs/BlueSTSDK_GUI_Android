@@ -36,7 +36,7 @@
  */
 package com.st.BlueSTSDK.gui.demos;
 
-import android.support.annotation.DrawableRes;
+import androidx.annotation.DrawableRes;
 
 import com.st.BlueSTSDK.Feature;
 

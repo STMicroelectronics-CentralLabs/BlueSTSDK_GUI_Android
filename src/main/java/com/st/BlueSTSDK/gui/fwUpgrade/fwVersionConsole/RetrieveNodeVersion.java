@@ -36,8 +36,8 @@
  */
 package com.st.BlueSTSDK.gui.fwUpgrade.fwVersionConsole;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.st.BlueSTSDK.Node;
 import com.st.BlueSTSDK.Utils.FwVersion;

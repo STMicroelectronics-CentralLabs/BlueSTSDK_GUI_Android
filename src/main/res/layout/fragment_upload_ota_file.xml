@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fwUpgrade.uploadFwFile.UploadOtaFileFragment">
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/otaUpload_addressTextLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -19,12 +19,39 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/otaUpload_addressText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/otaUpload_address" />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <RadioGroup
+            android:id="@+id/otaUpload_fwTypeSelector"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:checkedButton="@+id/otaUpload_applicationType"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/otaUpload_selectFileName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/otaUpload_addressTextLayout">
+
+            <RadioButton
+                android:id="@id/otaUpload_applicationType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/otaUpload_applicationType" />
+
+            <RadioButton
+                android:id="@+id/otaUpload_bleType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/otaUpload_bleType" />
+        </RadioGroup>
 
         <RadioGroup
             android:id="@+id/otaUpload_fwTypeSelector"
@@ -111,16 +138,16 @@
             app:layout_constraintTop_toBottomOf="@+id/otaUpload_uploadProgress"
             tools:text="Working in progress" />
 
-        <android.support.constraint.Group
+        <androidx.constraintlayout.widget.Group
             android:id="@+id/otaUpload_uploadProgressGroup"
             android:visibility="gone"
             tools:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:constraint_referenced_ids="otaUpload_uploadMessage,otaUpload_uploadProgress" />
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/otaUpload_startUploadButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -128,4 +155,4 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/ota_upload_fw" />
 
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

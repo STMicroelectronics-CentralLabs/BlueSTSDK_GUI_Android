@@ -35,7 +35,8 @@
  */
 package com.st.BlueNRG.fwUpgrade.feature;
 
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
 
 import com.st.BlueSTSDK.Features.DeviceTimestampFeature;
 import com.st.BlueSTSDK.Features.Field;
