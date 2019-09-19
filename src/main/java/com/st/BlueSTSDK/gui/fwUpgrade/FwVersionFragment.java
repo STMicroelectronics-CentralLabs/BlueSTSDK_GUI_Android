@@ -123,7 +123,7 @@ public class FwVersionFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         FwVersionViewModel viewModel =  ViewModelProviders.of(requireActivity()).get(FwVersionViewModel.class);
-        viewModel.isWaitingFwVersion().observe(this, isLoading -> {
+        viewModel.isWaitingFwVersion().observe(getViewLifecycleOwner(), isLoading -> {
             if(isLoading!=null && !isLoading){
                 mLoadingView.setVisibility(View.GONE);
                 mContentView.setVisibility(View.VISIBLE);
@@ -133,7 +133,7 @@ public class FwVersionFragment extends Fragment {
             }
         });
 
-        viewModel.getFwVersion().observe(this, fwVersion -> {
+        viewModel.getFwVersion().observe(getViewLifecycleOwner(), fwVersion -> {
             if(fwVersion==null){
                 mName.setText(R.string.fwVersion_unknown);
                 mVersion.setText(R.string.fwVersion_unknown);

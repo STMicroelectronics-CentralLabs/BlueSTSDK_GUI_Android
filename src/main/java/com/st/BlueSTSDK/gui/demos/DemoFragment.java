@@ -86,7 +86,7 @@ public abstract class DemoFragment extends Fragment {
      * @throws java.lang.ClassCastException if the activity doesn't extend DemosActivity
      */
     @Override
-    public void onAttach(Context activity) {
+    public void onAttach(@NonNull Context activity) {
         super.onAttach(activity);
         try {
             DemosActivity temp = (DemosActivity) activity;
