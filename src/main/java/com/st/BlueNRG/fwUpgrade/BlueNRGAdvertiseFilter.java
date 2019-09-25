@@ -89,7 +89,7 @@ public class BlueNRGAdvertiseFilter implements AdvertiseFilter {
         }
 
         @Override
-        public int getFeatureMap() {
+        public long getFeatureMap() {
             return 0;
         }
 
