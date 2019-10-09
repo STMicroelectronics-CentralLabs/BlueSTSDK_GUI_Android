@@ -200,7 +200,7 @@ public class LedButtonControlFragment extends RssiDemoFragment {
     private static final int ENABLE_REBOOT_THREAD_ADVERTISE_MASK = 0x00004000;
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         Node node = getNode();
         if(node!=null && ((node.getAdvertiseBitMask() & ENABLE_REBOOT_THREAD_ADVERTISE_MASK) != 0)){

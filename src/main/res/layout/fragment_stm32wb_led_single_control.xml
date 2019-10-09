@@ -100,14 +100,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stm32wb_single_ledImage" />
 
-    <androidx.constraintlayout.Group
+    <androidx.constraintlayout.widget.Group
         android:id="@+id/stm32wb_single_alarmView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="visible"
         app:constraint_referenced_ids="stm32wb_single_alarmImage,stm32wb_single_alarmText" />
 
-    <androidx.constraintlayout.Group
+    <androidx.constraintlayout.widget.Group
         android:id="@+id/stm32wb_single_ledView"
         android:layout_width="0dp"
         android:layout_height="0dp"
