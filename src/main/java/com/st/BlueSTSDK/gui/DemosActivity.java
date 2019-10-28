@@ -698,7 +698,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
         @Override
         public long getItemId(int position) {
-            return super.getItemId(position)+ sIdOffset;
+            return mDemos.get(position).hashCode();
         }
 
         @Override
