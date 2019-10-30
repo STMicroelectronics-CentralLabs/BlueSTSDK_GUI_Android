@@ -14,6 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
+            android:hint="@string/otaUpload_address"
             app:layout_constraintBottom_toTopOf="@+id/otaUpload_fwTypeSelector"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +24,7 @@
                 android:id="@+id/otaUpload_addressText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/otaUpload_address" />
+                 />
         </com.google.android.material.textfield.TextInputLayout>
 
         <RadioGroup
