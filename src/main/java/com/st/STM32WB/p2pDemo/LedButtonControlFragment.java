@@ -59,7 +59,7 @@ import com.st.BlueSTSDK.gui.R;
 import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.STM32WB.p2pDemo.feature.FeatureControlLed;
 import com.st.STM32WB.p2pDemo.feature.FeatureSwitchStatus;
-import com.st.STM32WB.p2pDemo.feature.FeatureThreadReboot;
+import com.st.STM32WB.p2pDemo.feature.FeatureProtocolRadioReboot;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -204,25 +204,25 @@ public class LedButtonControlFragment extends RssiDemoFragment {
         super.onCreateOptionsMenu(menu, inflater);
         Node node = getNode();
         if(node!=null && ((node.getAdvertiseBitMask() & ENABLE_REBOOT_THREAD_ADVERTISE_MASK) != 0)){
-            inflater.inflate(R.menu.stm32wb_thread_reboot,menu);
+            inflater.inflate(R.menu.stm32wb_radio_reboot,menu);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.stm32wb_single_switchRadio){
-            switchToThreadRadio();
+            switchProtocolRadio();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void switchToThreadRadio() {
+    private void switchProtocolRadio() {
         Node node = getNode();
         if(node!=null) {
-            FeatureThreadReboot reboot = node.getFeature(FeatureThreadReboot.class);
+            FeatureProtocolRadioReboot reboot = node.getFeature(FeatureProtocolRadioReboot.class);
             if(reboot!=null) {
-                reboot.rebootToThreadRadio(mCurrentDevice, () -> {
+                reboot.rebootToNewProtocolRadio(mCurrentDevice, () -> {
                     //disconnect and close the demo
                     NodeConnectionService.disconnect(requireContext(), node);
                     NavUtils.navigateUpFromSameTask(requireActivity());
