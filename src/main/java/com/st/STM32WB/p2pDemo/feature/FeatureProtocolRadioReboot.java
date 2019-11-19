@@ -36,15 +36,17 @@
  */
 package com.st.STM32WB.p2pDemo.feature;
 
+import androidx.annotation.NonNull;
+
 import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Features.Field;
 import com.st.BlueSTSDK.Node;
 import com.st.STM32WB.p2pDemo.Peer2PeerDemoConfiguration;
 
 public class FeatureProtocolRadioReboot extends Feature {
-    public static final String FEATURE_NAME = "ThreadReboot";
+    public static final String FEATURE_NAME = "RadioProtocolReboot";
 
-    private static final byte THREAD_REBOOT_COMMAND = 0x02;
+    private static final byte RADIO_REBOOT_COMMAND = 0x02;
 
     /**
      * build a carry position feature
@@ -55,7 +57,7 @@ public class FeatureProtocolRadioReboot extends Feature {
     }//FeatureControlLed
 
     @Override
-    protected ExtractResult extractData(long timestamp, byte[] data, int dataOffset) {
+    protected ExtractResult extractData(long timestamp, @NonNull byte[] data, int dataOffset) {
         return new ExtractResult(new Sample(timestamp,new Number[0],getFieldsDesc()),0);
     }
 
@@ -64,7 +66,7 @@ public class FeatureProtocolRadioReboot extends Feature {
      * @param device device where switch on the led
      */
     public void rebootToNewProtocolRadio(Peer2PeerDemoConfiguration.DeviceID device, Runnable onCommandSent){
-        writeData(new byte[]{device.getId(), THREAD_REBOOT_COMMAND},onCommandSent);
+        writeData(new byte[]{device.getId(), RADIO_REBOOT_COMMAND},onCommandSent);
     }
 
 }
