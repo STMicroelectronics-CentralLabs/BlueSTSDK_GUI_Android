@@ -288,10 +288,11 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         savedInstanceState.putString(NODE_TAG_ARG,mNode.getTag());
     }
 
+    protected void reloadDemoList(){
+        buildDemoAdapter(getNode());
+    }
 
     private void buildDemoAdapter(Node node){
-        if(mPager.getAdapter()!=null) // it is already initialized
-            return;
 
         mPager.addOnPageChangeListener(mUpdateActivityTitle);
         final DemosTabAdapter adapter=new DemosTabAdapter(node,getAllDemos(), getSupportFragmentManager());
@@ -625,6 +626,13 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     private static class DemosTabAdapter extends FragmentPagerAdapter {
 
         /**
+         * if the adapter is recreated the id of each items must be different from the previous one
+         * to avoid to display the old fragment, in this variable we keep the number items in the
+         * previous instance of the adapter.
+         */
+        private static long sIdOffset = 0;
+
+        /**
          * demos that will be displayed to the user
          */
         private ArrayList<Class<? extends DemoFragment>> mDemos = new
@@ -671,6 +679,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
                 if (demoIsWorking(demo, node))
                     mDemos.add(demo);
             }//for
+            sIdOffset += mDemos.size();
         }//
 
         @Override
@@ -685,6 +694,11 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
                 e.printStackTrace();
                 return null;
             }
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return mDemos.get(position).hashCode();
         }
 
         @Override
