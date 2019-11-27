@@ -82,13 +82,17 @@ public class FwUpgradeConsoleSTM32WB extends FwUpgradeConsole {
 
     @Override
     public boolean loadFw(@FirmwareType int type, FwFileDescriptor fwFile,long startAddress) {
-        Feature.FeatureListener onBoardWillReboot = (f, sample) -> {
-            if(OTABoardWillRebootFeature.boardIsRebooting(sample))
-                mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32WB.this,fwFile);
-            else
-                mCallback.onLoadFwError(FwUpgradeConsoleSTM32WB.this,fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
-            mReset.disableNotification();
+        Feature.FeatureListener onBoardWillReboot = new Feature.FeatureListener(){
+            @Override
+            public void onUpdate(@NonNull Feature f, @NonNull Feature.Sample sample) {
+                if(OTABoardWillRebootFeature.boardIsRebooting(sample))
+                    mCallback.onLoadFwComplete(FwUpgradeConsoleSTM32WB.this,fwFile);
+                else
+                    mCallback.onLoadFwError(FwUpgradeConsoleSTM32WB.this,fwFile, FwUpgradeCallback.ERROR_TRANSMISSION);
+                f.removeFeatureListener(this);
+            }
         };
+
         mReset.addFeatureListener(onBoardWillReboot);
         mReset.enableNotification();
         mControl.startUpload(type,startAddress);
