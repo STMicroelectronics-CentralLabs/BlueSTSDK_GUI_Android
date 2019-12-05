@@ -43,7 +43,7 @@
           app:showAsAction="never" />
     
     <item android:id="@+id/menu_clear_device_cache"
-          android:title="@string/ClearDeviceCacheMenu"
+          android:title="@string/ClearDeviceCacheMenuEnabled"
           app:showAsAction="never" />
     <!--
 

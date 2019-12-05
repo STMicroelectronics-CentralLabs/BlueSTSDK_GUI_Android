@@ -99,7 +99,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
     /**
      * true if the user request to clear the device handler cache after the connection
      */
-    private boolean mClearDeviceCache = false;
+    private boolean mClearDeviceCache = true;
 
     /**
      * SwipeLayout used for refresh the list when the user pull down the fragment
