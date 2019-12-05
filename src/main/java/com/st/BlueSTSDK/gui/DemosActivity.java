@@ -163,11 +163,12 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      * widget that will contain all the demo fragment
      */
     private ViewPager mPager;
-
+    private int mPrevSelectedPage = 0;
     private ViewPager.OnPageChangeListener mUpdateActivityTitle = new ViewPager.SimpleOnPageChangeListener() {
 
         @Override
         public void onPageSelected(int position) {
+            mPrevSelectedPage=position;
             setTitle(mPager.getAdapter().getPageTitle(position));
         }
 
@@ -247,6 +248,7 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         } else {
             mNode = Manager.getSharedInstance().getNodeWithTag(savedInstanceState.getString(NODE_TAG_ARG));
             mShowDebugConsole = savedInstanceState.getBoolean(DEBUG_CONSOLE);
+            mPrevSelectedPage = savedInstanceState.getInt(CURRENT_DEMO,0);
         }//if-else
 
         mPager = findViewById(R.id.pager);
@@ -296,9 +298,12 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
         mPager.addOnPageChangeListener(mUpdateActivityTitle);
         final DemosTabAdapter adapter=new DemosTabAdapter(node,getAllDemos(), getSupportFragmentManager());
-        mPager.setAdapter(adapter);
-        mUpdateActivityTitle.onPageSelected(mPager.getCurrentItem());
         int nDemo = adapter.getCount();
+        mPager.setAdapter(adapter);
+        if(mPrevSelectedPage<nDemo){
+            mPager.setCurrentItem(mPrevSelectedPage);
+        }
+        mUpdateActivityTitle.onPageSelected(mPager.getCurrentItem());
         Menu navigationMenu = mNavigationTab.getMenu();
         //remove the old items
         navigationMenu.clear();
@@ -626,13 +631,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
     private static class DemosTabAdapter extends FragmentPagerAdapter {
 
         /**
-         * if the adapter is recreated the id of each items must be different from the previous one
-         * to avoid to display the old fragment, in this variable we keep the number items in the
-         * previous instance of the adapter.
-         */
-        private static long sIdOffset = 0;
-
-        /**
          * demos that will be displayed to the user
          */
         private ArrayList<Class<? extends DemoFragment>> mDemos = new
@@ -679,7 +677,6 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
                 if (demoIsWorking(demo, node))
                     mDemos.add(demo);
             }//for
-            sIdOffset += mDemos.size();
         }//
 
         @Override
