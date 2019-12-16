@@ -146,8 +146,7 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
 
         mAdapter = getNodeAdapter();
         //disconnect all the already discovered device
-        if(mManager.hasConnectedNodes())
-            NodeConnectionService.disconnectAllNodes(this);
+        NodeConnectionService.disconnectAllNodes(this);
 
         setContentView(R.layout.activity_node_list);
 

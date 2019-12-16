@@ -151,7 +151,8 @@ public class NodeConnectionService extends Service {
      * @param n node to disconnect
      */
     static public void disconnect(Context c, Node n){
-        ContextCompat.startForegroundService(c,buildDisconnectIntent(c,n));
+        if(n.isConnected())
+            ContextCompat.startForegroundService(c,buildDisconnectIntent(c,n));
     }
 
     /**
@@ -159,7 +160,8 @@ public class NodeConnectionService extends Service {
      * @param c context used for crate the intent
      */
     static public void disconnectAllNodes(Context c){
-        ContextCompat.startForegroundService(c,buildDisconnectAllIntent(c));
+        if(Manager.getSharedInstance().hasConnectedNodes())
+            ContextCompat.startForegroundService(c,buildDisconnectAllIntent(c));
     }
 
 
@@ -167,8 +169,6 @@ public class NodeConnectionService extends Service {
      * set of node managed by this service
      */
     private Set<Node> mConnectedNodes = new HashSet<>();
-
-
 
     /**
      * if the node enter in a disconnected state try to connect again
@@ -354,11 +354,13 @@ public class NodeConnectionService extends Service {
     private void disconnectAll(){
         //disconnect all the nodes and remove the notification
         for(Node n : mConnectedNodes){
-            n.disconnect();
+            Log.d("ConnectionService", "disconnectAll:"+n.getTag()+"mConnectedNodes:"+mConnectedNodes);
             n.removeNodeStateListener(mStateListener);
+            n.disconnect();
         }
         mConnectedNodes.clear();
         removeConnectionNotification();
+        stopSelf();
     }
 
     /**
@@ -369,7 +371,7 @@ public class NodeConnectionService extends Service {
     private void disconnect(int startId,Intent intent) {
         startForeground(startId,buildDisconnectNotification());
         String tag = intent.getStringExtra(NODE_TAG_ARG);
-        Log.d("NodeConnectionService","disconnect" + tag);
+        Log.d("NodeConnectionService","disconnect" + tag+"mConnectedNodes:"+mConnectedNodes);
 
         Node n = findConnectedNodeWithTag(tag);
         if(n==null){
