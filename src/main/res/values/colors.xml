@@ -37,10 +37,10 @@
   -->
 
 <resources>
-    <color name="colorPrimary">#39a9dc</color>
+    <color name="colorPrimary">#3CB4E6</color>
     <color name="colorPrimaryDark">#2088B7</color>
-    <color name="colorAccent">#d4007a</color>
-    <color name="colorGrey">#B9C4CA</color>
+    <color name="colorAccent">#E6007E</color>
+    <color name="colorGrey">#d1d0d3</color>
 
     <color name="black_overlay">#66000000</color>
 
@@ -48,6 +48,6 @@
 
     <color name="swipeColor_1">#D9EFF8</color>
     <color name="swipeColor_2">#6DC0E5</color>
-    <color name="swipeColor_3">#39A9DC</color>
+    <color name="swipeColor_3">#3CB4E6</color>
     <color name="swipeColor_4">#2088B7</color>
 </resources>
