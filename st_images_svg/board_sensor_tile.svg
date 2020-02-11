@@ -55,7 +55,7 @@
   </defs>
   <sodipodi:namedview
      id="base"
-     pagecolor="#ffffff"
+     pagecolor="#FFFFFF"
      bordercolor="#666666"
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
@@ -90,7 +90,7 @@
      id="layer1"
      transform="translate(0,-1004.3622)">
     <g
-       style="fill:#39a9dc;fill-opacity:1;stroke:#39a9dc;stroke-opacity:1"
+       style="fill:#3CB4E6;fill-opacity:1;stroke:#3CB4E6;stroke-opacity:1"
        transform="matrix(0.24000024,0,0,-0.24000024,0,1052.3622)"
        inkscape:label="RS6495_SensorTile (1)"
        id="g4176">
@@ -102,51 +102,51 @@
           <g
              transform="translate(89.3731,101.1177)"
              id="g4186"
-             style="fill:#3fabe2;fill-opacity:1">
+             style="fill:#3CB4E6;fill-opacity:1">
             <path
                inkscape:connector-curvature="0"
                id="path4188"
-               style="fill:#3fabe2;fill-opacity:1;fill-rule:nonzero;stroke:none"
+               style="fill:#3CB4E6;fill-opacity:1;fill-rule:nonzero;stroke:none"
                d="m 0,0 c -0.949,-3.844 -3.971,-6.861 -7.817,-7.803 l 0,-26.1 22.413,0 0,18.96 C 14.596,-6.816 8.08,-0.197 0,0" />
           </g>
           <g
              transform="translate(68.6409,101.1362)"
              id="g4190"
-             style="fill:#3fabe2;fill-opacity:1">
+             style="fill:#3CB4E6;fill-opacity:1">
             <path
                inkscape:connector-curvature="0"
                id="path4192"
-               style="fill:#3fabe2;fill-opacity:1;fill-rule:nonzero;stroke:none"
+               style="fill:#3CB4E6;fill-opacity:1;fill-rule:nonzero;stroke:none"
                d="m 0,0 -21.983,0 0,-11.203 c 0,-12.547 10.172,-22.719 22.719,-22.719 l 7.086,0 0,26.1 C 3.969,-6.878 0.944,-3.852 0,0" />
           </g>
           <g
              transform="translate(76.4624,114.0512)"
              id="g4194"
-             style="fill:#3fabe2;fill-opacity:1">
+             style="fill:#3CB4E6;fill-opacity:1">
             <path
                inkscape:connector-curvature="0"
                id="path4196"
-               style="fill:#3fabe2;fill-opacity:1;fill-rule:nonzero;stroke:none"
+               style="fill:#3CB4E6;fill-opacity:1;fill-rule:nonzero;stroke:none"
                d="m 0,0 0,21.989 c 0,14.246 11.59,25.836 25.836,25.836 l 71.839,0 0,10.098 c 0,12.548 -10.172,22.719 -22.719,22.719 l -82.041,0 c -12.548,0 -22.719,-10.171 -22.719,-22.719 l 0,-65.744 21.983,0 C -6.878,-3.969 -3.852,-0.944 0,0" />
           </g>
           <g
              transform="translate(81.5561,136.0404)"
              id="g4198"
-             style="fill:#3fabe2;fill-opacity:1">
+             style="fill:#3CB4E6;fill-opacity:1">
             <path
                inkscape:connector-curvature="0"
                id="path4200"
-               style="fill:#3fabe2;fill-opacity:1;fill-rule:nonzero;stroke:none"
+               style="fill:#3CB4E6;fill-opacity:1;fill-rule:nonzero;stroke:none"
                d="m 0,0 0,-21.989 c 3.856,-0.945 6.883,-3.974 7.824,-7.831 10.887,-0.2 19.683,-9.112 19.683,-20.045 l 0,-18.961 42.355,0 c 12.547,0 22.719,10.172 22.719,22.719 l 0,66.849 -71.838,0 C 9.305,20.742 0,11.437 0,0" />
           </g>
           <g
              transform="translate(174.1638,161.8762)"
              id="g4202"
-             style="fill:#3fabe2;fill-opacity:1">
+             style="fill:#3CB4E6;fill-opacity:1">
             <path
                inkscape:connector-curvature="0"
                id="path4204"
-               style="fill:#3fabe2;fill-opacity:1;fill-rule:nonzero;stroke:none"
+               style="fill:#3CB4E6;fill-opacity:1;fill-rule:nonzero;stroke:none"
                d="m 0,0 -0.027,0 0,-5.094 0.027,0 c 11.437,0 20.743,-9.304 20.743,-20.742 l 0,-71.865 c 0,-11.438 -9.306,-20.743 -20.743,-20.743 l -57.28,0 c -0.943,3.852 -3.969,6.878 -7.821,7.822 l 0,15.96 -5.094,0 0,-15.96 c -3.559,-0.872 -6.415,-3.52 -7.574,-6.957 -6.955,2.05 -12.477,7.631 -14.255,14.971 l 0,0.001 c -0.387,1.597 -0.584,3.247 -0.584,4.906 l 0,3.039 -5.093,0 0,-3.039 c 0,-2.062 0.244,-4.117 0.726,-6.106 l 0,0.001 c 2.305,-9.511 9.646,-16.666 18.798,-18.951 0.704,-4.22 3.873,-7.596 7.982,-8.602 l 0,-5.156 c 0,-8.249 -6.712,-14.961 -14.961,-14.961 l -60.813,0 c -8.25,0 -14.962,6.712 -14.962,14.961 l 0,36.959 c 4.67,1.144 8.14,5.346 8.14,10.368 0,5.023 -3.47,9.225 -8.14,10.369 l 0,3.118 c 0,8.25 6.712,14.961 14.962,14.961 l 18.463,0 0,5.094 -18.463,0 c -11.058,0 -20.055,-8.997 -20.055,-20.055 l 0,-3.118 c -4.67,-1.144 -8.14,-5.346 -8.14,-10.369 0,-5.022 3.47,-9.224 8.14,-10.368 l 0,-36.959 c 0,-11.058 8.997,-20.055 20.055,-20.055 l 60.813,0 c 11.058,0 20.055,8.997 20.055,20.055 l 0,5.156 c 3.852,0.944 6.878,3.969 7.821,7.821 l 57.28,0 c 14.246,0 25.836,11.59 25.836,25.837 l 0,71.865 C 25.836,-11.59 14.246,0 0,0" />
           </g>
         </g>
