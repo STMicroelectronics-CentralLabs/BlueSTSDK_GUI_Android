@@ -78,7 +78,7 @@ class DownloadNewFwDialog : DialogFragment() {
                 DownloadFwFileService.startDownloadFwFile(requireContext(),fwLocation)
             }
             if(!forceFwUpgrade)
-                setNegativeButton(android.R.string.cancel){_,_ -> dismiss()}
+                setNegativeButton(R.string.cloudLog_fwUpgrade_canceUpgrade){_,_ -> dismiss()}
 
         }.create()
 
