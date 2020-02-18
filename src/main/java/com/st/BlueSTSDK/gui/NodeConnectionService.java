@@ -371,7 +371,7 @@ public class NodeConnectionService extends Service {
     private void disconnect(int startId,Intent intent) {
         startForeground(startId,buildDisconnectNotification());
         String tag = intent.getStringExtra(NODE_TAG_ARG);
-        Log.d("NodeConnectionService","disconnect" + tag+"mConnectedNodes:"+mConnectedNodes);
+        Log.d("NodeConnectionService","disconnect " + tag+" mConnectedNodes:"+mConnectedNodes);
 
         Node n = findConnectedNodeWithTag(tag);
         if(n==null){

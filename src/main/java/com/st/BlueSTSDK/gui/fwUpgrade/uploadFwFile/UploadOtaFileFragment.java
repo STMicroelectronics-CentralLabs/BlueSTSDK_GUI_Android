@@ -46,7 +46,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.view.LayoutInflater;
@@ -173,7 +173,7 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mVersionViewModel = ViewModelProviders.of(requireActivity()).get(FwVersionViewModel.class);
+        mVersionViewModel = new ViewModelProvider(requireActivity()).get(FwVersionViewModel.class);
     }
 
     private void setupFwTypeSelector(RadioGroup selector, Bundle savedInstance, Bundle args) {
@@ -351,7 +351,7 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
+                                           @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         mRequestFile.onRequestPermissionsResult(requestCode,permissions,grantResults);
     }//onRequestPermissionsResult
@@ -365,7 +365,7 @@ public class UploadOtaFileFragment extends Fragment implements UploadOtaFileActi
             //UploadOtaFileFragment.this
             NavUtils.navigateUpFromSameTask(requireActivity());
         });
-        dialog.show(requireFragmentManager(),FINISH_DIALOG_TAG);
+        dialog.show(getParentFragmentManager(),FINISH_DIALOG_TAG);
     }
 
 }

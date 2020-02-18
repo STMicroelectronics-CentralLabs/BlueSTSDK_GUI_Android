@@ -135,10 +135,10 @@ public class FwUpgradeConsoleBlueNRG extends FwUpgradeConsole {
     private Node.BleConnectionParamUpdateListener onMtuChanged = new Node.BleConnectionParamUpdateListener(){
 
         @Override
-        public void onRSSIChanged(Node node,int newRSSIValue){}
+        public void onRSSIChanged(@NonNull Node node, int newRSSIValue){}
 
         @Override
-        public void onMtuChange(Node node,int mtu) {
+        public void onMtuChange(@NonNull Node node, int mtu) {
             if((mtu-OTA_SUPPORT_INFO_SIZE)> FW_IMAGE_PACKET_SIZE_DEFAULT) {
                 //if((mtu-OTA_SUPPORT_INFO_SIZE-ATT_MTU_SUPPORT_INFO_SIZE)>FW_IMAGE_PACKET_SIZE_DEFAULT) {
                 blueNRGClientType = 2;

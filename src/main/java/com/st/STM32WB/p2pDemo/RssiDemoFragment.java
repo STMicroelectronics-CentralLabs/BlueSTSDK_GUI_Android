@@ -36,7 +36,6 @@
  */
 package com.st.STM32WB.p2pDemo;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -121,12 +120,12 @@ public abstract class RssiDemoFragment extends DemoFragment implements Node.BleC
     }
 
     @Override
-    public void onRSSIChanged(Node node, final int newRSSIValue) {
+    public void onRSSIChanged(@NonNull Node node, final int newRSSIValue) {
         if(isDetached()) //avoid to update the gui if the fragment is detached
             return;
         updateGui(() -> mRssiText.setText(getString(R.string.stm32wb_rssiFormat,newRSSIValue)));
     }//onRSSIChanged
 
     @Override
-    public void onMtuChange(Node node, int newMtu) { }
+    public void onMtuChange(@NonNull Node node, int newMtu) { }
 }

@@ -36,6 +36,7 @@
  */
 package com.st.STM32WB.fwUpgrade.searchOtaNode;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.st.BlueSTSDK.Manager;
@@ -53,7 +54,7 @@ public class SearchOtaNodePresenter implements SearchOtaNodeContract.Presenter{
 
     private Manager.ManagerListener mManagerListener = new Manager.ManagerListener() {
         @Override
-        public void onDiscoveryChange(Manager m, boolean enabled) {
+        public void onDiscoveryChange(@NonNull Manager m, boolean enabled) {
             if(!enabled){
                 mManager.removeListener(this);
                 mView.nodeNodeFound();
@@ -63,7 +64,7 @@ public class SearchOtaNodePresenter implements SearchOtaNodeContract.Presenter{
         }
 
         @Override
-        public void onNodeDiscovered(Manager m, Node node) {
+        public void onNodeDiscovered(@NonNull Manager m,@NonNull  Node node) {
             if(STM32OTASupport.isOTANode(node)){
                 if(node.getTag().equals(mAddress) || mAddress==null) {
                     mManager.removeListener(this);

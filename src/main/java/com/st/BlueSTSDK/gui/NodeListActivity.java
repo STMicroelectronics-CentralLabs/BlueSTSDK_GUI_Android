@@ -145,8 +145,6 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         mManager = Manager.getSharedInstance();
 
         mAdapter = getNodeAdapter();
-        //disconnect all the already discovered device
-        NodeConnectionService.disconnectAllNodes(this);
 
         setContentView(R.layout.activity_node_list);
 
@@ -177,6 +175,13 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         if(mStartStopButton!=null)
             mStartStopButton.setOnClickListener(this);
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //disconnect all the already discovered device
+        NodeConnectionService.disconnectAllNodes(this);
     }
 
     /**
