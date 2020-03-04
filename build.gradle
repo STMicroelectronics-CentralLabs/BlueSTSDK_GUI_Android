@@ -85,6 +85,9 @@ dependencies {
     implementation group: 'androidx.cardview', name: 'cardview', version: "$rootProject.androidx_cardViewVersion"
     implementation group: 'androidx.constraintlayout', name: 'constraintlayout', version: "$rootProject.androidx_constraintLayoutVersion"
     implementation group: 'androidx.lifecycle', name: 'lifecycle-extensions', version: "$rootProject.androidx_lifecycleExtVersion"
+    implementation group: 'androidx.localbroadcastmanager', name: 'localbroadcastmanager', version: "$rootProject.androidx_localBroadcastVersion"
+    implementation group: 'androidx.swiperefreshlayout', name: 'swiperefreshlayout', version: "$rootProject.androidx_swipeRefreshLayoutVersion"
+
 
     testImplementation "junit:junit:$rootProject.junitVersion"
     testImplementation "org.mockito:mockito-core:$rootProject.mockitoVersion"
