@@ -54,7 +54,7 @@ import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeActivity
  * Wait the fw file download ends and start the fw upgrade activity when the file is downloaded
  */
 class DownloadFwFileCompletedReceiver(
-        val context: Context,
+        context: Context,
         private val mNode: Node) : BroadcastReceiver(), LifecycleObserver {
 
     private val appContext = context.applicationContext
