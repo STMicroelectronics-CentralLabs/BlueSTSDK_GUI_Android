@@ -76,6 +76,7 @@ import com.st.BlueSTSDK.gui.ConnectionStatusView.ConnectionStatusView;
 import com.st.BlueSTSDK.gui.demos.DemoDescriptionAnnotation;
 import com.st.BlueSTSDK.gui.demos.DemoFragment;
 import com.st.BlueSTSDK.gui.fwUpgrade.FwUpgradeActivity;
+import com.st.BlueSTSDK.gui.fwUpgrade.fwUpgradeConsole.FwUpgradeConsole;
 import com.st.BlueSTSDK.gui.preferences.LogPreferenceFragment;
 
 import java.util.ArrayList;
@@ -414,8 +415,9 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
                 menu.findItem(R.id.openDebugConsole).setVisible(false);
                 menu.findItem(R.id.showDebugConsole).setVisible(false);
             }
-
-            if(!enableFwUploading() || debug==null){
+            //check if we can build a fw upgrade, if not hide the button
+            FwUpgradeConsole fwUpgradeConsole = FwUpgradeConsole.getFwUpgradeConsole(mNode,null);
+            if(!enableFwUploading() || fwUpgradeConsole==null){
                 menu.findItem(R.id.menu_start_fw_upgrade).setVisible(false);
             }
         }
