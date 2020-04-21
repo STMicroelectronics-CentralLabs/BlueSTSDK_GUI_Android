@@ -88,7 +88,6 @@ dependencies {
     implementation group: 'androidx.localbroadcastmanager', name: 'localbroadcastmanager', version: "$rootProject.androidx_localBroadcastVersion"
     implementation group: 'androidx.swiperefreshlayout', name: 'swiperefreshlayout', version: "$rootProject.androidx_swipeRefreshLayoutVersion"
 
-
     testImplementation "junit:junit:$rootProject.junitVersion"
     testImplementation "org.mockito:mockito-core:$rootProject.mockitoVersion"
 

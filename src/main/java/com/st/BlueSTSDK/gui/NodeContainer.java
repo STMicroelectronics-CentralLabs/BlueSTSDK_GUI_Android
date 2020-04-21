@@ -57,5 +57,4 @@ public interface NodeContainer {
      *                         connected
      */
     void keepConnectionOpen(boolean keepOpen,boolean showNotification);
-
 }

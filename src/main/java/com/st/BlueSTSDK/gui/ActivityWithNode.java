@@ -80,6 +80,11 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
         return getStartIntent(c,activity,node,keepConnectionOpen,null);
     }
 
+    protected static Node getNodeFromIntent(Intent intent){
+        String nodeTag = intent.getStringExtra(NODE_TAG);
+        return Manager.getSharedInstance().getNodeWithTag(nodeTag);
+    }
+
     /**
      * create an intent for start the activity that will log the information from the node
      *
@@ -112,8 +117,7 @@ public class ActivityWithNode extends AppCompatActivity implements NodeContainer
         Intent i = getIntent();
 
         // recover the node
-        String nodeTag = i.getStringExtra(NODE_TAG);
-        mNode = Manager.getSharedInstance().getNodeWithTag(nodeTag);
+        mNode = getNodeFromIntent(i);
         mKeepConnectionOpen = i.getBooleanExtra(KEEP_CONNECTION_OPEN,false);
         mConnecitonOption = i.getParcelableExtra(CONNECTION_OPTIONS);
 
