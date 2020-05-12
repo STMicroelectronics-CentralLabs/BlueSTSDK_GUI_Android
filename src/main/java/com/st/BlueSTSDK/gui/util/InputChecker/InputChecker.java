@@ -40,6 +40,7 @@ package com.st.BlueSTSDK.gui.util.InputChecker;
 import android.text.Editable;
 import android.text.TextWatcher;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -54,9 +55,14 @@ public abstract class InputChecker implements TextWatcher {
     private TextInputLayout mTextInputLayout;
     private String mErrorMsg;
 
-    public InputChecker(TextInputLayout textInputLayout, @StringRes int errorMessageId){
+    public InputChecker(@NonNull TextInputLayout textInputLayout, @StringRes int errorMessageId){
         mTextInputLayout = textInputLayout;
         mErrorMsg = textInputLayout.getContext().getString(errorMessageId);
+    }
+
+    public InputChecker(@NonNull TextInputLayout textInputLayout,@NonNull String errorMessage){
+        mTextInputLayout = textInputLayout;
+        mErrorMsg = errorMessage;
     }
 
     @Override
