@@ -36,7 +36,7 @@
  */
 package com.st.BlueSTSDK.gui;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 
 import com.st.BlueSTSDK.Feature;
 import com.st.BlueSTSDK.Node;

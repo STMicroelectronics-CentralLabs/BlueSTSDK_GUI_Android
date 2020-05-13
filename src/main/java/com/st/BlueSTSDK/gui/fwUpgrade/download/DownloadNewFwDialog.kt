@@ -36,7 +36,7 @@
  */
 package com.st.BlueSTSDK.gui.fwUpgrade.download
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.app.Dialog
 import android.net.Uri
 import android.os.Bundle

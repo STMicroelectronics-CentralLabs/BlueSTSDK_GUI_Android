@@ -40,6 +40,7 @@
     <color name="colorPrimary">#3CB4E6</color>
     <color name="colorPrimaryDark">#2088B7</color>
     <color name="colorAccent">#E6007E</color>
+    <color name="colorOnAccent">#FFFFFF</color>
     <color name="colorGrey">#d1d0d3</color>
 
     <color name="black_overlay">#66000000</color>

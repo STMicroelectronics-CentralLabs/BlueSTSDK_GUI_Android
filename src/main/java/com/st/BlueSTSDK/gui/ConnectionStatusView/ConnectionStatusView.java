@@ -83,7 +83,7 @@ public class ConnectionStatusView extends FrameLayout implements ConnectionStatu
         mStatus = findViewById(R.id.conStatus_satusText);
         mError = findViewById(R.id.conStatus_errorText);
         //the object is build by the ui thread
-        mGuiThread = new Handler(Looper.myLooper());
+        mGuiThread = new Handler(Looper.getMainLooper());
         setVisibility(GONE);
     }
 
