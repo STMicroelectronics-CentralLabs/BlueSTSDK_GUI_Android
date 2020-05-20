@@ -65,41 +65,71 @@ public class AboutActivity extends AppCompatActivity {
     private static final String ABOUT_PAGE_URL = AboutActivity.class.getCanonicalName()+".ABOUT_PAGE_URL";
     private static final String PRIVACY_RES_ID = AboutActivity.class.getCanonicalName()+".PRIVACY_RES_ID";
     private static final String LIB_LICENSES_INFOS = AboutActivity.class.getCanonicalName()+".LIB_LICENSES_INFOS";
+    private static final String OSS_LIB_LICENSES_INFOS = AboutActivity.class.getCanonicalName()+".OSS_LIB_LICENSES_INFOS";
 
-    /**
-     *  display the actvity that will show the about page
-     * @param c context where start the activity
-     * @param aboutPageUrl html page to show as central content
-     * @param privacyUrl resource id of the file containing the privacy settings or null to hide the menu
-     */
-    public static void startActivityWithAboutPage(Context c,
+    private static void startActivityWithAboutPage(Context c,
                                                   @Nullable String aboutPageUrl,
                                                   @Nullable URL privacyUrl,
-                                                  @Nullable ArrayList<LibLicense> usedLibrary){
+                                                  @Nullable ArrayList<LibLicense> usedLibrary,
+                                                  @Nullable Intent usedLibraryActivity){
         Intent intent = new Intent(c,AboutActivity.class);
         intent.putExtra(ABOUT_PAGE_URL,aboutPageUrl);
         if(privacyUrl!=null)
             intent.putExtra(PRIVACY_RES_ID,privacyUrl);
         if(usedLibrary!=null)
             intent.putExtra(LIB_LICENSES_INFOS,usedLibrary);
+        if(usedLibraryActivity!=null)
+            intent.putExtra(OSS_LIB_LICENSES_INFOS,usedLibraryActivity);
         c.startActivity(intent);
+    }
+
+    /**
+     *  display the activity that will show the about page
+     * @param c context where start the activity
+     * @param aboutPageUrl html page to show as central content
+     * @param privacyUrl resource id of the file containing the privacy settings or null to hide the menu
+     * @param usedLibrary list of open source libraries used in the project
+     * @deprecated use {@link #startActivityWithAboutPage(Context, String, URL, Intent)}
+     */
+    @Deprecated
+    public static void startActivityWithAboutPage(Context c,
+                                                  @Nullable String aboutPageUrl,
+                                                  @Nullable URL privacyUrl,
+                                                  @Nullable ArrayList<LibLicense> usedLibrary){
+        startActivityWithAboutPage(c,aboutPageUrl,privacyUrl,usedLibrary,null);
+    }
+
+    /**
+     *  display the activity that will show the about page
+     * @param c context where start the activity
+     * @param aboutPageUrl html page to show as central content
+     * @param privacyUrl resource id of the file containing the privacy settings or null to hide the menu
+     * @param usedLibraryActivity intent to show the open sources license for the library used in the project
+     */
+    public static void startActivityWithAboutPage(Context c,
+                                                  @Nullable String aboutPageUrl,
+                                                  @Nullable URL privacyUrl,
+                                                  @Nullable Intent usedLibraryActivity){
+        startActivityWithAboutPage(c,aboutPageUrl,privacyUrl,null,usedLibraryActivity);
     }
 
     public static void startActivityWithAboutPage(Context c,
                                                   @Nullable String aboutPageUrl,
                                                   @Nullable URL privacyUrl){
-        startActivityWithAboutPage(c,aboutPageUrl,privacyUrl,null);
+        startActivityWithAboutPage(c,aboutPageUrl,privacyUrl,null,null);
     }
 
     public static void startActivityWithAboutPage(Context c,
                                                   @Nullable String aboutPageUrl){
-        startActivityWithAboutPage(c,aboutPageUrl,null,null);
+        startActivityWithAboutPage(c,aboutPageUrl,null,null,null);
     }
 
     // resource where read the privacy policy
     private URL mPrivacyResFile = null;
 
     private ArrayList<LibLicense> mLicenseInfos=null;
+
+    private @Nullable Intent mOssLicensesMenuActivityClass;
 
 
     // set the text view with the app version
@@ -151,6 +181,8 @@ public class AboutActivity extends AppCompatActivity {
                 mLicenseInfos = extra.getParcelableArrayList(LIB_LICENSES_INFOS);
             }
             setUpMainPage(extra.getString(ABOUT_PAGE_URL));
+
+            mOssLicensesMenuActivityClass = extra.getParcelable(OSS_LIB_LICENSES_INFOS);
         }
 
         setUpAppName();
@@ -169,8 +201,9 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     private void setUpLibInfoMenu(MenuItem item) {
-        if(mLicenseInfos == null)
+        if((mLicenseInfos == null) && (mOssLicensesMenuActivityClass==null)) {
             item.setVisible(false);
+        }
     }
 
     // hide the privacy menu if the user doesn't pass a privacy page
@@ -183,7 +216,11 @@ public class AboutActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_about_show_lib_info){
-            LibLicenseActivity.startLibLicenseActivity(this,mLicenseInfos);
+            if(mLicenseInfos!=null) {
+                LibLicenseActivity.startLibLicenseActivity(this, mLicenseInfos);
+            } else if(mOssLicensesMenuActivityClass!=null){
+                startActivity(mOssLicensesMenuActivityClass);
+            }
             return true;
         }
 
