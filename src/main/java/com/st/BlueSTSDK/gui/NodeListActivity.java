@@ -59,7 +59,7 @@ import com.st.BlueSTSDK.Utils.NodeScanActivity;
  * Activity that will show the list of discovered nodes
  */
 public abstract class NodeListActivity extends NodeScanActivity implements NodeRecyclerViewAdapter
-.OnNodeSelectedListener, NodeRecyclerViewAdapter.FilterNode, View.OnClickListener{
+        .OnNodeSelectedListener, NodeRecyclerViewAdapter.FilterNode, View.OnClickListener{
     private final static String TAG = NodeListActivity.class.getCanonicalName();
 
     private Manager.ManagerListener mUpdateDiscoverGui = new Manager.ManagerListener() {
@@ -104,6 +104,11 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
     private boolean mClearDeviceCache = true;
 
     /**
+     * true if the user request to Keep the Connection open when the device lose the connection
+     */
+    private boolean mKeepConnection = false;
+
+    /**
      * SwipeLayout used for refresh the list when the user pull down the fragment
      */
     private SwipeRefreshLayout mSwipeLayout;
@@ -133,9 +138,10 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
      */
     private void resetNodeList(){
         mManager.resetDiscovery();
+        mManager.removeNodes();
         mAdapter.clear();
         //some nodes can survive if they are bounded with the device
-        mAdapter.addAll(mManager.getNodes());
+        //mAdapter.addAll(mManager.getNodes());
     }
 
     /**
@@ -229,12 +235,12 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
      * @param menu     menu where add the items
      */
 
-     @Override
-     public boolean onCreateOptionsMenu(Menu menu) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_node_list, menu);
         return true;
-     }
+    }
 
 
     /** change the menu item name */
@@ -244,6 +250,16 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
             item.setTitle(R.string.ClearDeviceCacheMenuEnabled);
         else
             item.setTitle(R.string.ClearDeviceCacheMenu);
+    }
+
+    private void changeKeepConnectionStatus(MenuItem item){
+        mKeepConnection=!mKeepConnection;
+        if(mKeepConnection) {
+            item.setTitle(R.string.KeepConnectionOpenMenu);
+        } else {
+            item.setTitle(R.string.KeepConnectionOpenMenuEnabled);
+        }
+
     }
 
     @Override
@@ -257,6 +273,10 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
         }//else
         if (id == R.id.menu_clear_device_cache) {
             changeDeviceCacheStatus(item);
+            return true;
+        }
+        if(id == R.id.menu_keep_connection_open) {
+            changeKeepConnectionStatus(item);
             return true;
         }
         /*
@@ -314,6 +334,10 @@ public abstract class NodeListActivity extends NodeScanActivity implements NodeR
 
     protected boolean clearCacheIsSelected(){
         return mClearDeviceCache;
+    }
+
+    protected boolean keepConnectionOpenIsSelected(){
+        return mKeepConnection;
     }
 
 }

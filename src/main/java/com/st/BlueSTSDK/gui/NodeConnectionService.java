@@ -182,7 +182,10 @@ public class NodeConnectionService extends Service {
                 // if the autoConnect if on the system will connect automatically
                 if(!option.enableAutoConnect()) {
                     Log.d("NodeConnectionService","re connect" + node.getTag());
+                    /* Try To Reconnect */
                     node.connect(NodeConnectionService.this, option);
+                } else {
+                    node.disconnect();
                 }
         }
     };

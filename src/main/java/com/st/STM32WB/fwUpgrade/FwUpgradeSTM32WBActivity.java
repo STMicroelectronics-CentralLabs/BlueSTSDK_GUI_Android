@@ -69,6 +69,7 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
     private static final String FILE_PARAM = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".FILE_PARAM";
     private static final String ADDRESS_PARAM = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".ADDRESS_PARAM";
     private static final String FW_TYPE = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".ASK_FW_TYPE";
+    private static final String WB_TYPE = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".ASK_WB_TYPE";
     private static final String SEARCH_NODE_TAG = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".SEARCH_NODE_TAG";
     private static final String UPLOAD_NODE_TAG = FwUpgradeSTM32WBActivity.class.getCanonicalName()+".UPLOAD_NODE_TAG";
 
@@ -96,7 +97,7 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
     }
 
     public static Intent getStartIntent(@NonNull Context context, @NonNull String nodeAddress, @Nullable Uri file,
-                                        @Nullable Long address,@Nullable Integer fwType){
+                                        @Nullable Long address,@Nullable Integer fwType, @Nullable Integer mWB_board){
         Intent fwUpgradeActivity = new Intent(context, FwUpgradeSTM32WBActivity.class);
 
         fwUpgradeActivity.putExtra(NODE_ADDRESS_PARAM,nodeAddress);
@@ -113,6 +114,9 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
             fwUpgradeActivity.putExtra(FW_TYPE,fwType);
         }
 
+        if(mWB_board!=null) {
+            fwUpgradeActivity.putExtra(WB_TYPE,mWB_board);
+        }
         return fwUpgradeActivity;
     }
 
@@ -163,8 +167,10 @@ public class FwUpgradeSTM32WBActivity extends AppCompatActivity implements Searc
                     startIntent.getLongExtra(ADDRESS_PARAM, 0) : null;
             Integer fwType = startIntent.hasExtra(FW_TYPE) ?
                     startIntent.getIntExtra(FW_TYPE,FirmwareType.BOARD_FW) : null;
+            Integer mWB_board = startIntent.hasExtra(WB_TYPE) ?
+                    startIntent.getIntExtra(WB_TYPE,0) : null;
             UploadOtaFileFragment fragment = UploadOtaFileFragment.build(node, file, address,
-                    true, fwType,true);
+                    true, fwType,mWB_board,true);
 
             FragmentTransaction transaction = fm.beginTransaction();
             if (fm.findFragmentByTag(SEARCH_NODE_TAG) != null)

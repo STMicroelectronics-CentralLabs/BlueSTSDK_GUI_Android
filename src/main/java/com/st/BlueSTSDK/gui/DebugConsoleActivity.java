@@ -330,6 +330,7 @@ public class DebugConsoleActivity extends ActivityWithNode {
             case NUCLEO:
             case DISCOVERY_IOT01A:
             case STEVAL_BCN002V1:
+            case STEVAL_STWINKIT1:
                 return NUCLEO_HELP_MESSAGE;
             case GENERIC:
             default:

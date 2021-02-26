@@ -74,6 +74,7 @@ public abstract  class FwVersionConsole {
             case STEVAL_BCN002V1:
             case SENSOR_TILE_BOX:
             case DISCOVERY_IOT01A:
+            case STEVAL_STWINKIT1:
                 return new FwVersionConsoleNucleo(debug);
         }
         return null;

@@ -36,58 +36,93 @@
   ~ OF SUCH DAMAGE.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:id="@+id/nodeBoardIcon"
-        android:layout_centerVertical="true"
-        android:layout_alignParentStart="true"
-    />
-    <TextView
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/nodeName"
-        android:layout_alignTop="@id/nodeBoardIcon"
-        android:layout_toEndOf="@id/nodeBoardIcon"
-        android:layout_toStartOf="@+id/isSleepingIcon"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:id="@+id/nodeTag"
-        android:layout_below="@+id/nodeName"
-        android:layout_toEndOf="@id/nodeBoardIcon"
-        android:layout_toStartOf="@+id/hasExtensionIcon"
-        android:paddingStart="32dp"
-        android:paddingEnd="32dp"/>
+        android:orientation="vertical">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/isSleepingIcon"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        app:srcCompat="@drawable/ic_sleeping_24dp"
-        android:visibility="gone"/>
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/nodeBoardIcon"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            tools:srcCompat="@drawable/board_stm32"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Board Name"
+            android:id="@+id/nodeName"
+            android:layout_alignTop="@id/nodeBoardIcon"
+            android:layout_toEndOf="@id/nodeBoardIcon"
+            android:layout_toStartOf="@+id/isSleepingIcon"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="MAC add"
+            android:id="@+id/nodeTag"
+            android:layout_below="@+id/nodeName"
+            android:layout_toEndOf="@id/nodeBoardIcon"
+            android:layout_toStartOf="@+id/hasExtensionIcon"
+            android:paddingStart="24dp"
+            android:paddingEnd="16dp"/>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/hasExtensionIcon"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@id/isSleepingIcon"
-        app:srcCompat="@drawable/ic_extra_gp_24dp"
-        android:visibility="gone" />
-</RelativeLayout>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/isSleepingIcon"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            app:srcCompat="@drawable/ic_sleeping_24dp"
+            tools:srcCompat="@drawable/ic_sleeping_24dp"
+            tools:visibility="visible"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/hasExtensionIcon"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/isSleepingIcon"
+            app:srcCompat="@drawable/ic_extra_gp_24dp"
+            tools:srcCompat="@drawable/ic_extra_gp_24dp"
+            tools:visibility="visible"
+            android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:id="@+id/hasAdvertiseIcon"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/hasExtensionIcon"
+            tools:srcCompat="@drawable/about_button_icon"
+            tools:visibility="visible"
+            android:visibility="gone" />
+        <TextView
+            android:id="@+id/nodeRunningCodeName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Firmware Name"
+            android:paddingStart="24dp"
+            android:paddingEnd="16dp"
+            android:layout_toEndOf="@id/nodeBoardIcon"
+            android:layout_below="@id/nodeTag"
+            android:layout_toStartOf="@+id/hasAdvertiseIcon"
+            tools:visibility="visible"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

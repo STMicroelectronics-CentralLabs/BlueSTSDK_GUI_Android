@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright (c) 2017  STMicroelectronics – All rights reserved
  * The STMicroelectronics corporate logo is a trademark of STMicroelectronics
  *
@@ -37,11 +37,14 @@
 package com.st.BlueSTSDK.gui.demos;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -58,6 +61,8 @@ import com.st.BlueSTSDK.gui.util.FragmentUtil;
  */
 public abstract class DemoFragment extends Fragment {
 
+    public static final String SHARED_PREFS = DemoFragment.class.getCanonicalName() + "" +".IntroductionWasShown";
+
     /**
      * utility method that show an message as a toast
      *
@@ -67,6 +72,38 @@ public abstract class DemoFragment extends Fragment {
         //run
         updateGui(() -> Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show());
     }//showActivityToast
+
+    /**
+     * Function for displaying one Introduction to each demo
+     * @param message Message to display
+     * @param context
+     */
+    protected void showIntroductionMessage(final String message,Context context){
+
+        //Understand if the Introduction was already shown for the current demo
+        final String INTRODUCTION_WAS_SHOWN = getClass().getCanonicalName() + "" +".IntroductionWasShown";
+        SharedPreferences pref = context.getSharedPreferences(SHARED_PREFS,Context.MODE_PRIVATE);
+        boolean introductionWasShown = pref.getBoolean(INTRODUCTION_WAS_SHOWN, false);
+
+        //If the Introduction was not yet shown
+        if(!introductionWasShown) {
+            updateGui(() -> {
+                AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+                //Take the Title from the Demo's Title
+                alertDialog.setTitle(getClass().getAnnotation(DemoDescriptionAnnotation.class).name());
+                //Take the Icon from the Demo's Icon
+                alertDialog.setIcon(getClass().getAnnotation(DemoDescriptionAnnotation.class).iconRes());
+                alertDialog.setMessage(message);
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Close",
+                        (dialog, which) -> dialog.dismiss());
+                alertDialog.show();
+            });
+            //Save the flag on Shared Preference
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putBoolean(INTRODUCTION_WAS_SHOWN, true);
+            editor.apply();
+        }
+    }
 
     /**
      * state of the demo, if it is running or not -> if the fragment is visualized or not

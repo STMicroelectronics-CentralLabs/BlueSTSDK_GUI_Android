@@ -59,7 +59,7 @@ import com.st.BlueSTSDK.gui.fwUpgrade.uploadFwFile.UploadOtaFileFragment;
 import com.st.BlueSTSDK.gui.util.AlertAndFinishDialog;
 
 /**
- * Activity where the user can see the current firware name and version and upload a new firmware
+ * Activity where the user can see the current firmware name and version and upload a new firmware
  */
 public class FwUpgradeActivity extends ActivityWithNode {
     private static final String FRAGMENT_DIALOG_TAG = "Dialog";
@@ -184,14 +184,16 @@ public class FwUpgradeActivity extends ActivityWithNode {
     private void addFileUploadFragment(@NonNull Node node, @Nullable Uri file){
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction transaction = fm.beginTransaction();
-        Fragment prevFragment = fm.findFragmentByTag(FRAGMENT_FILE_UPLOAD_TAG);
-        if(prevFragment != null){
-            transaction.remove(prevFragment);
+        UploadOtaFileFragment prevFragment = (UploadOtaFileFragment) fm.findFragmentByTag(FRAGMENT_FILE_UPLOAD_TAG);
+        // The (prevFragment == null) is for avoiding the create again the Fragment after a screen rotation
+        // The (file!=null) is for forcing a Fragment creation when we want to make the FOTA with one firmware downloaded for SensorTile.box
+        if(prevFragment == null) {
+            Fragment newFragment = UploadOtaFileFragment.build(node, file, null, false);
+            transaction.add(R.id.fwUpgrade_uploadFileFragment, newFragment, FRAGMENT_FILE_UPLOAD_TAG);
+            transaction.commit();
+        } else  if(file != null) {
+            prevFragment.onFileSelected(file);
         }
-        Fragment newFragment = UploadOtaFileFragment.build(node, file, null,false);
-        transaction.add(R.id.fwUpgrade_uploadFileFragment,newFragment,FRAGMENT_FILE_UPLOAD_TAG);
-        transaction.commit();
-
     }
 
     @Override

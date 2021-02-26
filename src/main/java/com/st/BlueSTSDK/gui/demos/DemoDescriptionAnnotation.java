@@ -77,4 +77,16 @@ public @interface DemoDescriptionAnnotation {
      */
     Class<? extends Feature>[] requareOneOf() default {};
 
+    /**
+     * the node must have at least one feature for run correctly the demo
+     * @return boolean
+     */
+    boolean requareAny() default false;
+
+    /**
+     * It's true for a Setting Feature
+     * @return boolean
+     */
+    boolean includeOnSettingsGroup() default false;
+
 }

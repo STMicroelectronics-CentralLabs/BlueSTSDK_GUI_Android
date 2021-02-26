@@ -54,8 +54,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -113,6 +115,43 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             ".SHOW_HELP";
 
 
+    public class ZoomOutPageTransformer implements ViewPager.PageTransformer {
+        private static final float MIN_SCALE = 0.85f;
+        private static final float MIN_ALPHA = 0.5f;
+
+        public void transformPage(View view, float position) {
+            int pageWidth = view.getWidth();
+            int pageHeight = view.getHeight();
+
+            if (position < -1) { // [-Infinity,-1)
+                // This page is way off-screen to the left.
+                view.setAlpha(0f);
+
+            } else if (position <= 1) { // [-1,1]
+                // Modify the default slide transition to shrink the page as well
+                float scaleFactor = Math.max(MIN_SCALE, 1 - Math.abs(position));
+                float vertMargin = pageHeight * (1 - scaleFactor) / 2;
+                float horzMargin = pageWidth * (1 - scaleFactor) / 2;
+                if (position < 0) {
+                    view.setTranslationX(horzMargin - vertMargin / 2);
+                } else {
+                    view.setTranslationX(-horzMargin + vertMargin / 2);
+                }
+
+                // Scale the page down (between MIN_SCALE and 1)
+                view.setScaleX(scaleFactor);
+                view.setScaleY(scaleFactor);
+
+                // Fade the page relative to its size.
+                view.setAlpha(MIN_ALPHA + (scaleFactor - MIN_SCALE) / (1 - MIN_SCALE) * (1 - MIN_ALPHA));
+
+            } else { // (1,+Infinity]
+                // This page is way off-screen to the right.
+                view.setAlpha(0f);
+            }
+        }
+    }
+
     protected abstract Class<? extends DemoFragment>[] getAllDemos();
 
     /**
@@ -165,10 +204,19 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
      */
     private ViewPager mPager;
     private int mPrevSelectedPage = 0;
+    private int mMaxPageSelectable= 0;
     private ViewPager.OnPageChangeListener mUpdateActivityTitle = new ViewPager.SimpleOnPageChangeListener() {
 
         @Override
         public void onPageSelected(int position) {
+            if(mMaxPageSelectable!=0) {
+                //!=0 because at the beginning mMaxPageSelectable==0
+                if (position >= (mMaxPageSelectable - 1)) {
+                    // Limit the maximum selectable page
+                    position = mMaxPageSelectable - 1;
+                    mPager.setCurrentItem(position);
+                }
+            }
             mPrevSelectedPage=position;
             setTitle(mPager.getAdapter().getPageTitle(position));
         }
@@ -254,6 +302,8 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
 
         mPager = findViewById(R.id.pager);
 
+        mPager.setPageTransformer(true, new ZoomOutPageTransformer());
+
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.showDemoList, R
                 .string.closeDemoList);
 
@@ -300,18 +350,53 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         mPager.addOnPageChangeListener(mUpdateActivityTitle);
         final DemosTabAdapter adapter=new DemosTabAdapter(node,getAllDemos(), getSupportFragmentManager());
         int nDemo = adapter.getCount();
+        int i;
+
         mPager.setAdapter(adapter);
+
         if(mPrevSelectedPage<nDemo){
             mPager.setCurrentItem(mPrevSelectedPage);
         }
+
         mUpdateActivityTitle.onPageSelected(mPager.getCurrentItem());
         Menu navigationMenu = mNavigationTab.getMenu();
         //remove the old items
         navigationMenu.clear();
-        for (int i = 0; i < nDemo; i++) {
-            MenuItem temp = navigationMenu.add(adapter.getPageTitle(i));
-            temp.setIcon(adapter.getDemoIconRes(i));
+
+        // creating 3 sub Menu
+        SubMenu available_demos     = navigationMenu.addSubMenu("Available demos");
+        SubMenu Settings_demos    = navigationMenu.addSubMenu("Firmware configuration");
+        SubMenu not_available_demos = navigationMenu.addSubMenu("Demos on other boards");
+
+
+        // Add element to first Sub Menu
+        for (i = 0; i < nDemo; i++) {
+            // Set the Maximum selectable page */
+            if(adapter.DemoIsEnabled(i)) {
+                MenuItem temp;
+                mMaxPageSelectable++;
+                if(adapter.DemoIsForSetting(i)==true) {
+                    temp = Settings_demos.add(adapter.getPageTitle(i));
+                } else {
+                    temp = available_demos.add(adapter.getPageTitle(i));
+                }
+                temp.setIcon(adapter.getDemoIconRes(i));
+                temp.setEnabled(adapter.DemoIsEnabled(i));
+            }
+        }//forF
+
+        // Add element to Third Sub Menu
+        for (i = mMaxPageSelectable; i < nDemo; i++) {
+            // Set the Maximum selectable page */
+            if(adapter.DemoIsEnabled(i)==false) {
+                MenuItem temp;
+                temp = not_available_demos.add(adapter.getPageTitle(i));
+                temp.setIcon(adapter.getDemoIconRes(i));
+                // Enable or not the current page on Navigation Menu
+                temp.setEnabled(adapter.DemoIsEnabled(i));
+            }
         }//for
+
 
         mNavigationTab.setNavigationItemSelectedListener(this);
 
@@ -638,6 +723,10 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         private ArrayList<Class<? extends DemoFragment>> mDemos = new
                 ArrayList<>();
 
+        private ArrayList<Boolean> mDemosEnableFlag = new ArrayList<Boolean>();
+
+        private ArrayList<Boolean> mDemosIsForSettingFlag = new ArrayList<Boolean>();
+
         /**
          * tell if the demo will show something if we run it
          * @param demoClass demo that we want show, it must be annotated with the annotation
@@ -652,21 +741,32 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
             if (desc == null) //we don't have information -> let it pass
                 return true;
 
-            //check that we have all the feature in the requeareAll field
+            //check that we have all the feature in the require All field
             //return false if one feature is missing
             Class<? extends Feature>[] requireAll = desc.requareAll();
             for (Class<? extends Feature> f : requireAll) {
-                if (node.getFeature(f) == null)
+                if (node.getFeature(f) == null) {
                     return false;
+                }
             }//for
 
-            //check that we have all the feature in the requeareOne field
+            //check that we have all the feature in the require One field
             //return true if we have almost one feature
             Class<? extends Feature>[] requireOneOf = desc.requareOneOf();
             for (Class<? extends Feature> f : requireOneOf) {
-                if (node.getFeature(f)  != null)
+                if (node.getFeature(f)  != null) {
                     return true;
+                }
             }//for
+
+            // Check that we have at least one Feature
+            if(desc.requareAny()) {
+                if(node.getFeatures().isEmpty()) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
 
             //return true if we don't have constrains
             return requireOneOf.length == 0;
@@ -675,9 +775,29 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         DemosTabAdapter(@NonNull Node node, Class<? extends
                 DemoFragment>[] demos, FragmentManager fm) {
             super(fm);
+            // Adding the available demos for the current node
             for (Class<? extends DemoFragment> demo : demos ) {
-                if (demoIsWorking(demo, node))
+                if (demoIsWorking(demo, node)) {
+                    DemoDescriptionAnnotation desc =
+                            demo.getAnnotation(DemoDescriptionAnnotation.class);
+
+                    if(desc.includeOnSettingsGroup()==true) {
+                        mDemosIsForSettingFlag.add(true);
+                    } else {
+                        mDemosIsForSettingFlag.add(false);
+                    }
+
                     mDemos.add(demo);
+                    mDemosEnableFlag.add(true);
+                }
+            }//for
+
+            // Adding the NOT available demos for the current node
+            for (Class<? extends DemoFragment> demo : demos ) {
+                if (!demoIsWorking(demo, node)) {
+                    mDemos.add(demo);
+                    mDemosEnableFlag.add(false);
+                }
             }//for
         }//
 
@@ -713,6 +833,13 @@ public abstract class DemosActivity extends LogFeatureActivity implements NodeCo
         @DrawableRes
         int getDemoIconRes(int position) {
             return mDemos.get(position).getAnnotation(DemoDescriptionAnnotation.class).iconRes();
+        }
+        public Boolean DemoIsEnabled(int position) {
+            return mDemosEnableFlag.get(position);
+        }
+
+        public Boolean DemoIsForSetting(int position) {
+            return mDemosIsForSettingFlag.get(position);
         }
     }
 

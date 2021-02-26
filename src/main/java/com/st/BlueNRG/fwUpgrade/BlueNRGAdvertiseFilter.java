@@ -94,6 +94,11 @@ public class BlueNRGAdvertiseFilter implements AdvertiseFilter {
         }
 
         @Override
+        public long getOptionBytes() {
+            return 0;
+        }
+
+        @Override
         public byte getDeviceId() {
             return 4;
         }

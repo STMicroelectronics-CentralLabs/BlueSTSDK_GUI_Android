@@ -36,12 +36,16 @@
  */
 package com.st.BlueSTSDK.gui;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -53,6 +57,7 @@ import android.widget.TextView;
 
 import com.st.BlueSTSDK.Manager;
 import com.st.BlueSTSDK.Node;
+import com.st.BlueSTSDK.Utils.NumberConversion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +69,7 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         implements Manager.ManagerListener{
 
     private final List<Node> mValues = new ArrayList<>();
+    private Context context;
 
     /**
      * Interface to use when a node is selected by the user
@@ -103,10 +109,9 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.node_list_item, parent, false);
+        context = parent.getContext();
         return new ViewHolder(view);
     }
-
-
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
@@ -119,7 +124,24 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         Drawable boardImage = ContextCompat.getDrawable(holder.mNodeHasExtension.getContext(),boardImageRes);
         holder.mNodeImage.setImageDrawable(boardImage);
 
+        if(n.getAdvertiseInfo().getProtocolVersion()==1) {
+            holder.mNodeRunningCodeDemo.setVisibility(View.GONE);
+            holder.mNodeAdvertiseImage.setVisibility(View.GONE);
+        } else {
+            //For SDK protocol v2 we have the option bytes instead of feature Mask
+            holder.mNodeRunningCodeDemo.setVisibility(View.VISIBLE);
 
+            //Take the four Option bytes
+            byte [] optBytes = NumberConversion.BigEndian.uint32ToBytes(n.getAdvertiseOptionBytes());
+
+            holder.mNodeAdvertiseImage.setVisibility(View.VISIBLE);
+            setBatteryImage(holder.mNodeAdvertiseImage,(optBytes[1]&0xF));
+
+            setRunningCodeDemo(holder.mNodeRunningCodeDemo,optBytes[0]);
+        }
+
+
+        //On Press Item
         holder.mView.setOnClickListener(v -> {
             if (null != mListener) {
                 // Notify the active callbacks interface (the activity, if the
@@ -128,16 +150,73 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
             }
         });
 
+        // On Long Press Item
+        if(n.getAdvertiseInfo().getProtocolVersion()==2) {
+            holder.mView.setOnLongClickListener(v -> {
+                byte[] optBytes = NumberConversion.BigEndian.uint32ToBytes(n.getAdvertiseOptionBytes());
+                AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+                alertDialog.setTitle("Node Advertise Option Bytes");
+                alertDialog.setMessage(String.format("Byte1 = 0x%02X\nByte2 = 0x%02X\nByte3 = 0x%02X\nByte4 = 0x%02X\n",
+                        optBytes[0], optBytes[1], optBytes[2], optBytes[3]));
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Close",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+                return true;
+            });
+        }
+
         if(n.isSleeping()){
             holder.mNodeIsSleeping.setVisibility(View.VISIBLE);
-        }else
+        } else {
             holder.mNodeIsSleeping.setVisibility(View.GONE);
+        }
 
         if(n.hasGeneralPurpose()){
             holder.mNodeHasExtension.setVisibility(View.VISIBLE);
-        }else
+        } else {
             holder.mNodeHasExtension.setVisibility(View.GONE);
+        }
+    }
 
+    /**
+     * Set the Functional pack name for the running code
+     * @param mNodeRunningCodeDemo
+     * @param optByte
+     */
+    private void setRunningCodeDemo(TextView mNodeRunningCodeDemo, byte optByte) {
+        switch(optByte) {
+            case 0x01:
+                mNodeRunningCodeDemo.setText("FP-SNS-STBOX1");
+                break;
+            default:
+                mNodeRunningCodeDemo.setText("Unknown");
+                break;
+        }
+    }
+
+    /**
+     * Set the battery Icon image for the node
+     * @param mNodeBatteryImage
+     * @param batteryLevel
+     */
+    private void setBatteryImage(ImageView mNodeBatteryImage, int batteryLevel) {
+        if(batteryLevel<=1) {
+            mNodeBatteryImage.setImageResource(R.drawable.battery_00);
+        } else if(batteryLevel<=2) {
+            mNodeBatteryImage.setImageResource(R.drawable.battery_20);
+        } else if(batteryLevel<=4) {
+            mNodeBatteryImage.setImageResource(R.drawable.battery_40);
+        } else if(batteryLevel<=6) {
+            mNodeBatteryImage.setImageResource(R.drawable.battery_60);
+        } else if(batteryLevel<=8) {
+            mNodeBatteryImage.setImageResource(R.drawable.battery_80);
+        } else {
+            mNodeBatteryImage.setImageResource(R.drawable.battery_100);
+        }
     }
 
     @Override
@@ -183,6 +262,8 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
         final ImageView mNodeImage;
         final ImageView mNodeIsSleeping;
         final ImageView mNodeHasExtension;
+        final ImageView mNodeAdvertiseImage;
+        final TextView mNodeRunningCodeDemo;
         Node mItem;
 
         ViewHolder(View view) {
@@ -193,6 +274,8 @@ public class NodeRecyclerViewAdapter extends RecyclerView.Adapter<NodeRecyclerVi
             mNodeTagLabel = view.findViewById(R.id.nodeTag);
             mNodeHasExtension = view.findViewById(R.id.hasExtensionIcon);
             mNodeIsSleeping = view.findViewById(R.id.isSleepingIcon);
+            mNodeAdvertiseImage = view.findViewById(R.id.hasAdvertiseIcon);
+            mNodeRunningCodeDemo = view.findViewById(R.id.nodeRunningCodeName);
         }
     }
 }

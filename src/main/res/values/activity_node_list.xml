@@ -42,7 +42,9 @@
     <string name="startScanMenu">Start Scan</string>
     <string name="StopScanMenu">Stop Scan</string>
     <string name="ClearDeviceCacheMenu">Clear device cache</string>
-    <string name="AddNodeEmulator">Add virtual node</string>
     <string name="ClearDeviceCacheMenuEnabled">&#x2713;Clear device cache</string>
+    <string name="KeepConnectionOpenMenu">Keep Connection Open</string>
+    <string name="KeepConnectionOpenMenuEnabled">&#x2713;Keep Connection Open</string>
+    <string name="AddNodeEmulator">Add virtual node</string>
     <string name="title_activity_node_list">Device List</string>
 </resources>

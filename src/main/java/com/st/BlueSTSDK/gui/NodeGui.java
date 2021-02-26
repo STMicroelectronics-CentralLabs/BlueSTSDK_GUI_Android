@@ -50,6 +50,7 @@ public class NodeGui {
                 return R.drawable.board_steval_wesu1;
             case SENSOR_TILE:
             case SENSOR_TILE_BOX:
+            case STEVAL_STWINKIT1:
                 return R.drawable.board_sensor_tile;
             case BLUE_COIN:
                 return R.drawable.board_bluecoin;
@@ -59,6 +60,8 @@ public class NodeGui {
                 return R.drawable.board_bluenrg;
             case NUCLEO:
                 return R.drawable.board_nucleo;
+            case DISCOVERY_IOT01A:
+                return R.drawable.board_stm32;
             case GENERIC:
             default:
                 return R.drawable.board_generic;

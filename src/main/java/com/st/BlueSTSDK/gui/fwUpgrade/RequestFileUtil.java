@@ -57,6 +57,8 @@ import android.view.View;
 import com.google.android.material.snackbar.Snackbar;
 import com.st.BlueSTSDK.gui.R;
 
+import java.io.File;
+
 import static android.app.Activity.RESULT_OK;
 
 /**
@@ -165,6 +167,37 @@ public class RequestFileUtil {
             }
         }
         return null;
+    }
+
+
+    /**
+     * extract the file size
+     * @param context context to use to retrive the file info
+     * @param uri uri with the file name to query
+     * @return file dimension
+     */
+    public static long getFileSize(@NonNull Context context, @Nullable Uri uri) {
+        if(uri == null)
+            return 0;
+        String scheme = uri.getScheme();
+        if(scheme == null)
+            return 0;
+
+        if (scheme.equals("file")) {
+            File f = new File(uri.getPath());
+            return f.length();
+        }
+
+        if (scheme.equals("content")) {
+            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                String fileSize = cursor.getString(cursor.getColumnIndex(OpenableColumns.SIZE));
+
+                cursor.close();
+                return  Long.parseLong(fileSize,10);
+            }
+        }
+        return 0;
     }
 
 

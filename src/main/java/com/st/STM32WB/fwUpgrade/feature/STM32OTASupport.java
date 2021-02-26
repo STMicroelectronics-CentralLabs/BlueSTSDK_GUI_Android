@@ -72,7 +72,8 @@ public class STM32OTASupport{
 
         lastDigit = lastDigit + 1;
         return currentAddress.substring(0,currentAddress.length()-2) +
-                String.format("%X",(byte)lastDigit);
+                //String.format("%X",(byte)lastDigit); //"80:00:12:34:56:01" +1 generates "80:00:12:34:56:2"
+                String.format("%02X",(byte)lastDigit); //"80:00:12:34:56:01" +1 generates "80:00:12:34:56:02"
     }
 
 }

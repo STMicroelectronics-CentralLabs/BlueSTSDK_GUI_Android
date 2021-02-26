@@ -45,6 +45,10 @@
     <item android:id="@+id/menu_clear_device_cache"
           android:title="@string/ClearDeviceCacheMenuEnabled"
           app:showAsAction="never" />
+
+    <item android:id="@+id/menu_keep_connection_open"
+        android:title="@string/KeepConnectionOpenMenuEnabled"
+        app:showAsAction="never" />
     <!--
 
     <item

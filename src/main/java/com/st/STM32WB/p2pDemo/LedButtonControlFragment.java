@@ -203,8 +203,10 @@ public class LedButtonControlFragment extends RssiDemoFragment {
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         Node node = getNode();
-        if(node!=null && ((node.getAdvertiseBitMask() & ENABLE_REBOOT_THREAD_ADVERTISE_MASK) != 0)){
-            inflater.inflate(R.menu.stm32wb_radio_reboot,menu);
+        if(node!=null && (node.getProtocolVersion()==1)) {
+            if ((node.getAdvertiseBitMask() & ENABLE_REBOOT_THREAD_ADVERTISE_MASK) != 0) {
+                inflater.inflate(R.menu.stm32wb_radio_reboot, menu);
+            }
         }
     }
 
